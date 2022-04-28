@@ -51,7 +51,6 @@ Install the necessary Python Libraries using the following shell command: ```pip
 
 
 ## Software Used for Development
-* [Jupyter Notebook](https://jupyter.org/) - Development platform for the Python language
 * [JetBrains Pycharm](https://www.jetbrains.com/pycharm/) - IDE used for development and testing
 
 <p align="right">(<a href="#top">back to top</a>)</p>
