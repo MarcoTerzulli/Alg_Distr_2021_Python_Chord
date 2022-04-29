@@ -13,7 +13,7 @@ class Chord:
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
         """
 
-        self.__node_list = list()
+        self.__node_dict = dict()
 
         pass
 
@@ -42,12 +42,12 @@ class Chord:
             raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
 
         # Provo ad avviare il nodo assegnandogli la porta scelta
-        # try:
-        #     new_node.start()
-        # except AlreadyUsedPortError:
-        #     raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
+        try:
+            new_node.start()
+        except AlreadyUsedPortError:
+            raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
 
-        self.__node_list.append(new_node)
+        self.__node_dict[port] = new_node
 
         # Gestione del caso in cui chord sia vuoto
 
@@ -74,19 +74,30 @@ class Chord:
         """
         pass
 
-    def node_delete(self):
+    def node_delete(self, port):
         """
         Rimozione di un nodo da chord associato ad una determinata porta TCP
-        :return:
         """
-        pass
+
+        node = self.__node_dict[port]
+        if node is not None:
+
+            # TODO comunico al successore e predecessore della mia uscita
+
+            node.join()
+            print(f"Successfully deleted the node on the TCP port {port}.")
+        else:
+            print(f"ERROR: no node is associated to this TCP port {port}.")
+            raise NoNodeFoundOnPortError
 
     def node_delete_all(self):
         """
         Rimozione di tutti i nodi presenti nell'applicazione
-        :return:
         """
-        pass
+
+        for key, node in self.__node_dict:
+            if node is not None:
+                node.join()
 
     def print_chord(self):
         """

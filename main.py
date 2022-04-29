@@ -8,15 +8,18 @@ import sys
 import platform
 import multiprocessing as mp
 
+# Verifico che main.py sia stato invocato come main del nostro programma
 if __name__ == "__main__":
-    # IImpostazione Modaliità pultiprocessing
+    # Impostazione Modaliità pultiprocessing
     print(f"Chord running on {platform.system()} OS: ")
 
     if platform.system() == "Windows":
+        # Non ho effettuato test tramite spawn
+        #mp_ctx = mp.get_context("spawn")
         print("ERROR: Windows is not supported!")
         sys.exit()
 
-    else:  # other unix systems
+    else:  # sistemi unix come linux e macos
         mp_ctx = mp.get_context("fork")
         print("Fork method has been set")
 
@@ -38,7 +41,8 @@ if __name__ == "__main__":
         try:
             selected_op = input(f"\nSelect an Operation:\n [1] Creation and Join of a new node\n [2] Terminate a node\n [3] Insert a file\n [4] Search a file\n [5] Delete a file\n [6] Print Chord network status\n [0] Exit from the Application\n")[0]
         except KeyboardInterrupt:
-            # TODO termnazione e join nodi chord per uscita pulita
+            # terminazione e join nodi chord per uscita pulita
+            chord.node_delete_all()
             print("Goodye!")
             sys.exit()
 
@@ -65,10 +69,22 @@ if __name__ == "__main__":
                     break # Se tutto è andato bene, esco dal loop
 
         elif int(selected_op) == 2: # terminazione e rimozione nodo
-            # terminazione nodo e gestione eccezione processo
+            selected_port = None
+            try:
+                selected_port = input(f"\nWhat's the node port?\n")
+            except KeyboardInterrupt:
+                # terminazione e join nodi chord per uscita pulita
+                chord.node_delete_all()
+                print("Goodye!")
+                sys.exit()
+
+            try:
+                chord.node_delete(selected_port)
+            except NoNodeFoundOnPortError:
+                pass
 
             # libero la porta tcp
-            tcp_port_manager.mark_port_as_free(port)
+            tcp_port_manager.mark_port_as_free(selected_port)
             pass
 
         elif int(selected_op) == 3: # insert file
@@ -83,7 +99,7 @@ if __name__ == "__main__":
         elif int(selected_op) == 6: # chord status
             pass
 
-        elif int(selected_op) == 7: # node start debug
+        elif int(selected_op) == 7: # TODO node start debug
 
             print("DEBUG: creazione nodo di test sulla porta 50000")
 
@@ -114,7 +130,7 @@ if __name__ == "__main__":
 
             tcp_port_manager.mark_port_as_free(port)
 
-        elif int(selected_op) == 8: # node terminate debug
+        elif int(selected_op) == 8: # TODO node terminate debug
             print("DEBUG: terminazione nodo di test sulla porta 50000")
 
             #new_node.terminate()
@@ -125,16 +141,7 @@ if __name__ == "__main__":
         else:
             print("ERROR: Invalid selection!\n")
 
+    chord.node_delete_all()
     print("Goodye!")
     sys.exit()
 
-
-    # Avvio dei processi
-    # Inserimento processi nella coda
-
-    # Loop per la cli(?)
-
-    # Loop per verificare se il processo deve essere terminato
-    # Tramite flag
-
-    # Loop per il join dei processi

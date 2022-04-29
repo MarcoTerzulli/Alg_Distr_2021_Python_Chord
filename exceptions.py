@@ -14,3 +14,6 @@ class InvalidTCPPortError(Exception):
 
 class AlreadyUsedPortError(Exception):
     pass
+
+class NoNodeFoundOnPortError(Exception):
+    pass
