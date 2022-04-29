@@ -1,4 +1,6 @@
-
+from node import *
+from node_info import *
+from exceptions import *
 
 
 class Chord:
@@ -10,6 +12,8 @@ class Chord:
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
         """
+
+        self.__node_list = list()
 
         pass
 
@@ -23,12 +27,31 @@ class Chord:
         """
         pass
 
-    def node_join(self):
+    def node_join(self, port):
         """
         Creazione di un nuovo nodo ed inserimento dentro chord
+
+        :port: porta TCP del nuovo nodo
         :return:
         """
-        pass
+
+        new_node_info = NodeInfo(port=port)
+        try:
+            new_node = Node(new_node_info)
+        except AlreadyUsedPortError:
+            raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
+
+        # Provo ad avviare il nodo assegnandogli la porta scelta
+        # try:
+        #     new_node.start()
+        # except AlreadyUsedPortError:
+        #     raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
+
+        self.__node_list.append(new_node)
+
+        # Gestione del caso in cui chord sia vuoto
+
+        # Gestione del join a chord con nodi già presenti
 
     def insert(self):
         """

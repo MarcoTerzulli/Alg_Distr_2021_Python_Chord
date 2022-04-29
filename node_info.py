@@ -75,7 +75,7 @@ class NodeInfo:
         :return: nuovo id hashato
         """
 
-        self.__node_id = hash_function(self.__ip + self.__port)
+        self.__node_id = hash_function(str(self.__ip) + str(self.__port))
         return self.__node_id
 
     def equals(self, n):

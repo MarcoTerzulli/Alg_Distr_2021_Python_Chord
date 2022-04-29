@@ -10,4 +10,4 @@ def hash_function(input_string):
     :return: valore hashato della stringa fornita
     """
 
-    return hashlib.sha1(input_string.encode("utf-8"))
+    return int(hashlib.sha1(input_string.encode("utf-8")).hexdigest(), 16)
