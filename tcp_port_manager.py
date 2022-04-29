@@ -1,4 +1,5 @@
 from socket import socket
+from exceptions import *
 
 
 class TCPPortManager:
@@ -32,52 +33,59 @@ class TCPPortManager:
         """
         Funzione per ottenere la prima porta TCP disponibile. Viene data priorità all'utilizzo delle porte dinamiche.
 
-        :return: numero della porta TCP. None se sono tutte occupate
+        :return: numero della porta TCP. NoAvailableTCPPortsError se sono tutte occupate
         """
 
         if self.__used_dynamic_ports_counter < (self.__LAST_DYNAMIC_PORT_NUMBER - self.__FIRST_DYNAMIC_PORT_NUMBER):
             for i in range(self.__FIRST_DYNAMIC_PORT_NUMBER, self.__LAST_DYNAMIC_PORT_NUMBER + 1):
                 if self.__dynamic_ports_available[i] is True:
                     self.__dynamic_ports_available[i] = False
+                    self.mark_port_as_used(i)
                     return i
 
         elif self.__used_registered_ports_counter < (self.__LAST_REGISTERED_PORT_NUMBER - self.__FIRST_REGISTERED_PORT_NUMBER):
-            print("Le porte TCP dinamiche sono state esaurite. Verrà assegnata una porta TCP registrata.")
+            print("Dynamic TCP ports are out of stock. A registered port is going to be used.")
 
             for i in range(self.__FIRST_REGISTERED_PORT_NUMBER, self.__LAST_REGISTERED_PORT_NUMBER + 1):
                 if self.__registered_ports_available[i] is True:
                     self.__registered_ports_available[i] = False
+                    self.mark_port_as_used(i)
                     return i
         else:
-            print("ERRORE: le porte TCP sono esaurite!")
-            return None # Ho esaurito le porte
+            #print("ERROR: TCP ports are out of stock!")
+            #return None # Ho esaurito le porte
+            raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
 
-        print("ERRORE: le porte TCP sono esaurite!")
-        return None # Non dovremmo mai arrivare qui
+        #print("ERROR: TCP ports are out of stock!")
+        #return None # Non dovremmo mai arrivare qui
+        raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
 
-    def free_port(self, port):
+    def mark_port_as_free(self, port):
         """
         Funzione per impostare una porta come disponibile
         :param port: porta da segnare come disponibile
         """
 
-        if self._get_port_type(port) is "dynamic":
+        if self.get_port_type(port) == "dynamic":
             self.__used_dynamic_ports_counter -= 1
             self.__dynamic_ports_available[port] = True
 
             if self.__used_dynamic_ports_counter < 0:
                 self.__used_dynamic_ports_counter = 0 # Ripristino il contatore
-                print("ERRORE: qualcosa è andato storto nella gestione delle porte TCP dinamiche. Si sta cercando di liberare una porta, ma non ce ne sono di usate!")
+                #print("ERROR: something went wrong in the management of the dinamicheTCP ports. We're trying to free a ports, but none is used!")
+                raise FreeingNonUsedDynamicTCPPortError("ERROR: something went wrong in the management of the dynamicTCP ports. We're trying to free a ports, but none is used!")
 
-        elif self._get_port_type(port) is "registered":
+        elif self.get_port_type(port) == "registered":
             self.__used_registered_ports_counter -= 1
             self.__registered_ports_available[port] = True
 
             if self.__used_registered_ports_counter < 0:
                 self.__used_registered_ports_counter = 0 # Ripristino il contatore
-                print("ERRORE: qualcosa è andato storto nella gestione delle porte TCP registrate. Si sta cercando di liberare una porta, ma non ce ne sono di usate!")
+                #print("ERROR: something went wrong in the management of the registrateTCP ports. We're trying to free a ports, but none is used!")
+                raise FreeingNonUsedRegisteredTCPPortError("ERROR: something went wrong in the management of the registeredTCP ports. We're trying to free a ports, but none is used!")
         else:
-            print("ERRORE: porta non valida.")
+            #print("ERROR: invalid TCP port.")
+            raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
     def mark_port_as_used(self, port):
         """
@@ -87,16 +95,17 @@ class TCPPortManager:
         :param port: porta da segnare come occupata
         """
 
-        if self._get_port_type(port) is "dynamic":
+        if self.get_port_type(port) == "dynamic":
             self.__used_dynamic_ports_counter += 1
             self.__dynamic_ports_available[port] = False
 
-        elif self._get_port_type(port) is "registered":
+        elif self.get_port_type(port) == "registered":
             self.__used_registered_ports_counter += 1
             self.__registered_ports_available[port] = False
 
         else:
-            print("ERRORE: porta non valida.")
+            #print("ERROR: invalid TCP port.")
+            raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
     def _check_if_port_is_open(self, port):
         """
@@ -115,12 +124,12 @@ class TCPPortManager:
         else:
             return False
 
-    def _get_port_type(self, port):
+    def get_port_type(self, port):
         """
         Funzione che restituisce il tipo di una porta TCP
 
         :param port: porta di cui ottenere il tipo
-        :return: "registered" o "dynamic". None in caso di porta non valida
+        :return: "registered" o "dynamic". InvalidTCPPortError in caso di porta non valida
         """
 
         if self.__FIRST_DYNAMIC_PORT_NUMBER <= port <= self.__LAST_DYNAMIC_PORT_NUMBER:
@@ -128,4 +137,5 @@ class TCPPortManager:
         elif self.__FIRST_REGISTERED_PORT_NUMBER <= port <= self.__LAST_REGISTERED_PORT_NUMBER:
             return "registered"
         else:
-            return None # porta non valida
+            #return None # porta non valida
+            raise InvalidTCPPortError("ERROR: invalid TCP port.")
