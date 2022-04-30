@@ -51,6 +51,8 @@ class TCPServerModule:
             sys.exit()
         except socket.timeout:
             pass
+        except BlockingIOError:
+            pass
         else:
             try:
                 content = tcp_socket_client.recv(1024)

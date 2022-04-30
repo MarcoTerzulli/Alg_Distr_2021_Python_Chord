@@ -25,7 +25,7 @@ The following instructions will allow you to have a working copy of the project 
 Software to install for the project to work, and how to install it.
 
 ```
-* A Windows, Linux or MacOS machine
+* A Linux or MacOS machine
 * Python 3.7+
 * Python Pip3
 ```

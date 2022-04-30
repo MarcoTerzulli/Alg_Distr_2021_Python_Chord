@@ -45,6 +45,8 @@ if __name__ == "__main__":
             chord.node_delete_all()
             print("Goodye!")
             sys.exit()
+        except IndexError:
+            print("ERROR: invalid input!")
 
         if int(selected_op) == 1: # creazione e join
             port = None
@@ -52,7 +54,7 @@ if __name__ == "__main__":
             while True:
                 # Ottengo una nuova porta TCP
                 try:
-                    port = tcp_port_manager.get_free_port()
+                    port = int(tcp_port_manager.get_free_port())
                 except NoAvailableTCPPortsError: # Errore porte finite
                     print("ERROR: No available TCP ports. Node creation is not possible.")
                     break # esco dal loop
@@ -63,7 +65,7 @@ if __name__ == "__main__":
                 try:
                     chord.node_join(port)
                 except AlreadyUsedPortError:
-                    print("ERROR: the selected port is already in use. A new port is going to be chosen.")
+                    print(f"ERROR: the selected port number {port} is already in use. A new port is going to be chosen.")
                 else:
                     print(f"Successfully created node on port {tcp_port_manager.get_port_type(port)} {port}")
                     break # Se tutto è andato bene, esco dal loop
@@ -71,7 +73,7 @@ if __name__ == "__main__":
         elif int(selected_op) == 2: # terminazione e rimozione nodo
             selected_port = None
             try:
-                selected_port = input(f"\nWhat's the node port?\n")
+                selected_port = int(input(f"\nWhat's the TCP port of the node that you want to delete?\n"))
             except KeyboardInterrupt:
                 # terminazione e join nodi chord per uscita pulita
                 chord.node_delete_all()
@@ -81,11 +83,10 @@ if __name__ == "__main__":
             try:
                 chord.node_delete(selected_port)
             except NoNodeFoundOnPortError:
-                pass
-
-            # libero la porta tcp
-            tcp_port_manager.mark_port_as_free(selected_port)
-            pass
+                print("ERROR: No node found on this TCP port!")
+            else:
+                # libero la porta tcp
+                tcp_port_manager.mark_port_as_free(selected_port)
 
         elif int(selected_op) == 3: # insert file
             pass
@@ -126,6 +127,7 @@ if __name__ == "__main__":
 
 
             new_node.start()
+            new_node.tcp_server_close()
             new_node.join()
 
             tcp_port_manager.mark_port_as_free(port)

@@ -17,6 +17,16 @@ class Chord:
 
         pass
 
+    def __del__(self):
+        """
+        Rimozione di tutti i nodi presenti nell'applicazione
+        """
+
+        for key, node in self.__node_dict.items():
+            if node is not None:
+                node.tcp_server_close()
+                node.join()
+
     def create(self):
         """
         Funzione per la creazione di una nuova istanza di chord.
@@ -79,11 +89,16 @@ class Chord:
         Rimozione di un nodo da chord associato ad una determinata porta TCP
         """
 
-        node = self.__node_dict[port]
+        try:
+            node = self.__node_dict[port]
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
         if node is not None:
 
             # TODO comunico al successore e predecessore della mia uscita
 
+            node.tcp_server_close()
             node.join()
             print(f"Successfully deleted the node on the TCP port {port}.")
         else:
@@ -95,8 +110,9 @@ class Chord:
         Rimozione di tutti i nodi presenti nell'applicazione
         """
 
-        for key, node in self.__node_dict:
+        for key, node in self.__node_dict.items():
             if node is not None:
+                node.tcp_server_close()
                 node.join()
 
     def print_chord(self):

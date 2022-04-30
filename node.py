@@ -47,6 +47,13 @@ class Node(Process):
         # self._initialize() # TODO ha senso tenerlo? forse basta òa chiamata successiva
         self.__finger_table.add_finger(self.__node_info)
 
+    def __del__(self):
+        """
+        Funzione per la terminazione del processo nodo.
+        Si occupa anche dela chiusura del server TCP.
+        """
+        self.__tcp_server.tcp_server_close()
+
     def run(self):
         """
         Process Run. Costituisce il corpo del funzionamento della classe.
@@ -55,8 +62,8 @@ class Node(Process):
         """
 
         # Accetta un'eventuale connessione in ingresso e la elabora
-        #(client_ip, client_port, message) = self.__tcp_server.tcp_server_accept()
-        #self.tcp_process_message(client_ip, client_port, message)
+        (client_ip, client_port, message) = self.__tcp_server.tcp_server_accept()
+        self.tcp_process_message(client_ip, client_port, message)
 
         # Invio di messaggi ad altri nodi
 
@@ -64,10 +71,6 @@ class Node(Process):
 
         # Gestione delle funzionalità del nodo
         pass
-
-    def join(self):
-        self.__tcp_server.tcp_server_close()
-        super(Node, self).join()
 
     def get_node_info(self):
         """
@@ -77,30 +80,11 @@ class Node(Process):
         """
         return self.__node_info
 
-    # def get_port(self):
-    #     return self.__port
-    #
-    # def _set_port(self, port):
-    #     self.__port = port
-    #     self.__node_id = hash_function(self.__ip + self.__port)
-
     def get_successor(self):
         return self.__successor_node
 
     def get_precedessor(self):
         return self.__predecessor_node
-
-    #def is_started(self):
-    #    return self.__is_started
-
-    # def start(self):
-    # TODO da mettere nella init(?)
-
-    # segna porta come occupata
-    #    pass
-
-    # def kill(self):
-    #    pass
 
     def _initialize(self):
         """
@@ -163,3 +147,11 @@ class Node(Process):
         :param client_port: porta tcp del client
         :param message: messaggio ricevuto
         """
+        pass
+
+    def tcp_server_close(self):
+        """
+        Funzione per la chiusura del server TCP. Da chiamare esclusivamente prima del join
+        e la terminazione del processo.
+        """
+        self.__tcp_server.tcp_server_close()
