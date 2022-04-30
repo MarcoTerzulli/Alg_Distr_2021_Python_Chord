@@ -22,10 +22,7 @@ class Chord:
         Rimozione di tutti i nodi presenti nell'applicazione
         """
 
-        for key, node in self.__node_dict.items():
-            if node is not None:
-                node.tcp_server_close()
-                node.join()
+        self.node_delete_all()
 
     def create(self):
         """
@@ -100,6 +97,7 @@ class Chord:
 
             node.tcp_server_close()
             node.join()
+            del self.__node_dict[port]
             print(f"Successfully deleted the node on the TCP port {port}.")
         else:
             print(f"ERROR: no node is associated to this TCP port {port}.")
@@ -118,9 +116,19 @@ class Chord:
     def print_chord(self):
         """
         Funzione che permette di stampare la struttura dell'overlay network gestita mediante chord
-        :return:
         """
-        pass
+
+        # Popolo il dizionario di supporto con gli id dei nodi
+        node_keys_dict = dict()
+        for key, node in self.__node_dict.items():
+            if node is not None:
+                node_keys_dict[key] = node.get_node_info().get_node_id()
+
+        ordered_dict = dict(sorted(node_keys_dict.items(), key=lambda item: item[1]))
+
+        # stampa
+        for key, node_id in ordered_dict.items():
+            print(f" * Port: {key} - ID: {node_id}")
 
     def message_deliver(self):
         """

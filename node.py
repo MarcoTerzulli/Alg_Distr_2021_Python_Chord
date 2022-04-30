@@ -11,7 +11,7 @@ class Node(Process):
     """
 
     def __init__(self, node_info, successor_node_info=None, file_path="", tcp_request_timeout=0.2,
-                 chord_stabilize_timeout=5):
+                 chord_stabilize_timeout=5, chord_fix_fingers_timeout=3):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni.
 
@@ -26,12 +26,16 @@ class Node(Process):
 
         # Informazioni del nodo chord
         self.__node_info = node_info
+        self.__file_path = file_path
+
+        # attributi chord
         self.__finger_table = FingerTable(self.__node_info)
         self.__successor_node = successor_node_info
         self.__predecessor_node = None
-        #self.__is_started = False
-        self.__file_path = file_path
+
+        # Timeout operazioni chord periodiche
         self.__chord_stabilize_timeout = chord_stabilize_timeout
+        self.__chord_fix_fingers_timeout = chord_fix_fingers_timeout
 
         # Avvio del server TCP e controllo della porta
         self.__tcp_request_timeout = tcp_request_timeout
@@ -50,10 +54,11 @@ class Node(Process):
     def __del__(self):
         """
         Funzione per la terminazione del processo nodo.
-        Si occupa anche dela chiusura del server TCP.
+        Si occupa anche della chiusura del server TCP.
         """
         self.__tcp_server.tcp_server_close()
 
+    # ************************** METODI PROCESS *******************************
     def run(self):
         """
         Process Run. Costituisce il corpo del funzionamento della classe.
@@ -72,6 +77,7 @@ class Node(Process):
         # Gestione delle funzionalità del nodo
         pass
 
+    # ************************** GETTER E SETTER NODO *******************************
     def get_node_info(self):
         """
         Funzione getter per le informazioni del nodo
@@ -86,6 +92,7 @@ class Node(Process):
     def get_precedessor(self):
         return self.__predecessor_node
 
+    # ************************** METODI NODO CHORD *******************************
     def _initialize(self):
         """
         Funzione chiamata nel momento della creazione del nodo. Inizializza la finger table,
@@ -97,8 +104,43 @@ class Node(Process):
         # invia richiesta al successore
 
     def stabilize(self):
+        if self.__successor_node is not None:
+            x = self.__successor_node.get_precedessor()
+
+            if self.__node_info.get_node_id() < x.get_node_info().get_node_id() < self.__successor_node.get_node_info().get_node_id():
+                self.__successor_node = x
+                self.notify(x)
+
+    def notify(self, new_successor_node):
         pass
 
+    def find_successor(self, node_id):
+        pass
+
+    def find_predecessor(self, node_id):
+        pass
+
+    def closest_preceding_finger(self, node_id):
+        pass
+
+    # ************************** METODI FINGER TABLE *******************************
+    def init_finger_table(self):
+        # TODO da mettere nella classe finger table?
+        pass
+
+    def update_others(self):
+        # TODO da mettere nella classe finger table?
+        pass
+
+    def update_fingr_table(self):
+        # TODO da mettere nella classe finger table?
+        pass
+
+    def fix_fingers(self):
+        # TODO da mettere nella classe finger table?
+        pass
+
+    # ************************** METODI RELATIVE AI FILE *******************************
     def find_key_holder(self):
         pass
 
@@ -130,13 +172,7 @@ class Node(Process):
         # Rimozione di un file da lui gestito
         pass
 
-    def print_status(self):
-        pass
-
-    def _get_finger_table(self):
-        # Metodo per debug
-        pass
-
+    # ************************** METODI SOCKET TCP *******************************
     def tcp_process_message(self, client_ip, client_port, message):
         """
         FUnzione per processare i messaggi TCP ricevuti dai client.
@@ -155,3 +191,11 @@ class Node(Process):
         e la terminazione del processo.
         """
         self.__tcp_server.tcp_server_close()
+
+    # ************************** METODI DI DEBUG *******************************
+    def print_status(self):
+        pass
+
+    def _get_finger_table(self):
+        # Metodo per debug
+        pass
