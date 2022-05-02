@@ -1,4 +1,5 @@
 from node_info import *
+from chord_utils import *
 
 
 class FingerTable:
@@ -11,42 +12,71 @@ class FingerTable:
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
         """
 
-        self.__CONST_M = 160  # number of table entries (aka fingers)
-        self.__table_dict = {key: None for key in range(1, self.__CONST_M + 1)}
+        self.__table_dict = {key: None for key in range(1, CONST_M + 1)}
         self.__my_node_info = my_node_info
 
         # TODO node info
 
         pass
 
-    def add_finger(self, new_finger_info):
+    def add_finger(self, new_finger):
         """
         Funzione per l'aggiunta di un nuovo nodo alla finger table.
-        :param new_finger_info: node_info del nuovo finger
+        :param new_finger: il nuovo finger
         """
 
         i = self.__my_node_info.get_node_id()
 
-        for j in range(1, self.__CONST_M + 1):
-            if new_finger_info.get_node_id() >= (i + 2 ** (j - 1)) % 2 ** self.__CONST_M:
+        for j in range(1, CONST_M + 1):
+            if new_finger.get_node_info().get_node_id() >= (i + 2 ** (j - 1)) % 2 ** CONST_M:
 
                 # Il finger può essere none solo se la tabella è vuota
-                if self.__table_dict[j] is None or new_finger_info.get_node_id() < self.__table_dict[j].get_node_id():
-                    self.__table_dict[j] = new_finger_info
+                if self.__table_dict[j] is None or new_finger.get_node_info().get_node_id() < self.__table_dict[j].get_node_id():
+                    self.__table_dict[j] = new_finger
                 else:
                     # Il finger che stiamo guardando ha un id più piccolo (e lo stesso varrà per i successivi),
                     # dunque non va sostituito
                     break
 
-    def get_finger(self, j):
+    def add_finger_by_index(self, index, new_finger):
+        """
+        Funzione per l'aggiunta di un finger alla tabella in base al suo indice
+        :param index: l'indice dell'entry
+        :param new_finger: il nodo da inserire
+        """
+
+        assert 1 <= index <= CONST_M
+        self.__table_dict[index] = new_finger
+
+
+    # def add_finger(self, new_finger_info):
+    #     """
+    #     Funzione per l'aggiunta di un nuovo nodo alla finger table.
+    #     :param new_finger_info: node_info del nuovo finger
+    #     """
+    #
+    #     i = self.__my_node_info.get_node_id()
+    #
+    #     for j in range(1, CONST_M + 1):
+    #         if new_finger_info.get_node_id() >= (i + 2 ** (j - 1)) % 2 ** CONST_M:
+    #
+    #             # Il finger può essere none solo se la tabella è vuota
+    #             if self.__table_dict[j] is None or new_finger_info.get_node_id() < self.__table_dict[j].get_node_id():
+    #                 self.__table_dict[j] = new_finger_info
+    #             else:
+    #                 # Il finger che stiamo guardando ha un id più piccolo (e lo stesso varrà per i successivi),
+    #                 # dunque non va sostituito
+    #                 break
+
+    def get_finger(self, index):
         """
         Restituisce le informazioni associate al j-esimo finger
-        :param j: posizione del finger nella tabella
+        :param index: posizione del finger nella tabella
         :return: le informazioni associate al j-esimo finger
         """
 
-        assert 1 <= j <= self.__CONST_M
-        return self.__table_dict[j]
+        assert 1 <= index <= CONST_M
+        return self.__table_dict[index]
 
     def print(self):
         """
@@ -65,9 +95,9 @@ class FingerTable:
 
         i = self.__my_node_info.get_node_id()
 
-        for j in range(1, self.__CONST_M + 1):
+        for j in range(1, CONST_M + 1):
             if self.__table_dict[j] is not None:
-                if finger_info.get_node_id() == self.__table_dict[j].get_node_id():
+                if finger_info.get_node_id() == self.__table_dict[j].get_node_info().get_node_id():
                     self.__table_dict[j] = None
 
     def contains_finger(self, node_info):
@@ -77,8 +107,8 @@ class FingerTable:
         :return: True se il nodo è presente, False altrimenti
         """
 
-        for j in range(1, self.__CONST_M + 1):
+        for j in range(1, CONST_M + 1):
             if self.__table_dict[j] is not None:
-                if self.__table_dict[j].equals(node_info):
+                if self.__table_dict[j].get_node_info().equals(node_info):
                     return True
         return False

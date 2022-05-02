@@ -92,6 +92,15 @@ class Node(Process):
     def get_precedessor(self):
         return self.__predecessor_node
 
+    def get_finger_table(self):
+        return self.__finger_table
+
+    def set_successor(self, new_successor_node):
+        self.__successor_node = new_successor_node
+
+    def set_precedessor(self, new_precedessor_node):
+        self.__predecessor_node = new_precedessor_node
+
     # ************************** METODI NODO CHORD *******************************
     def _initialize(self):
         """
@@ -103,6 +112,28 @@ class Node(Process):
 
         # invia richiesta al successore
 
+    # funzione presa dallo pseudocodice del paper
+    def find_successor(self, node_id):
+        n_primo = self.find_predecessor(node_id)
+        return n_primo.get_successor()
+
+    # funzione presa dallo pseudocodice del paper
+    def find_predecessor(self, node_id):
+        n_primo = self
+        while not (
+                n_primo.get_node_info().get_node_id() <= node_id <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
+            n_primo = n_primo.closest_preceding_finger(node_id)
+        return n_primo
+
+    # funzione presa dallo pseudocodice del paper
+    def closest_preceding_finger(self, node_id):
+        for i in range(CONST_M, 0, -1):  # da m a 1
+            if self.__node_info.get_node_id() <= self.__finger_table.get_finger(
+                    i).get_node_id() <= node_id:  # TODO da verificare
+                return self.__finger_table.get_finger(i)
+            return self
+
+    # funzione presa dallo pseudocodice del paper
     def stabilize(self):
         if self.__successor_node is not None:
             x = self.__successor_node.get_precedessor()
@@ -111,31 +142,31 @@ class Node(Process):
                 self.__successor_node = x
                 self.notify(x)
 
-    def notify(self, new_successor_node):
-        pass
-
-    def find_successor(self, node_id):
-        pass
-
-    def find_predecessor(self, node_id):
-        pass
-
-    def closest_preceding_finger(self, node_id):
-        pass
+    # funzione presa dallo pseudocodice del paper
+    def notify(self, new_predecessor_node):
+        if self.__predecessor_node is None or self.__predecessor_node.get_node_info().get_node_id() <= new_predecessor_node.get_node_info().get_node_id() <= self.__node_info.get_node_id():
+            self.__predecessor_node = new_predecessor_node
+        # TODO da modificare perchè nel paper questa funzione viene invocata dal nuovo predecessore...
 
     # ************************** METODI FINGER TABLE *******************************
-    def init_finger_table(self):
+    def init_finger_table(self, n_primo):
         # TODO da mettere nella classe finger table?
-        pass
+        self.__finger_table.add_finger_by_index(1, n_primo.find_successor(finger_i.start())) #TODO ????
+        self.__predecessor_node = self.__successor_node.get_precedessor()
+        self.__successor_node.set_precedessor(self)
+
+        for i in range (1, CONST_M):
+            if se
 
     def update_others(self):
         # TODO da mettere nella classe finger table?
         pass
 
-    def update_fingr_table(self):
+    def update_finger_table(self):
         # TODO da mettere nella classe finger table?
         pass
 
+    # funzione presa dallo pseudocodice del paper
     def fix_fingers(self):
         # TODO da mettere nella classe finger table?
         pass
@@ -194,8 +225,4 @@ class Node(Process):
 
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):
-        pass
-
-    def _get_finger_table(self):
-        # Metodo per debug
         pass
