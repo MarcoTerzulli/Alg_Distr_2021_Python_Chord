@@ -56,9 +56,13 @@ class Chord:
 
         self.__node_dict[port] = new_node
 
-        # Gestione del caso in cui chord sia vuoto
+        other_node = None
+        if self.__node_dict.__len__() > 1: # prendo un nodo randomicamente
+            while other_node is None or other_node == new_node:
+                other_node = random.choice(list(self.__node_dict.values()))
 
-        # Gestione del join a chord con nodi già presenti
+        # inizializzo la finger table e sposto le eventuali chiavi di competenza
+        new_node.node_join(other_node)
 
     def insert(self):
         """

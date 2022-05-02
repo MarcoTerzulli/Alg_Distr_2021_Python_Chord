@@ -1,3 +1,5 @@
+import random
+
 from chord_utils import *
 from node_info import *
 from finger_table import *
@@ -149,27 +151,54 @@ class Node(Process):
         # TODO da modificare perchè nel paper questa funzione viene invocata dal nuovo predecessore...
 
     # ************************** METODI FINGER TABLE *******************************
+    def node_join(self, n_primo):
+        if n_primo is not None:
+            self.init_finger_table(n_primo)
+            self.update_others()
+            # TODO spostamento key (predecessor_id, self_id) dal successore a lui
+            # TODO e devo settare anche predecessore e successore?
+        else: # n è l'unico nodo della rete
+            for i in range(1, CONST_M + 1): # da 1 a M
+                self.__finger_table.add_finger_by_index(i, self)
+            self.__predecessor_node = self
+            self.__successor_node = self
+
+    # funzione presa dallo pseudocodice del paper
     def init_finger_table(self, n_primo):
         # TODO da mettere nella classe finger table?
         self.__finger_table.add_finger_by_index(1, n_primo.find_successor(finger_i.start())) #TODO ????
         self.__predecessor_node = self.__successor_node.get_precedessor()
         self.__successor_node.set_precedessor(self)
 
-        for i in range (1, CONST_M):
+        for i in range (1, CONST_M): # da 1 a m-1
             if se
 
+    # funzione presa dallo pseudocodice del paper
     def update_others(self):
         # TODO da mettere nella classe finger table?
-        pass
+        for i in range(1, CONST_M + 1): # da 1 a m
+            # trovo l'ultimo nodo p il cui i-esimo finger potrebbe essere n
+            p = self.find_predecessor(n - 2**(i - 1))
+            p.update_finger_table(self, i)
 
-    def update_finger_table(self):
+    # funzione presa dallo pseudocodice del paper
+    def update_finger_table(self, s, index):
         # TODO da mettere nella classe finger table?
-        pass
+
+        # se s è l'i-esimo finger di n, aggiorno la tabella di n con s
+        if self.__node_info.get_node_id() <= s.get_node_info().get_node_id() <= self.__finger_table.get_finger(index).get_node_info().get_node_id():
+            self.__finger_table.add_finger_by_index(index, s)
+
+            # il primo nodo che precede self
+            p = self.__predecessor_node
+            p.update_finger_table(s, index)
 
     # funzione presa dallo pseudocodice del paper
     def fix_fingers(self):
         # TODO da mettere nella classe finger table?
-        pass
+        # prendo un finger randomico
+        index = random.randint(1, CONST_M)
+        self.__finger_table.add_finger_by_index(index, self.find_successor(boh)) # TODO
 
     # ************************** METODI RELATIVE AI FILE *******************************
     def find_key_holder(self):
