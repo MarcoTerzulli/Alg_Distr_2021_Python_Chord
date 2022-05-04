@@ -23,25 +23,27 @@ def synchronized(wrapped):
     return _wrap
 
 
+# TODO ma serve tenerla?
 class Router:
     def __init__(self):
-        self.__tcp_server_socket_dict = dict()
+        self.__socket_node_dict = dict()
         self.__ticket_counter = 0
 
-    def add_node(self, node_port, node_tcp_server):
-        self.__tcp_server_socket_dict[node_port] = node_tcp_server
+    def add_node(self, node_port, socket_node):
+        self.__socket_node_dict[node_port] = socket_node
 
     def remove_node(self, node_port):
-        del self.__tcp_server_socket_dict[node_port]
+        del self.__socket_node_dict[node_port]
 
     def send_message(self, sender_port, destination_port, message):
         ticket = self.__get_next_ticket()
+        self.__socket_node_dict[sender_port].send_message(destination_port, message)
 
-    def send_answer(self, sender_port, destination_port, message):
-        pass
+    # todo forse inutile
+    # def send_answer(self, sender_port, destination_port, message):
+    #     pass
 
     @synchronized
     def __get_next_ticket(self):
         self.__ticket_counter += 1
         return self.__ticket_counter
-†

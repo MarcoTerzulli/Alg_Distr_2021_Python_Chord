@@ -1,11 +1,11 @@
+from socket_node import SocketNode
 
 
 class NodeTCPRequestHandler():
 
-    def __init__(self, my_node_info, tcp_server, tcp_request_timeout=0.2):
-        self.__my_node_info = my_node_info
-        self.__tcp_server = tcp_server
-        self.__tcp_request_timeout = tcp_request_timeout
+    def __init__(self, my_node):
+        self.__my_node = my_node
+        self.__socket_node = SocketNode(self.__my_node, self.__my_node.get_node_info().get_port())
 
     def sendNotify(self, destination_node_info, sender_node_info):
         pass
