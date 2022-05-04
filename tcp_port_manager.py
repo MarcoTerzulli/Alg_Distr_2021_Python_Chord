@@ -1,5 +1,6 @@
 from socket import socket
 from exceptions import *
+from tcp_socket_manager import TCPServerModule
 
 
 class TCPPortManager:
@@ -139,3 +140,14 @@ class TCPPortManager:
         else:
             #return None # porta non valida
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
+
+    def check_if_port_is_available(self, port):
+        tcp_test_socket = TCPServerModule(port)
+
+        try:
+            tcp_test_socket.tpc_server_connect()
+        except AlreadyUsedPortError:
+            raise AlreadyUsedPortError(
+                f"ERROR: TCP server socket port {port} is already in use!")
+
+        tcp_test_socket.tcp_server_close()
