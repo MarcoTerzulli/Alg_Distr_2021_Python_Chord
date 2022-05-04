@@ -1,13 +1,12 @@
-
 from multiprocessing import Process
 
 from chord_utils import current_millis_time
 from exceptions import *
-from tcp_socket_manager import TCPServerModule
+from tcp_socket_manager import TCPServerModule, TCPClientModule
 
 
 class SocketNode(Process):
-    def __init__(self, this_node, port, tcp_request_timeout=0.2, tcp_client_timeout=60*5):
+    def __init__(self, this_node, port, tcp_request_timeout=0.2, tcp_client_timeout=60 * 5):
         super().__init__()
 
         self.__this_node = this_node
@@ -45,11 +44,20 @@ class SocketNode(Process):
         self.__this_node.tcp_process_message(client_ip, client_port, message)
 
         # Chiusura delle eventuali connessioni inattive
+        self._close_client_not_used_connections()
 
         pass
 
     def send_message(self, destination_port, message):
-        pass
+        # controllo se abbiamo già una connessione attiva con il destinatario
+        if destination_port not in self.__tcp_clients_dict.keys():
+            self.__tcp_clients_dict[destination_port] = TCPClientModule(port=destination_port)
+            self.__tcp_clients_dict[destination_port].tpc_client_connect()
+
+        self.__tcp_clients_dict[destination_port].tcp_client_send_message()
+        self.__tcp_clients_dict[destination_port].close()
+
+        self._update_client_last_time_used(destination_port)
 
     def tcp_server_close(self):
         """
@@ -58,10 +66,10 @@ class SocketNode(Process):
         """
         self.__tcp_server.tcp_server_close()
 
-    def update_client_last_time_used(self, port):
+    def _update_client_last_time_used(self, port):
         self.__tcp_clients_last_time_used_dict[port] = current_millis_time()
 
-    def close_client_not_used_connections(self):
+    def _close_client_not_used_connections(self):
         curr_time = current_millis_time()
 
         for key in self.__tcp_clients_last_time_used_dict.keys():
