@@ -4,6 +4,8 @@ from chord_utils import *
 from node_info import *
 from finger_table import *
 from multiprocessing import Process
+
+from node_tcp_requests_handler import NodeTCPRequestHandler
 from tcp_socket_manager import *
 
 
@@ -48,6 +50,8 @@ class Node(Process):
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError(
                 f"ERROR: TCP server socket port {self.__node_info.get_port()} is already in use!")
+
+        self.__tcp_request_handler = NodeTCPRequestHandler(self.__node_info, self.__tcp_server, self.__tcp_request_timeout)
 
         # Inizializzazione della finger table e dei successori
         # self._initialize() # TODO ha senso tenerlo? forse basta òa chiamata successiva
@@ -104,6 +108,7 @@ class Node(Process):
         self.__predecessor_node = new_precedessor_node
 
     # ************************** METODI NODO CHORD *******************************
+    # TODO
     def _initialize(self):
         """
         Funzione chiamata nel momento della creazione del nodo. Inizializza la finger table,

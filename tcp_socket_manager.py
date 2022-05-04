@@ -116,6 +116,9 @@ class TCPClientModule:
 
         self.__tcp_client.send(message)
 
+    def tcp_client_close(self):
+        self.__tcp_client.close()
+
     def tcp_client_connect_and_send_message(self, ip="localhost", port=8091, message=""):
         """
         Funzione per connettersi ad un server tcp ed inviare un messaggio, per poi disconnettersi
