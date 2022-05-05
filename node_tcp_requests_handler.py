@@ -6,9 +6,11 @@ class NodeTCPRequestHandler():
     def __init__(self, my_node):
         self.__my_node = my_node
         self.__socket_node = SocketNode(self.__my_node, self.__my_node.get_node_info().get_port())
+        self.__ticket_counter = 0
+        self.__waiting_tickets = list()
 
     def sendNotify(self, destination_node_info, sender_node_info):
-        pass
+        self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
 
     def sendPrecedessorRequest(self, destination_node_info, sender_node_info):
         pass
@@ -18,6 +20,7 @@ class NodeTCPRequestHandler():
 
     def sendFirstSuccessorRequest(self, destination_node_info, sender_node_info):
         pass
+        # serve?
 
     def sendPing(self, destination_node_info, sender_node_info):
         pass
@@ -49,3 +52,7 @@ class NodeTCPRequestHandler():
     def addAnswer(self, destination_node_info, sender_node_info):
         pass
         #serve?
+
+    def _get_ticket(self):
+        self.__ticket_counter += 1
+        return self.__ticket_counter
