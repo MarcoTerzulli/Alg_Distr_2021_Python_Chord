@@ -1,4 +1,4 @@
-from exceptions import TCPRequestSendError
+from exceptions.exceptions import *
 
 
 class Message:

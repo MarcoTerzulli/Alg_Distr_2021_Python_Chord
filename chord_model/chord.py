@@ -1,6 +1,6 @@
 from node import *
 from node_info import *
-from exceptions import *
+from exceptions.exceptions import *
 
 
 class Chord:
@@ -46,18 +46,18 @@ class Chord:
         try:
             new_node = Node(new_node_info)
         except AlreadyUsedPortError:
-            raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
+            raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
         # Provo ad avviare il nodo assegnandogli la porta scelta
         try:
             new_node.start()
         except AlreadyUsedPortError:
-            raise AlreadyUsedPortError # la gestione dell'eccezione viene rimandata al chiamante
+            raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
         self.__node_dict[port] = new_node
 
         other_node = None
-        if self.__node_dict.__len__() > 1: # prendo un nodo randomicamente
+        if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
             while other_node is None or other_node == new_node:
                 other_node = random.choice(list(self.__node_dict.values()))
 

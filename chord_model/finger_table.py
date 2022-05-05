@@ -1,5 +1,4 @@
-from node_info import *
-from chord_utils import *
+from utilities.chord_utils import *
 
 
 class FingerTable:

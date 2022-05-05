@@ -1,6 +1,6 @@
 from socket import socket
-from exceptions import *
-from tcp_socket_manager import TCPServerModule
+from exceptions.exceptions import *
+from tcp_socket_module import TCPServerModule
 
 
 class TCPPortManager:

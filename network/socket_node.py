@@ -1,9 +1,7 @@
 from multiprocessing import Process
 
-from chord_utils import current_millis_time
-from exceptions import *
-from tcp_socket_manager import TCPServerModule, TCPClientModule
-import asyncio
+from exceptions.exceptions import *
+from tcp_socket_module import TCPServerModule, TCPClientModule
 
 
 class SocketNode(Process):

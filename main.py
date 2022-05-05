@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from tcp_port_manager import *
-from exceptions import *
-from chord import *
+from network.tcp_port_manager import *
+from chord_model.chord import *
+from exceptions.exceptions import *
 import sys
 import platform
 import multiprocessing as mp

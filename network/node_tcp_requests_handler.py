@@ -1,6 +1,6 @@
-from socket_node import SocketNode
-from tcp_messages import *
-from chord_utils import current_millis_time
+from network.socket_node import SocketNode
+from network.tcp_messages import *
+from utilities.chord_utils import current_millis_time
 
 
 class NodeTCPRequestHandler():

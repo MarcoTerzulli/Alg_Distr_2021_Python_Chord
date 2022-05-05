@@ -2,7 +2,7 @@ import socket
 import sys
 from _socket import SHUT_RDWR
 
-from exceptions import *
+from exceptions.exceptions import *
 
 
 class TCPServerModule:

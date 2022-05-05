@@ -1,4 +1,4 @@
-from chord_utils import *
+from utilities.chord_utils import *
 
 class NodeInfo:
     """

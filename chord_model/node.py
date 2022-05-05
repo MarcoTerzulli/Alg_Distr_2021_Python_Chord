@@ -1,11 +1,6 @@
 import random
 
-from chord_utils import *
-from node_info import *
-from finger_table import *
-
-from node_tcp_requests_handler import NodeTCPRequestHandler
-from tcp_socket_manager import *
+from chord_model.finger_table import *
 
 
 class Node:
