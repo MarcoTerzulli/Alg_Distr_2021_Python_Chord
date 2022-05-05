@@ -17,3 +17,6 @@ class AlreadyUsedPortError(Exception):
 
 class NoNodeFoundOnPortError(Exception):
     pass
+
+class TCPRequestSendError(Exception):
+    pass

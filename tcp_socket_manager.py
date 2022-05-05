@@ -114,7 +114,21 @@ class TCPClientModule:
         :param message: messaggio da inviare
         """
 
-        self.__tcp_client.send(message)
+        try:
+            self.__tcp_client.send(message.encode("utf-8"))
+        except BrokenPipeError:
+            print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Got an Error")
+            raise TCPRequestSendError
+        except ConnectionRefusedError:
+            print(f"ERROR: Connection refused from TCP Server on IP {self.__tcp_client_ip}")
+            raise TCPRequestSendError
+        except TimeoutError:
+            print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Timed Out")
+            raise TCPRequestSendError
+        except KeyboardInterrupt:
+            print(f"TCP Client on Port {self.__tcp_client_port} Shutdown")
+            print("Exiting...")
+            sys.exit()
 
     def tcp_client_close(self):
         self.__tcp_client.close()
@@ -136,13 +150,13 @@ class TCPClientModule:
             self.__tcp_client.send(message.encode("utf-8"))
         except BrokenPipeError:
             print(f"ERROR: TCP Request to IP {ip} Got an Error")
-            pass
+            raise TCPRequestSendError
         except ConnectionRefusedError:
             print(f"ERROR: Connection refused from TCP Server on IP {ip}")
-            pass
+            raise TCPRequestSendError
         except TimeoutError:
             print(f"ERROR: TCP Request to IP {ip} Timed Out")
-            pass
+            raise TCPRequestSendError
         except KeyboardInterrupt:
             print(f"TCP Client on Port {self.__tcp_client_port} Shutdown")
             print("Exiting...")

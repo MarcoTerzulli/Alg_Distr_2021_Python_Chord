@@ -216,19 +216,6 @@ class Node:
         # Rimozione di un file da lui gestito
         pass
 
-    # ************************** METODI SOCKET TCP *******************************
-    def tcp_process_message(self, client_ip, client_port, message):
-        """
-        FUnzione per processare i messaggi TCP ricevuti dai client.
-        I messaggi, se nel formato corretto, vengono scompattati al fine di estrarre i parametri necessari al
-        funzionamento del programma
-
-        :param client_ip: ip del client
-        :param client_port: porta tcp del client
-        :param message: messaggio ricevuto
-        """
-        pass
-
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):
         pass
