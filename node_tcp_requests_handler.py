@@ -1,15 +1,17 @@
 from socket_node import SocketNode
 from tcp_messages import *
+from chord_utils import current_millis_time
 
 
 class NodeTCPRequestHandler():
 
-    def __init__(self, my_node):
+    def __init__(self, my_node, tcp_request_timeout=5000):
         self.__my_node = my_node
         self.__socket_node = SocketNode(self.__my_node, self, self.__my_node.get_node_info().get_port())
         self.__ticket_counter = 0
         self.__waiting_tickets = list()
         self.__received_answers_unprocessed = dict()
+        self.__CONST_TCP_REQUEST_TIMEOUT = tcp_request_timeout
 
     def sendNotify(self, destination_node_info, sender_node_info):
         notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info)
@@ -19,8 +21,13 @@ class NodeTCPRequestHandler():
         self.__waiting_tickets.append(message_ticket)
 
         # Resto in attesa della risposta
-        while message_ticket not in self.__received_answers_unprocessed.keys():
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
             pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestSendError
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
@@ -49,31 +56,31 @@ class NodeTCPRequestHandler():
 
     def sendStartRequest(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def sendLeavingPrecedessorRequest(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def sendLeavingSuccessorRequest(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def sendPublishRequest(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def sendFileRequest(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def sendDeleteFileRequest(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def addAnswer(self, destination_node_info, sender_node_info):
         pass
-        #serve?
+        # serve?
 
     def _get_ticket(self):
         self.__ticket_counter += 1
