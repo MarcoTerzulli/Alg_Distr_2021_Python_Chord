@@ -20,3 +20,9 @@ class NoNodeFoundOnPortError(Exception):
 
 class TCPRequestSendError(Exception):
     pass
+
+class EmptyMessageError(Exception):
+    pass
+
+class InvalidMessageTypeError(Exception):
+    pass

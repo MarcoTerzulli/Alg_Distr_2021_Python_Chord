@@ -1,5 +1,5 @@
 from network.socket_node import SocketNode
-from network.tcp_messages import *
+from network.messages import *
 from utilities.chord_utils import current_millis_time
 
 
@@ -78,9 +78,8 @@ class NodeTCPRequestHandler():
         pass
         # serve?
 
-    def addAnswer(self, destination_node_info, sender_node_info):
-        pass
-        # serve?
+    def addAnswer(self, message):
+        self.__received_answers_unprocessed[message.get_ticket()] = message
 
     def _get_ticket(self):
         self.__ticket_counter += 1

@@ -71,6 +71,9 @@ MSG_TYPE_FILE_RQST_RQST = "F2"  # File Request
 # *********** NETWORK *********
 MSG_TYPE_PING = "N1"  # Ping
 
+# *********** ANSWERS *********
+MSG_TYPE_ANSWER = "A" # answer
+
 
 # * Message protocol:
 # * #1: Ping message
@@ -142,7 +145,7 @@ class SuccessorAnswerMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_SUCC_RQST, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
         self.__successor_node_info = successor_node_info
 
     def get_successor_node_info(self):
@@ -181,7 +184,7 @@ class PredecessorAnswerMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_PREC_RQST, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
         self.__predecessor_node_info = predecessor_node_info
 
     def get_predecessor_node_info(self):
@@ -221,7 +224,7 @@ class DeleteFileAnswerMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_FILE_DEL_RQST, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
 
 
 class DeleteFileRequestMessage(Message):
@@ -261,7 +264,7 @@ class FileAnswerMessage(Message):
         :param file: file da trasferire
         """
 
-        super().__init__(MSG_TYPE_FILE_RQST_RQST, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
         self.__file = file
 
     def get_file(self):
@@ -304,7 +307,7 @@ class FilePublishAnswerMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_FILE_PBLSH_RQST, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
 
 
 class FilePublishRequestMessage(Message):
@@ -350,7 +353,7 @@ class PingAnswerMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_PING, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
 
 
 class PingRequestMessage(Message):
