@@ -1,6 +1,9 @@
 import random
 
+from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
+from exceptions.exceptions import FileKeyError
+from network.node_tcp_requests_handler import NodeTCPRequestHandler
 
 
 class Node:
@@ -28,6 +31,12 @@ class Node:
         self.__finger_table = FingerTable(self.__node_info)
         self.__successor_node = successor_node_info
         self.__predecessor_node = None
+
+        # File system
+        self.__file_system = FileSystem(self.__node_info.get_node_id())
+
+        # Gestione rete
+        self.__tcp_requests_handler = NodeTCPRequestHandler(self)
 
         # Timeout operazioni chord periodiche
         self.__chord_stabilize_timeout = chord_stabilize_timeout
@@ -61,6 +70,9 @@ class Node:
     def set_precedessor(self, new_precedessor_node):
         self.__predecessor_node = new_precedessor_node
 
+    def get_file_system(self):
+        return self.__file_system
+
     # ************************** METODI NODO CHORD *******************************
     # TODO
     def _initialize(self):
@@ -73,7 +85,7 @@ class Node:
 
         # invia richiesta al successore
 
-    # forse OK
+    #  OK
     # funzione presa dallo pseudocodice del paper
     def find_successor(self, key):
         n_primo = self.find_predecessor(key)
@@ -86,6 +98,7 @@ class Node:
         while not (
                 n_primo.get_node_info().get_node_id() <= key <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
             n_primo = n_primo.closest_preceding_finger(key)
+            self.__tcp_requests_handler.sendSuccessorRequest(n_primo.get_node_info(), key, self.__node_info) # TODO da verificare
         return n_primo
 
     # forse OK
@@ -180,36 +193,51 @@ class Node:
             self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO
 
     # ************************** METODI RELATIVE AI FILE *******************************
-    def find_key_holder(self):
-        pass
+    #def find_key_holder(self):
+    #    pass
 
-    def insert(self):
+    def put_file(self, key, file):
         # Inserimento nella rete
-        pass
+        successor = self.find_successor(key)
+        if not self.__node_info.equals(successor.get_node_info):
+            self.__tcp_requests_handler.sendPublishRequest(successor.get_node_info(), self.__node_info, key, file)
 
-    def _insert_here(self):
+    def put_file_here(self, key, file):
         # Funzione privata per inserimento in questo nodo
-        pass
+        self.__file_system.put_file(key, file)
 
-    def lookup(self):
-        # Ricerca del nodo responsabile per un file
-        pass
-
-    def get_file(self):
+    def get_file(self, key):
         # Ricerca e restituzione di un file nella rete
-        pass
+        successor = self.find_successor(key)
+        if self.__node_info.equals(successor.get_node_info):
+            file = self.get_my_file(key)
+        else:
+            file = self.__tcp_requests_handler.sendFileRequest(successor.get_node_info(), self.__node_info, key)
 
-    def _get_my_file(self):
+        return file
+
+    def get_my_file(self, key):
         # Restituzione di un file da lui gestito
-        pass
+        try:
+            return self.__file_system.get_file(key)
+        except FileKeyError:
+            return None
 
-    def remove(self):
+    def delete_file(self, key):
         # Ricerca e rimozione di un file nella rete
-        pass
+        successor = self.find_successor(key)
+        if self.__node_info.equals(successor.get_node_info):
+            self.delete_my_file(key)
+        else:
+            self.__tcp_requests_handler.sendDeleteFileRequest(successor.get_node_info(), self.__node_info, key)
 
-    def _remove_my_file(self):
+
+    def delete_my_file(self, key):
         # Rimozione di un file da lui gestito
-        pass
+        try:
+            self.__file_system.delete_file(key)
+        except FileKeyError:
+            pass
 
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):

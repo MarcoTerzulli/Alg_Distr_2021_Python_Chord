@@ -41,10 +41,10 @@ class NodeTCPRequestHandler():
 
         return answer.get_files()
 
-    def sendPrecedessorRequest(self, destination_node_info, sender_node_info):
+    def sendPrecedessorRequest(self, destination_node_info, key, sender_node_info):
         pass
 
-    def sendSuccessorRequest(self, destination_node_info, sender_node_info):
+    def sendSuccessorRequest(self, destination_node_info, key, sender_node_info):
         pass
 
     def sendFirstSuccessorRequest(self, destination_node_info, sender_node_info):
@@ -66,15 +66,15 @@ class NodeTCPRequestHandler():
         pass
         # serve?
 
-    def sendPublishRequest(self, destination_node_info, sender_node_info):
+    def sendPublishRequest(self, destination_node_info, sender_node_info, key, file):
         pass
         # serve?
 
-    def sendFileRequest(self, destination_node_info, sender_node_info):
+    def sendFileRequest(self, destination_node_info, sender_node_info, key):
         pass
         # serve?
 
-    def sendDeleteFileRequest(self, destination_node_info, sender_node_info):
+    def sendDeleteFileRequest(self, destination_node_info, sender_node_info, key):
         pass
         # serve?
 

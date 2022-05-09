@@ -61,7 +61,9 @@ class Message:
 # *********** CHORD *********
 MSG_TYPE_NOTIFY = "C1"  # Notify
 MSG_TYPE_SUCC_RQST = "C2"  # Successor Request
-MSG_TYPE_PREC_RQST = "C2"  # Predecessor Request
+MSG_TYPE_PREC_RQST = "C3"  # Predecessor Request
+MSG_TYPE_FIND_SUCC_RQST = "C4"  # Find Successor Request
+MSG_TYPE_FIND_PREC_RQST = "C5"  # Find Predecessor Request
 
 # *********** FILE *********
 MSG_TYPE_FILE_PBLSH_RQST = "F1"  # Publish Request
@@ -72,7 +74,7 @@ MSG_TYPE_FILE_RQST_RQST = "F2"  # File Request
 MSG_TYPE_PING = "N1"  # Ping
 
 # *********** ANSWERS *********
-MSG_TYPE_ANSWER = "A" # answer
+MSG_TYPE_ANSWER = "A"  # answer
 
 
 # * Message protocol:
@@ -206,6 +208,86 @@ class PredecessorRequestMessage(Message):
         """
 
         super().__init__(MSG_TYPE_PREC_RQST, destination_node_info, sender_node_info, ticket, True)
+
+
+#
+# # TODO
+# class FindSuccessorAnswerMessage(Message):
+#     """
+#     Classe per la gestione delle risposte dei messaggi di tipo find successor request
+#     """
+#
+#     def __init__(self, destination_node_info, sender_node_info, successor_node_info, ticket):
+#         """
+#         Inizializzazione degli attributi interni della classe.
+#
+#         :param destination_node_info: node_info del nodo destinatario
+#         :param sender_node_info: node_info del nodo mittente
+#         :param successor_node_info: node_info del nodo successore
+#         :param ticket: identificatore della richiesta
+#         """
+#
+#         super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
+#         self.__successor_node_info = successor_node_info
+#
+#     def get_successor_node_info(self):
+#         return self.__successor_node_info
+#
+# # TODO
+# class FindSuccessorRequestMessage(Message):
+#     """
+#     Classe per la gestione delle richieste dei messaggi di tipo find successor request
+#     """
+#
+#     def __init__(self, destination_node_info, sender_node_info, ticket):
+#         """
+#         Inizializzazione degli attributi interni della classe.
+#
+#         :param destination_node_info: node_info del nodo destinatario
+#         :param sender_node_info: node_info del nodo mittente
+#         :param ticket: identificatore della richiesta
+#         """
+#
+#         super().__init__(MSG_TYPE_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
+#
+# # TODO
+# class FindPredecessorAnswerMessage(Message):
+#     """
+#     Classe per la gestione delle risposte dei messaggi di tipo find precedessor request
+#     """
+#
+#     def __init__(self, destination_node_info, sender_node_info, predecessor_node_info, ticket):
+#         """
+#         Inizializzazione degli attributi interni della classe.
+#
+#         :param destination_node_info: node_info del nodo destinatario
+#         :param sender_node_info: node_info del nodo mittente
+#         :param predecessor_node_info: node:info del nodo precedessore
+#         :param ticket: identificatore della richiesta
+#         """
+#
+#         super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
+#         self.__predecessor_node_info = predecessor_node_info
+#
+#     def get_predecessor_node_info(self):
+#         return self.__predecessor_node_info
+#
+# # TODO
+# class FindPredecessorRequestMessage(Message):
+#     """
+#     Classe per la gestione delle richieste dei messaggi di tipo find precedessor request
+#     """
+#
+#     def __init__(self, destination_node_info, sender_node_info, ticket):
+#         """
+#         Inizializzazione degli attributi interni della classe.
+#
+#         :param destination_node_info: node_info del nodo destinatario
+#         :param sender_node_info: node_info del nodo mittente
+#         :param ticket: identificatore della richiesta
+#         """
+#
+#         super().__init__(MSG_TYPE_PREC_RQST, destination_node_info, sender_node_info, ticket, True)
 
 
 # *********+ File Messages

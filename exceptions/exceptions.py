@@ -26,3 +26,6 @@ class EmptyMessageError(Exception):
 
 class InvalidMessageTypeError(Exception):
     pass
+
+class FileKeyError(Exception):
+    pass
