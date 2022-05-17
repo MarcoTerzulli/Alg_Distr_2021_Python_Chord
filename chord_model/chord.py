@@ -48,11 +48,11 @@ class Chord:
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
-        # Provo ad avviare il nodo assegnandogli la porta scelta
-        try:
-            new_node.start()
-        except AlreadyUsedPortError:
-            raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
+        # # Provo ad avviare il nodo assegnandogli la porta scelta
+        # try:
+        #     new_node.start()
+        # except AlreadyUsedPortError:
+        #     raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
         self.__node_dict[port] = new_node
 
@@ -64,6 +64,7 @@ class Chord:
         # inizializzo la finger table e sposto le eventuali chiavi di competenza
         new_node.node_join(other_node)
 
+    # TODO
     def insert(self):
         """
         Inserimento di un file all'interno di Chord
@@ -71,6 +72,7 @@ class Chord:
         """
         pass
 
+    # TODO
     def lookup(self):
         """
         Ricerca del nodo responsabile della chiave key
@@ -78,6 +80,7 @@ class Chord:
         """
         pass
 
+    # TODO
     def remove(self):
         """
         Rimozione di un file da chord data la sua chiave
@@ -85,6 +88,7 @@ class Chord:
         """
         pass
 
+    # TODO
     def node_delete(self, port):
         """
         Rimozione di un nodo da chord associato ad una determinata porta TCP
@@ -98,6 +102,7 @@ class Chord:
         if node is not None:
 
             # TODO comunico al successore e predecessore della mia uscita
+            # si potrebbe anche omettere se si considera che chord si stabilizzerà
 
             node.tcp_server_close()
             node.join()
@@ -134,6 +139,7 @@ class Chord:
         for key, node_id in ordered_dict.items():
             print(f" * Port: {key} - ID: {node_id}")
 
+    # TODO
     def message_deliver(self):
         """
         Funzione responsabile della consegna di un messaggio al nodo corrispondente

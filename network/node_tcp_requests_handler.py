@@ -13,6 +13,8 @@ class NodeTCPRequestHandler():
         self.__received_answers_unprocessed = dict()
         self.__CONST_TCP_REQUEST_TIMEOUT = tcp_request_timeout
 
+        self.__socket_node.start()
+
     # TODO da verificare
     def sendNotify(self, destination_node_info, sender_node_info):
         notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info)
