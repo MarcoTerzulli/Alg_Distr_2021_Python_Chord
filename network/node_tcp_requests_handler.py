@@ -71,14 +71,10 @@ class NodeTCPRequestHandler():
     # TODO
     def sendLeavingPrecedessorRequest(self, destination_node_info, sender_node_info):
         pass
-        # serve?
-        # probabilmente da levare
 
     # TODO
     def sendLeavingSuccessorRequest(self, destination_node_info, sender_node_info):
         pass
-        # serve?
-        # probabilmente da levare
 
     # TODO
     def sendPublishRequest(self, destination_node_info, sender_node_info, key, file):

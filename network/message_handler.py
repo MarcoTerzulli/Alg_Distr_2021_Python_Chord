@@ -23,6 +23,7 @@ class MessageHandler:
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
             self.__my_socket_node.send_message(sender_port, answer)
 
+        # # da levare
         # elif message.get_type() == MSG_TYPE_SUCC_RQST:
         #     successor = self.__my_node.get_successor()
         #     answer = SuccessorAnswerMessage(dest, send, successor, ticket)
@@ -39,12 +40,28 @@ class MessageHandler:
             answer = PredecessorAnswerMessage(dest, send, found_precedessor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
+        # TODO
+        elif message.get_type() == MSG_TYPE_LEAVE_SUCC_RQST:
+            #TODO
+
+            answer = LeavingSuccessorAnswerMessage(dest, send, ticket)
+            self.__my_socket_node.send_message(sender_port, answer)
+
+        # TODO
+        elif message.get_type() == MSG_TYPE_LEAVE_PREC_RQST:
+            #TODO
+
+            answer = LeavingPredecessorAnswerMessage(dest, send, ticket)
+            self.__my_socket_node.send_message(sender_port, answer)
+
         # # TODO
+        # # probabilmente da levare
         # elif message.get_type() == MSG_TYPE_FIND_SUCC_RQST:
         #     successor = self.__my_node.get_successor()
         #     answer = SuccessorAnswerMessage(dest, send, successor, ticket)
         #
         # # TODO
+        # # probabilmente da levare
         # elif message.get_type() == MSG_TYPE_FIND_PREC_RQST:
         #     precedessor = self.__my_node.get_precedessor()
         #     answer = PredecessorAnswerMessage(dest, send, precedessor, ticket)
