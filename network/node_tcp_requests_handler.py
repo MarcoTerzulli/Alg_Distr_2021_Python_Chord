@@ -13,6 +13,7 @@ class NodeTCPRequestHandler():
         self.__received_answers_unprocessed = dict()
         self.__CONST_TCP_REQUEST_TIMEOUT = tcp_request_timeout
 
+    # TODO da verificare
     def sendNotify(self, destination_node_info, sender_node_info):
         notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info)
         self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
@@ -41,43 +42,55 @@ class NodeTCPRequestHandler():
 
         return answer.get_files()
 
+    # TODO
     def sendPrecedessorRequest(self, destination_node_info, key, sender_node_info):
         pass
 
+    # TODO
     def sendSuccessorRequest(self, destination_node_info, key, sender_node_info):
         pass
 
+    # TODO
     def sendFirstSuccessorRequest(self, destination_node_info, sender_node_info):
         pass
         # serve?
+        # probabilmente da levare
 
+    # TODO
     def sendPing(self, destination_node_info, sender_node_info):
         pass
 
+    # TODO
     def sendStartRequest(self, destination_node_info, sender_node_info):
         pass
         # serve?
+        # probabilmente da levare
 
+    # TODO
     def sendLeavingPrecedessorRequest(self, destination_node_info, sender_node_info):
         pass
         # serve?
+        # probabilmente da levare
 
+    # TODO
     def sendLeavingSuccessorRequest(self, destination_node_info, sender_node_info):
         pass
         # serve?
+        # probabilmente da levare
 
+    # TODO
     def sendPublishRequest(self, destination_node_info, sender_node_info, key, file):
         pass
-        # serve?
 
+    # TODO
     def sendFileRequest(self, destination_node_info, sender_node_info, key):
         pass
-        # serve?
 
+    # TODO
     def sendDeleteFileRequest(self, destination_node_info, sender_node_info, key):
         pass
-        # serve?
 
+    # TODO da verificare
     def addAnswer(self, message):
         self.__received_answers_unprocessed[message.get_ticket()] = message
 

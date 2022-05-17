@@ -78,6 +78,7 @@ class MessageHandler:
             self.__my_socket_node.send_message(sender_port, answer)
 
         # TODO
+        # forse è già ok
         elif message.get_type() == MSG_TYPE_ANSWER:
             self.__my_tcp_request_handler.addAnswer(message)
 
