@@ -4,8 +4,18 @@ from utilities.chord_utils import current_millis_time
 
 
 class NodeTCPRequestHandler():
+    """
+    Classe per la gestione delle richieste TCP di un nodo chord
+    """
 
     def __init__(self, my_node, tcp_request_timeout=5000):
+        """
+        Funzione init della classe. Inizializzazione degli attributi.
+
+        :param my_node: riferimento al nodo corrispondente
+        :param tcp_request_timeout: timeout per le richieste TCP (opzionale)
+        """
+
         self.__my_node = my_node
         self.__socket_node = SocketNode(self.__my_node, self, self.__my_node.get_node_info().get_port())
         self.__ticket_counter = 0
@@ -15,12 +25,19 @@ class NodeTCPRequestHandler():
 
         self.__socket_node.start()
 
-    # TODO da verificare
+    # sembra ok
     def sendNotify(self, destination_node_info, sender_node_info):
-        notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info)
-        self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
+        """
+        Creazione ed invio di un messaggio di notifica
+
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        :return files: dizionario degli eventuali file che ora sono assegnati al nodo sender
+        """
 
         message_ticket = self._get_ticket()
+        notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
         self.__waiting_tickets.append(message_ticket)
 
         # Resto in attesa della risposta

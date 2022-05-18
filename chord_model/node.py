@@ -53,33 +53,85 @@ class Node:
 
         :return node_info: informazioni del nodo
         """
+
         return self.__node_info
 
     def get_successor(self):
+        """
+        Metodo getter per il node info del proprio nodo successore
+
+        :return self.__successor_node: node info del proprio successore
+        """
+
         return self.__successor_node
 
     def get_precedessor(self):
+        """
+        Metodo getter per il node info del proprio nodo predecessore
+
+        :return self.__predecessor_node: node info del proprio predecessore
+        """
+
         return self.__predecessor_node
 
     def get_finger_table(self):
+        """
+        Metodo getter per la propria finger table
+
+        :return self.__finger_table: finger table del nodo
+        """
+
         return self.__finger_table
 
     def set_precedessor(self, new_precedessor_node_info):
+        """
+        Metodo setter per il proprio predecessore
+
+        :param new_precedessor_node_info: node info del nuovo nodo predecessore
+        """
+
         self.__predecessor_node = new_precedessor_node_info
 
     def set_successor(self, new_successor_node_info):
+        """
+        Metodo setter per il proprio successore
+
+        :param new_successor_node_info: node info del nuovo nodo successore
+        """
+
         self.__successor_node = new_successor_node_info
 
     def get_file_system(self):
+        """
+        Metodo getter per il proprio file system
+
+        :return self.__file_system: file system del nodo
+        """
+
         return self.__file_system
 
     def notify_leaving_precedessor(self, new_precedessor_node_info):
+        """
+        Metodo per la gestione dei messaggi notify leaving precedessor.
+        Consente di aggiornare il proprio nodo predecessore con uno nuovo.
+
+        :param new_precedessor_node_info: node info del nuovo nodo predecessore
+        """
+
         if new_precedessor_node_info:
             self.set_precedessor(new_precedessor_node_info)
 
     def notify_leaving_successor(self, new_successor_node_info):
+        """
+        Metodo per la gestione dei messaggi notify leaving successor.
+        Consente di aggiornare il proprio nodo successore con uno nuovo.
+        La finger table viene aggiornata di conseguenza.
+
+        :param set_successor: node info del nuovo nodo successore
+        """
+
         self.set_successor(new_successor_node_info)
-        self.__finger_table.add_finger_by_index(1, new_successor_node_info) # Gli indici partono da 1!
+        self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
     # ************************** METODI NODO CHORD *******************************
     # TODO
@@ -96,22 +148,44 @@ class Node:
     #  OK
     # funzione presa dallo pseudocodice del paper
     def find_successor(self, key):
+        """
+        Funzione per la ricerca del nodo responsabile di una determinata key
+
+        :param key: la chiave del nodo o file
+        :return il successore della key
+        """
+
         n_primo = self.find_predecessor(key)
         return n_primo.get_successor()
 
     # forse OK
     # funzione presa dallo pseudocodice del paper
     def find_predecessor(self, key):
+        """
+        Funzione per la ricerca del nodo predecessore di una determinata key
+
+        :param key: la chiave del nodo o file
+        :return il predecessore della key
+        """
+
         n_primo = self
         while not (
                 n_primo.get_node_info().get_node_id() <= key <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
             n_primo = n_primo.closest_preceding_finger(key)
-            self.__tcp_requests_handler.sendSuccessorRequest(n_primo.get_node_info(), key, self.__node_info) # TODO da verificare
+            self.__tcp_requests_handler.sendSuccessorRequest(n_primo.get_node_info(), key,
+                                                             self.__node_info)  # TODO da verificare
         return n_primo
 
     # forse OK
     # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
+        """
+        Funzione per la ricerca del finger precedente più vicino ad una key
+
+        :param key: la chiave del nodo o file
+        :return il closest preceding finger
+        """
+
         for i in range(CONST_M, 0, -1):  # da m a 1
             if self.__node_info.get_node_id() <= self.__finger_table.get_finger(
                     i).get_node_id() <= key:  # TODO da verificare
@@ -121,6 +195,10 @@ class Node:
     # OK
     # funzione presa dallo pseudocodice del paper
     def stabilize(self):
+        """
+        Funzione per la stabilizzazione di chord. Da richiamare periodicamente
+        """
+
         if self.__successor_node is not None:
             x = self.__successor_node.get_precedessor()
 
@@ -131,6 +209,7 @@ class Node:
 
     # OK
     # funzione presa dallo pseudocodice del paper
+    # forese non serve
     def notify(self, new_predecessor_node):
         if self.__predecessor_node is None or self.__predecessor_node.get_node_info().get_node_id() <= new_predecessor_node.get_node_info().get_node_id() <= self.__node_info.get_node_id():
             self.__predecessor_node = new_predecessor_node
@@ -139,6 +218,12 @@ class Node:
 
     # ************************** METODI FINGER TABLE *******************************
     def node_join(self, n_primo):
+        """
+        Funzione per il join del nodo a chord
+
+        :param n_primo: nodo che conosciamo
+        """
+
         if n_primo is not None:
             self.init_finger_table(n_primo)  # prendo la tabella da n_primo
             self.update_others()
@@ -153,6 +238,12 @@ class Node:
     # forse ok
     # funzione presa dallo pseudocodice del paper
     def init_finger_table(self, n_primo):
+        """
+        Funzione per l'inizializzazione della propria finger table a seguito del join a chord
+
+        :param n_primo: nodo che conosciamo
+        """
+
         # TODO da mettere nella classe finger table?
         self.__finger_table.add_finger_by_index(1, n_primo.find_successor(
             self.__node_info.get_node_id() + 2 ** (1 - 1)))  # TODO ????
@@ -170,6 +261,10 @@ class Node:
     # forse ok
     # funzione presa dallo pseudocodice del paper
     def update_others(self):
+        """
+        Funzione per l'aggiornamento della finger table di altri nidi
+        """
+
         # TODO da mettere nella classe finger table?
         for i in range(1, CONST_M + 1):  # da 1 a m
             # trovo l'ultimo nodo p il cui i-esimo finger potrebbe essere n
@@ -179,6 +274,13 @@ class Node:
     # forse ok
     # funzione presa dallo pseudocodice del paper
     def update_finger_table(self, s, index):
+        """
+        Funzione per l'aggiornamento della propria finger table
+
+        :param s: finger da ricercare
+        :param index: indice della tabella
+        """
+
         # TODO da mettere nella classe finger table?
 
         # se s è l'i-esimo finger di n, aggiorno la tabella di n con s
@@ -193,6 +295,11 @@ class Node:
     # ok
     # funzione presa dallo pseudocodice del paper
     def fix_fingers(self):
+        """
+        Funzione per la correzione di un finger randomico della finger table.
+        Da richiamare periodicamente
+        """
+
         # TODO da mettere nella classe finger table?
         # prendo un finger randomico
         index = random.randint(1, CONST_M)
@@ -201,20 +308,42 @@ class Node:
             self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO
 
     # ************************** METODI RELATIVE AI FILE *******************************
-    #def find_key_holder(self):
+    # def find_key_holder(self):
     #    pass
 
     def put_file(self, key, file):
+        """
+        Funzione per la pubblicazione di un file nella rete
+
+        :param key: chiave del file
+        :param file: file da pubblicare
+        """
+
         # Inserimento nella rete
         successor = self.find_successor(key)
         if not self.__node_info.equals(successor.get_node_info):
             self.__tcp_requests_handler.sendPublishRequest(successor.get_node_info(), self.__node_info, key, file)
 
     def put_file_here(self, key, file):
+        """
+        Funzione per la pubblicazione di un file di cui il nodo è ora responsabile
+
+        :param key: chiave del file
+        :param file: file da pubblicare
+        """
+
         # Funzione privata per inserimento in questo nodo
         self.__file_system.put_file(key, file)
 
     def get_file(self, key):
+        """
+        Getter per un file data la sua key.
+        Se non siamo responsabili del file, viene effettuata una ricerca all'interno di chord.
+
+        :param key: chiave del file da ricercare
+        :return file: il file cercato
+        """
+
         # Ricerca e restituzione di un file nella rete
         successor = self.find_successor(key)
         if self.__node_info.equals(successor.get_node_info):
@@ -225,6 +354,13 @@ class Node:
         return file
 
     def get_my_file(self, key):
+        """
+        Getter per un file data la sua key, di cui il nodo è responsabile
+
+        :param key: chiave del file
+        :return file: il file
+        """
+
         # Restituzione di un file da lui gestito
         try:
             return self.__file_system.get_file(key)
@@ -232,6 +368,13 @@ class Node:
             return None
 
     def delete_file(self, key):
+        """
+        Delete di un file data la sua key.
+        Se non siamo responsabili del file, viene effettuata una ricerca all'interno di chord.
+
+        :param key: chiave del file da eliminare
+        """
+
         # Ricerca e rimozione di un file nella rete
         successor = self.find_successor(key)
         if self.__node_info.equals(successor.get_node_info):
@@ -239,8 +382,13 @@ class Node:
         else:
             self.__tcp_requests_handler.sendDeleteFileRequest(successor.get_node_info(), self.__node_info, key)
 
-
     def delete_my_file(self, key):
+        """
+        Delete di un file data la sua key, di cui il nodo è responsabile
+
+        :param key: chiave del file da eliminare
+        """
+
         # Rimozione di un file da lui gestito
         try:
             self.__file_system.delete_file(key)
@@ -249,4 +397,8 @@ class Node:
 
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):
+        """
+        Metodo di debug per la stampa dello stato del nodo corrente
+        """
+        
         pass

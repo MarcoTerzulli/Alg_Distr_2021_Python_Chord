@@ -3,13 +3,32 @@ from network.messages import *
 
 
 class MessageHandler:
+    """
+    Classe per la gestione dei messaggi TCP ricevuti.
+    """
 
     def __init__(self, my_node, my_socket_node, my_tcp_request_handler):
+        """
+        Metodo init della classe. Inizializzazione degli attributi.
+
+        :param my_node: riferimento al proprio nodo chord
+        :param my_socket_node: riferimento al proprio socket node
+        :param my_tcp_request_handler: riferimento al proprio request handler
+        """
+
         self.__my_node = my_node
         self.__my_socket_node = my_socket_node
         self.__my_tcp_request_handler = my_tcp_request_handler
 
     def process_message(self, message):
+        """
+        Metodo per il processing vero e proprio dei messaggi TCP ricevuti.
+        Si occupa dell'estrazione dei parametri dei messaggi, delle chiamate ai diversi
+        layer dell'applicazione, e dell'invio dei messaggi di risposta.
+
+        :param message: messaggio ricevuto
+        """
+
         if message is None:
             raise EmptyMessageError
 
@@ -63,18 +82,6 @@ class MessageHandler:
 
             answer = LeavingSuccessorAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
-
-        # # TODO
-        # # probabilmente da levare
-        # elif message.get_type() == MSG_TYPE_FIND_SUCC_RQST:
-        #     successor = self.__my_node.get_successor()
-        #     answer = SuccessorAnswerMessage(dest, send, successor, ticket)
-        #
-        # # TODO
-        # # probabilmente da levare
-        # elif message.get_type() == MSG_TYPE_FIND_PREC_RQST:
-        #     precedessor = self.__my_node.get_precedessor()
-        #     answer = PredecessorAnswerMessage(dest, send, precedessor, ticket)
 
         # file publish request
         elif message.get_type() == MSG_TYPE_FILE_PBLSH_RQST:
