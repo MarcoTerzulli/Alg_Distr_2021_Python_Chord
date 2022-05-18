@@ -222,22 +222,39 @@ class Node:
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
             self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
-    #  OK
-    # funzione presa dallo pseudocodice del paper
+    # #  OK
+    # # funzione presa dallo pseudocodice del paper
+    # def find_successor(self, key):
+    #     """
+    #     Funzione per la ricerca del nodo responsabile di una determinata key
+    #
+    #     :param key: la chiave del nodo o file
+    #     :return il successore della key
+    #     """
+    #
+    #     n_primo = self.find_predecessor(key)
+    #     return n_primo.get_successor()
+    #
+    # # forse OK
+    # # funzione presa dallo pseudocodice del paper
+    # def find_predecessor(self, key):
+    #     """
+    #     Funzione per la ricerca del nodo predecessore di una determinata key
+    #
+    #     :param key: la chiave del nodo o file
+    #     :return il predecessore della key
+    #     """
+    #
+    #     n_primo = self
+    #     while not (
+    #             n_primo.get_node_info().get_node_id() <= key <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
+    #         n_primo = n_primo.closest_preceding_finger(key)
+    #         self.__tcp_requests_handler.sendPrecedessorRequest(n_primo.get_node_info(), key,
+    #                                                            self.__node_info)  # TODO da verificare
+    #     return n_primo
+
+
     def find_successor(self, key):
-        """
-        Funzione per la ricerca del nodo responsabile di una determinata key
-
-        :param key: la chiave del nodo o file
-        :return il successore della key
-        """
-
-        n_primo = self.find_predecessor(key)
-        return n_primo.get_successor()
-
-    # forse OK
-    # funzione presa dallo pseudocodice del paper
-    def find_predecessor(self, key):
         """
         Funzione per la ricerca del nodo predecessore di una determinata key
 
@@ -245,15 +262,32 @@ class Node:
         :return il predecessore della key
         """
 
-        n_primo = self
-        while not (
-                n_primo.get_node_info().get_node_id() <= key <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
-            n_primo = n_primo.closest_preceding_finger(key)
-            self.__tcp_requests_handler.sendPrecedessorRequest(n_primo.get_node_info(), key,
-                                                               self.__node_info)  # TODO da verificare
-        return n_primo
+        successor_node_info = None
 
-    # TODO
+        if self.__node_info.equals(key):
+            return self.__node_info
+
+        # controllo se il nodo è responsabile della key
+        if self.__predecessor_node is not None:
+            if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key)
+                return self.__node_info
+
+        # effettuo una ricerc anella lista dei successori
+        if self.__successor_node_list.__len__() > 0:
+            for i in range(0, self.__successor_node_list.__len__()):
+                if self.__successor_node_list[i].get_node_id() >= key:
+                    return self.__successor_node_list[i]
+
+        # effettuo una ricerca nella finger table
+        try:
+            closest_precedessor_node_info = self.closest_preceding_finger(key)
+            successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(closest_precedessor_node_info, key, self.__node_info)
+        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            self.repopulate_successor_list(0)
+
+        return successor_node_info
+
+    # TODO da verificare
     # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
         """
@@ -269,109 +303,127 @@ class Node:
                 return self.__finger_table.get_finger(i)
             return self
 
-    # TODO
-    # funzione presa dallo pseudocodice del paper
-    def stabilize(self):
+
+
+    def _am_i_responsable_for_the_key(self, precedessor_node_id, key):
         """
-        Funzione per la stabilizzazione di chord. Da richiamare periodicamente
+        Funzione per verificare se sono responsabile di una determinata key, confrontandomi con l'id del mio predecessore
+
+        :param precedessor_node_id: id del nodo predecessore
+        :param key: chiave da verificare
+        :return: True se sono il presente nodo è responsabile della key, False altrimenti
         """
 
-        if self.__successor_node is not None:
-            x = self.__successor_node.get_precedessor()
+        if key < self.__node_info.get_node_id():
+            return False
+        elif self.__node_info.get_node_id() > precedessor_node_id:
+            return False
+        else
+            return True
 
-            if self.__node_info.get_node_id() < x.get_node_info().get_node_id() < self.__successor_node.get_node_info().get_node_id():
-                self.__successor_node = x
-                # chiamo il metodo notify sul successore per informarlo che credo di essere il suo predecessore
-                self.__successor_node.notify(self)
-
-    # TODO
-    # funzione presa dallo pseudocodice del paper
-    # forese non serve
-    def notify(self, new_predecessor_node):
-        if self.__predecessor_node is None or self.__predecessor_node.get_node_info().get_node_id() <= new_predecessor_node.get_node_info().get_node_id() <= self.__node_info.get_node_id():
-            self.__predecessor_node = new_predecessor_node
-        # TODO da modificare perchè nel paper questa funzione viene invocata dal nuovo predecessore...
-        # TODO ok forse la modifica non serve visto che ora nel metodo stabilize invoco la funzione sul successore
+    # # TODO
+    # # funzione presa dallo pseudocodice del paper
+    # def stabilize(self):
+    #     """
+    #     Funzione per la stabilizzazione di chord. Da richiamare periodicamente
+    #     """
+    #
+    #     if self.__successor_node is not None:
+    #         x = self.__successor_node.get_precedessor()
+    #
+    #         if self.__node_info.get_node_id() < x.get_node_info().get_node_id() < self.__successor_node.get_node_info().get_node_id():
+    #             self.__successor_node = x
+    #             # chiamo il metodo notify sul successore per informarlo che credo di essere il suo predecessore
+    #             self.__successor_node.notify(self)
+    #
+    # # TODO
+    # # funzione presa dallo pseudocodice del paper
+    # # forese non serve
+    # def notify(self, new_predecessor_node):
+    #     if self.__predecessor_node is None or self.__predecessor_node.get_node_info().get_node_id() <= new_predecessor_node.get_node_info().get_node_id() <= self.__node_info.get_node_id():
+    #         self.__predecessor_node = new_predecessor_node
+    #     # TODO da modificare perchè nel paper questa funzione viene invocata dal nuovo predecessore...
+    #     # TODO ok forse la modifica non serve visto che ora nel metodo stabilize invoco la funzione sul successore
 
     # ************************** METODI FINGER TABLE *******************************
-    # TODO
-    def node_join(self, n_primo):
-        """
-        Funzione per il join del nodo a chord
-
-        :param n_primo: nodo che conosciamo
-        """
-
-        if n_primo is not None:
-            self.init_finger_table(n_primo)  # prendo la tabella da n_primo
-            self.update_others()
-            # TODO spostamento key (predecessor_id, self_id) dal successore a lui
-            # TODO e devo settare anche predecessore e successore?
-        else:  # n è l'unico nodo della rete
-            for i in range(1, CONST_M + 1):  # da 1 a M
-                self.__finger_table.add_finger_by_index(i, self)
-            self.__predecessor_node = self
-            self.__successor_node = self
-
-    # TODO
-    # forse ok
-    # funzione presa dallo pseudocodice del paper
-    def init_finger_table(self, n_primo):
-        """
-        Funzione per l'inizializzazione della propria finger table a seguito del join a chord
-
-        :param n_primo: nodo che conosciamo
-        """
-
-        # TODO da mettere nella classe finger table?
-        self.__finger_table.add_finger_by_index(1, n_primo.find_successor(
-            self.__node_info.get_node_id() + 2 ** (1 - 1)))  # TODO ????
-        self.__predecessor_node = self.__successor_node.get_precedessor()
-        self.__successor_node.set_precedessor(self)
-
-        for i in range(1, CONST_M):  # da 1 a m-1
-            if self.__node_info.get_node_id() <= self.__node_info.get_node_id() + 2 ** (
-                    (i + 1) - 1) <= self.get_finger_table().get_finger(i):  # TODO da verificare
-                self.__finger_table.add_finger_by_index(i + 1, self.__finger_table.get_finger(i))
-            else:
-                self.__finger_table.add_finger_by_index(i + 1, n_primo.find_successor(
-                    self.__node_info.get_node_id() + 2 ** ((i + 1) - 1)))  # TODO da verificare
-
-    # TODO
-    # forse ok
-    # funzione presa dallo pseudocodice del paper
-    def update_others(self):
-        """
-        Funzione per l'aggiornamento della finger table di altri nidi
-        """
-
-        # TODO da mettere nella classe finger table?
-        for i in range(1, CONST_M + 1):  # da 1 a m
-            # trovo l'ultimo nodo p il cui i-esimo finger potrebbe essere n
-            p = self.find_predecessor(self.__node_info.get_node_id() - 2 ** (i - 1))
-            p.update_finger_table(self, i)
-
-    # TODO
-    # forse ok
-    # funzione presa dallo pseudocodice del paper
-    def update_finger_table(self, s, index):
-        """
-        Funzione per l'aggiornamento della propria finger table
-
-        :param s: finger da ricercare
-        :param index: indice della tabella
-        """
-
-        # TODO da mettere nella classe finger table?
-
-        # se s è l'i-esimo finger di n, aggiorno la tabella di n con s
-        if self.__node_info.get_node_id() <= s.get_node_info().get_node_id() <= self.__finger_table.get_finger(
-                index).get_node_info().get_node_id():
-            self.__finger_table.add_finger_by_index(index, s)
-
-            # il primo nodo che precede self
-            p = self.__predecessor_node
-            p.update_finger_table(s, index)
+    # # TODO
+    # def node_join(self, n_primo):
+    #     """
+    #     Funzione per il join del nodo a chord
+    #
+    #     :param n_primo: nodo che conosciamo
+    #     """
+    #
+    #     if n_primo is not None:
+    #         self.init_finger_table(n_primo)  # prendo la tabella da n_primo
+    #         self.update_others()
+    #         # TODO spostamento key (predecessor_id, self_id) dal successore a lui
+    #         # TODO e devo settare anche predecessore e successore?
+    #     else:  # n è l'unico nodo della rete
+    #         for i in range(1, CONST_M + 1):  # da 1 a M
+    #             self.__finger_table.add_finger_by_index(i, self)
+    #         self.__predecessor_node = self
+    #         self.__successor_node = self
+    #
+    # # TODO
+    # # forse ok
+    # # funzione presa dallo pseudocodice del paper
+    # def init_finger_table(self, n_primo):
+    #     """
+    #     Funzione per l'inizializzazione della propria finger table a seguito del join a chord
+    #
+    #     :param n_primo: nodo che conosciamo
+    #     """
+    #
+    #     # TODO da mettere nella classe finger table?
+    #     self.__finger_table.add_finger_by_index(1, n_primo.find_successor(
+    #         self.__node_info.get_node_id() + 2 ** (1 - 1)))  # TODO ????
+    #     self.__predecessor_node = self.__successor_node.get_precedessor()
+    #     self.__successor_node.set_precedessor(self)
+    #
+    #     for i in range(1, CONST_M):  # da 1 a m-1
+    #         if self.__node_info.get_node_id() <= self.__node_info.get_node_id() + 2 ** (
+    #                 (i + 1) - 1) <= self.get_finger_table().get_finger(i):  # TODO da verificare
+    #             self.__finger_table.add_finger_by_index(i + 1, self.__finger_table.get_finger(i))
+    #         else:
+    #             self.__finger_table.add_finger_by_index(i + 1, n_primo.find_successor(
+    #                 self.__node_info.get_node_id() + 2 ** ((i + 1) - 1)))  # TODO da verificare
+    #
+    # # TODO
+    # # forse ok
+    # # funzione presa dallo pseudocodice del paper
+    # def update_others(self):
+    #     """
+    #     Funzione per l'aggiornamento della finger table di altri nidi
+    #     """
+    #
+    #     # TODO da mettere nella classe finger table?
+    #     for i in range(1, CONST_M + 1):  # da 1 a m
+    #         # trovo l'ultimo nodo p il cui i-esimo finger potrebbe essere n
+    #         p = self.find_predecessor(self.__node_info.get_node_id() - 2 ** (i - 1))
+    #         p.update_finger_table(self, i)
+    #
+    # # TODO
+    # # forse ok
+    # # funzione presa dallo pseudocodice del paper
+    # def update_finger_table(self, s, index):
+    #     """
+    #     Funzione per l'aggiornamento della propria finger table
+    #
+    #     :param s: finger da ricercare
+    #     :param index: indice della tabella
+    #     """
+    #
+    #     # TODO da mettere nella classe finger table?
+    #
+    #     # se s è l'i-esimo finger di n, aggiorno la tabella di n con s
+    #     if self.__node_info.get_node_id() <= s.get_node_info().get_node_id() <= self.__finger_table.get_finger(
+    #             index).get_node_info().get_node_id():
+    #         self.__finger_table.add_finger_by_index(index, s)
+    #
+    #         # il primo nodo che precede self
+    #         p = self.__predecessor_node
+    #         p.update_finger_table(s, index)
 
     # TODO
     # ok

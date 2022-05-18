@@ -117,3 +117,4 @@ class FingerTable:
                 if self.__table_dict[j].get_node_info().equals(node_info):
                     return True
         return False
+
