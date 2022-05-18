@@ -29,8 +29,8 @@ class Node:
 
         # attributi chord
         self.__finger_table = FingerTable(self.__node_info)
-        self.__successor_node = successor_node_info
         self.__predecessor_node = None
+        self.__successor_node = successor_node_info
 
         # File system
         self.__file_system = FileSystem(self.__node_info.get_node_id())
@@ -64,14 +64,22 @@ class Node:
     def get_finger_table(self):
         return self.__finger_table
 
-    def set_successor(self, new_successor_node):
-        self.__successor_node = new_successor_node
+    def set_precedessor(self, new_precedessor_node_info):
+        self.__predecessor_node = new_precedessor_node_info
 
-    def set_precedessor(self, new_precedessor_node):
-        self.__predecessor_node = new_precedessor_node
+    def set_successor(self, new_successor_node_info):
+        self.__successor_node = new_successor_node_info
 
     def get_file_system(self):
         return self.__file_system
+
+    def notify_leaving_precedessor(self, new_precedessor_node_info):
+        if new_precedessor_node_info:
+            self.set_precedessor(new_precedessor_node_info)
+
+    def notify_leaving_successor(self, new_successor_node_info):
+        self.set_successor(new_successor_node_info)
+        self.__finger_table.add_finger_by_index(1, new_successor_node_info) # Gli indici partono da 1!
 
     # ************************** METODI NODO CHORD *******************************
     # TODO

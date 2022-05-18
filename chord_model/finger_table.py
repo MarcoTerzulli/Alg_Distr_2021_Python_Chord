@@ -21,6 +21,8 @@ class FingerTable:
     def add_finger(self, new_finger):
         """
         Funzione per l'aggiunta di un nuovo nodo alla finger table.
+        Nota: gli indici partono da 1!
+
         :param new_finger: il nuovo finger
         """
 
@@ -40,6 +42,8 @@ class FingerTable:
     def add_finger_by_index(self, index, new_finger):
         """
         Funzione per l'aggiunta di un finger alla tabella in base al suo indice
+        Nota: gli indici partono da 1!
+
         :param index: l'indice dell'entry
         :param new_finger: il nodo da inserire
         """
@@ -70,6 +74,8 @@ class FingerTable:
     def get_finger(self, index):
         """
         Restituisce le informazioni associate al j-esimo finger
+        Nota: gli indici partono da 1!
+
         :param index: posizione del finger nella tabella
         :return: le informazioni associate al j-esimo finger
         """
