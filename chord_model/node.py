@@ -220,40 +220,9 @@ class Node:
                 self.__successor_node_list[self.__successor_node_list.__len__() - 1], self.__node_info)
             self.__successor_node_list.append(new_succ_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
-            self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
+            self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)git
 
-    # #  OK
-    # # funzione presa dallo pseudocodice del paper
-    # def find_successor(self, key):
-    #     """
-    #     Funzione per la ricerca del nodo responsabile di una determinata key
-    #
-    #     :param key: la chiave del nodo o file
-    #     :return il successore della key
-    #     """
-    #
-    #     n_primo = self.find_predecessor(key)
-    #     return n_primo.get_successor()
-    #
-    # # forse OK
-    # # funzione presa dallo pseudocodice del paper
-    # def find_predecessor(self, key):
-    #     """
-    #     Funzione per la ricerca del nodo predecessore di una determinata key
-    #
-    #     :param key: la chiave del nodo o file
-    #     :return il predecessore della key
-    #     """
-    #
-    #     n_primo = self
-    #     while not (
-    #             n_primo.get_node_info().get_node_id() <= key <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
-    #         n_primo = n_primo.closest_preceding_finger(key)
-    #         self.__tcp_requests_handler.sendPrecedessorRequest(n_primo.get_node_info(), key,
-    #                                                            self.__node_info)  # TODO da verificare
-    #     return n_primo
-
-
+    # forse ok
     def find_successor(self, key):
         """
         Funzione per la ricerca del nodo predecessore di una determinata key
