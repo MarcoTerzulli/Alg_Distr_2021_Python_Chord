@@ -66,6 +66,7 @@ MSG_TYPE_FIND_PREC_RQST = "C4"  # Find Predecessor Request
 MSG_TYPE_FIND_SUCC_RQST = "C5"  # Find Successor Request
 MSG_TYPE_LEAVE_PREC_RQST = "C6"  # Leaving Precedessor Request
 MSG_TYPE_LEAVE_SUCC_RQST = "C7"  # Leaving Successor Request
+MSG_TYPE_FIRST_SUCC_RQST = "C8"  # First Successor Request
 
 # *********** FILE *********
 MSG_TYPE_FILE_PBLSH_RQST = "F1"  # Publish Request
@@ -279,6 +280,45 @@ class LeavingSuccessorRequestMessage(Message):
 
     def get_new_successor_node_info(self):
         return self.__new_successor_node_info
+
+
+class FirstSuccessorAnswerMessage(Message):
+    """
+    Classe per la gestione delle risposte dei messaggi di tipo first precedessor request
+    """
+
+    def __init__(self, destination_node_info, sender_node_info, ticket, successor_node_info):
+        """
+        Inizializzazione degli attributi interni della classe.
+
+        :param destination_node_info: node_info del nodo destinatario
+        :param sender_node_info: node_info del nodo mittente
+        :param ticket: identificatore della richiesta
+        :param successor_node_info: node info del nodo successore
+        """
+
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
+        self.__successor_node_info = successor_node_info
+
+    def get_successor_node_info(self):
+        return self.__successor_node_info
+
+
+class FirstSuccessorRequestMessage(Message):
+    """
+    Classe per la gestione delle richieste dei messaggi di tipo first precedessor request
+    """
+
+    def __init__(self, destination_node_info, sender_node_info, ticket):
+        """
+        Inizializzazione degli attributi interni della classe.
+
+        :param destination_node_info: node_info del nodo destinatario
+        :param sender_node_info: node_info del nodo mittente
+        :param ticket: identificatore della richiesta
+        """
+
+        super().__init__(MSG_TYPE_FIRST_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
 
 
 #

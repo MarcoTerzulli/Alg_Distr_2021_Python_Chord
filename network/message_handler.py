@@ -83,6 +83,12 @@ class MessageHandler:
             answer = LeavingSuccessorAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
+        elif message.get_type == MSG_TYPE_FIRST_SUCC_RQST:
+            first_successor_node_info = self.get_first_successor()
+
+            answer = LeavingPredecessorAnswerMessage(dest, send, ticket, first_successor_node_info)
+            self.__my_socket_node.send_message(sender_port, answer)
+
         # file publish request
         elif message.get_type() == MSG_TYPE_FILE_PBLSH_RQST:
             file_key = message.get_file_key()

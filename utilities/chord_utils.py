@@ -22,3 +22,12 @@ def current_millis_time():
     """
 
     return round(time.time() * 1000)
+
+def compute_finger(node_id, index):
+    """
+    Funzione che computa il finger con la potenza, modulo 2^m
+    :return: il finger computato
+    """
+
+    return (node_id + 2 ** (index - 1)) % (2 ** CONST_M)
+

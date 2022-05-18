@@ -13,7 +13,7 @@ class Node:
     """
 
     def __init__(self, node_info, file_path="", tcp_request_timeout=5000,
-                 chord_stabilize_timeout=5000, chord_fix_fingers_timeout=3000, max_successor_number = 3):
+                 chord_stabilize_timeout=5000, chord_fix_fingers_timeout=3000, max_successor_number=3):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni.
 
@@ -33,7 +33,6 @@ class Node:
         self.__finger_table = FingerTable(self.__node_info)
         self.__predecessor_node = None
         self.__successor_node_list = list()
-        self.__successor_node_list.append(self.__node_info)
         self.__CONST_MAX_SUCC_NUMBER = max_successor_number
 
         # File system
@@ -70,7 +69,7 @@ class Node:
         if self.__successor_node_list.__len__() == 0:
             raise NoSuccessorFoundError
 
-        return self.__successor_node
+        return self.__successor_node_list[0]
 
     def get_precedessor(self):
         """
@@ -142,7 +141,7 @@ class Node:
             self.__finger_table.add_finger_by_index(i, self.__node_info)
 
         # inizializzazione della lista dei successori
-        for i in range (0, self.__CONST_MAX_SUCC_NUMBER):
+        for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
             self.__successor_node_list.insert(i, self.__node_info)
 
     def initalize(self, n_primo=None):
@@ -157,10 +156,10 @@ class Node:
         else:
             # richiesta al nodo successore
             try:
-                successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(n_primo, self.__node_info.get_node_id(), self.__node_info)
-            except TCPRequestTimerExpiredError:
-                raise ImpossibleInitializationError
-            except TCPRequestSendError:
+                successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(n_primo,
+                                                                                       self.__node_info.get_node_id(),
+                                                                                       self.__node_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
                 raise ImpossibleInitializationError
 
             self.__successor_node_list.append(successor_node_info)
@@ -169,18 +168,59 @@ class Node:
 
             # inizializzazione successor list
 
+            try:
+                for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
+                    last_node_info = self.__successor_node_list[
+                        self.__successor_node_list.__len__() - 1]  # ultimo elemento della lista
+                    successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_node_info,
+                                                                                                self.__node_info)
+
+                    if self.__node_info.equals(successor_node_info.get_node_id()):
+                        while i < self.__CONST_MAX_SUCC_NUMBER:
+                            self.__successor_node_list.insert(i, self.__node_info)
+                            i += 1  # TODO da verificare che non dia fastidio con il range del for
+                    else:
+                        self.__successor_node_list.insert(i, successor_node_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
+                    self.__successor_node_list.insert(i, self.__node_info)
+
             # inizializzazione finger table
+            for i in range(1, CONST_M + 1):  # da 1 a M compreso
+                computed_key = compute_finger(self.__node_info.get_node_id(), i)
+                try:
+                    finger_node_info = None
+                    finger_node_info = self.__tcp_requests_handler.sendSuccessorRequest(self.__successor_node_list[0],
 
-    # TODO
-    def _initialize(self):
+                    if finger_node_info:
+                        self.__finger_table.add_finger(finger_node_info)
+                except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                    self.repopulate_successor_list(i)
+
+            # TODO forse è necessaria una parte per avviare i vari server tcp / thread
+
+    # forse ok
+    def repopulate_successor_list(self, index_of_invalid_node):
         """
-        Funzione chiamata nel momento della creazione del nodo. Inizializza la finger table,
-        ed i nodi predecessore e successore.
+        Metodo per ripopolare la lista dei successore se un nodo non risponde.
+        Invio della notific agli altri nodi
+
+        :param index_of_invalid_node: posizione del nodo problematico
         """
 
-        self.__finger_table.add_finger(self.__node_info)
+        # se il nodo non risponde, lo rimuovo e provo a contattare i successori
 
-        # invia richiesta al successore
+        assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
+        self.__successor_node_list.pop(index_of_invalid_node)
+        # ora in i c'è il nodo successivo
+
+        # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
+        try:
+            new_succ_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(
+                self.__successor_node_list[self.__successor_node_list.__len__() - 1], self.__node_info)
+            self.__successor_node_list.append(new_succ_info)
+        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
     #  OK
     # funzione presa dallo pseudocodice del paper
