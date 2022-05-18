@@ -13,7 +13,7 @@ class NodeTCPRequestHandler():
         Funzione init della classe. Inizializzazione degli attributi.
 
         :param my_node: riferimento al nodo corrispondente
-        :param tcp_request_timeout: timeout per le richieste TCP (opzionale)
+        :param tcp_request_timeout: timeout per le richieste TCP in ms (opzionale)
         """
 
         self.__my_node = my_node
@@ -47,7 +47,7 @@ class NodeTCPRequestHandler():
 
         # La richiesta è andata in timeout
         if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
-            raise TCPRequestSendError
+            raise TCPRequestTimerExpiredError
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]

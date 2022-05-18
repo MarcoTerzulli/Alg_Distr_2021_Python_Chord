@@ -2,7 +2,8 @@ import random
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
-from exceptions.exceptions import FileKeyError
+from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSuccessorFoundError, \
+    ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError
 from network.node_tcp_requests_handler import NodeTCPRequestHandler
 
 
@@ -11,16 +12,17 @@ class Node:
     Classe che rappresenta un nodo all'interno del protocollo Chord
     """
 
-    def __init__(self, node_info, successor_node_info=None, file_path="", tcp_request_timeout=0.2,
-                 chord_stabilize_timeout=5, chord_fix_fingers_timeout=3):
+    def __init__(self, node_info, file_path="", tcp_request_timeout=5000,
+                 chord_stabilize_timeout=5000, chord_fix_fingers_timeout=3000, max_successor_number = 3):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni.
 
         :param node_info: informazioni del nodo
-        :param successor_node_info: informazioni del successore del nodo
         :param file_path: file path su disco di competenza del nodo
-        :param tcp_request_timeout: timeout per le richieste TCP in arrivo
-        :param chord_stabilize_timeout: intervallo tra l'invio di richieste di stabilizzazione
+        :param tcp_request_timeout: timeout per le richieste TCP in arrivo in ms (opzionale)
+        :param chord_stabilize_timeout: intervallo tra l'invio di richieste di stabilizzazione in ms (opzionale)
+        :param chord_fix_fingers_timeout: intervallo tra l'invio di richieste di fix fingers in ms (opzionale)
+        :param max_successor_number: massimo numero di successori memorizzati (opzionale)
         """
 
         # Informazioni del nodo chord
@@ -30,13 +32,15 @@ class Node:
         # attributi chord
         self.__finger_table = FingerTable(self.__node_info)
         self.__predecessor_node = None
-        self.__successor_node = successor_node_info
+        self.__successor_node_list = list()
+        self.__successor_node_list.append(self.__node_info)
+        self.__CONST_MAX_SUCC_NUMBER = max_successor_number
 
         # File system
         self.__file_system = FileSystem(self.__node_info.get_node_id())
 
         # Gestione rete
-        self.__tcp_requests_handler = NodeTCPRequestHandler(self)
+        self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout)
 
         # Timeout operazioni chord periodiche
         self.__chord_stabilize_timeout = chord_stabilize_timeout
@@ -56,12 +60,15 @@ class Node:
 
         return self.__node_info
 
-    def get_successor(self):
+    def get_first_successor(self):
         """
         Metodo getter per il node info del proprio nodo successore
 
         :return self.__successor_node: node info del proprio successore
         """
+
+        if self.__successor_node_list.__len__() == 0:
+            raise NoSuccessorFoundError
 
         return self.__successor_node
 
@@ -71,6 +78,9 @@ class Node:
 
         :return self.__predecessor_node: node info del proprio predecessore
         """
+
+        if not self.__predecessor_node:
+            raise NoPrecedessorFoundError
 
         return self.__predecessor_node
 
@@ -110,30 +120,57 @@ class Node:
 
         return self.__file_system
 
-    def notify_leaving_precedessor(self, new_precedessor_node_info):
+    def tcp_requests_handler(self):
         """
-        Metodo per la gestione dei messaggi notify leaving precedessor.
-        Consente di aggiornare il proprio nodo predecessore con uno nuovo.
-
-        :param new_precedessor_node_info: node info del nuovo nodo predecessore
+        Metodo getter per il tcp_requests_handler
+        :return self.__tcp_requests_handler: il proprio tcp_requests_handler
         """
 
-        if new_precedessor_node_info:
-            self.set_precedessor(new_precedessor_node_info)
-
-    def notify_leaving_successor(self, new_successor_node_info):
-        """
-        Metodo per la gestione dei messaggi notify leaving successor.
-        Consente di aggiornare il proprio nodo successore con uno nuovo.
-        La finger table viene aggiornata di conseguenza.
-
-        :param set_successor: node info del nuovo nodo successore
-        """
-
-        self.set_successor(new_successor_node_info)
-        self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
+        return self.__tcp_requests_handler
 
     # ************************** METODI NODO CHORD *******************************
+    # ok
+    def _initialize_no_friends(self):
+        """
+        Metodo per l'inizializzazione della finger table del nodo, privo di amici.
+
+        Nota: metodo interno
+        """
+
+        # inizializzazione della finger table
+        for i in range(1, CONST_M):  # da 1 a m-1
+            self.__finger_table.add_finger_by_index(i, self.__node_info)
+
+        # inizializzazione della lista dei successori
+        for i in range (0, self.__CONST_MAX_SUCC_NUMBER):
+            self.__successor_node_list.insert(i, self.__node_info)
+
+    def initalize(self, n_primo=None):
+        """
+        Metodo per l'inizializzazione della finger table del nodo e della lista di successori.
+
+        :param n_primo: nodo "amico" (opzionale)
+        """
+
+        if not n_primo:
+            self._initialize_no_friends()
+        else:
+            # richiesta al nodo successore
+            try:
+                successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(n_primo, self.__node_info.get_node_id(), self.__node_info)
+            except TCPRequestTimerExpiredError:
+                raise ImpossibleInitializationError
+            except TCPRequestSendError:
+                raise ImpossibleInitializationError
+
+            self.__successor_node_list.append(successor_node_info)
+            self.__finger_table.add_finger(successor_node_info)
+            self.__predecessor_node = None
+
+            # inizializzazione successor list
+
+            # inizializzazione finger table
+
     # TODO
     def _initialize(self):
         """
@@ -172,11 +209,11 @@ class Node:
         while not (
                 n_primo.get_node_info().get_node_id() <= key <= n_primo.get_successor().get_node_info().get_node_id()):  # TODO da verificare
             n_primo = n_primo.closest_preceding_finger(key)
-            self.__tcp_requests_handler.sendSuccessorRequest(n_primo.get_node_info(), key,
-                                                             self.__node_info)  # TODO da verificare
+            self.__tcp_requests_handler.sendPrecedessorRequest(n_primo.get_node_info(), key,
+                                                               self.__node_info)  # TODO da verificare
         return n_primo
 
-    # forse OK
+    # TODO
     # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
         """
@@ -192,7 +229,7 @@ class Node:
                 return self.__finger_table.get_finger(i)
             return self
 
-    # OK
+    # TODO
     # funzione presa dallo pseudocodice del paper
     def stabilize(self):
         """
@@ -207,7 +244,7 @@ class Node:
                 # chiamo il metodo notify sul successore per informarlo che credo di essere il suo predecessore
                 self.__successor_node.notify(self)
 
-    # OK
+    # TODO
     # funzione presa dallo pseudocodice del paper
     # forese non serve
     def notify(self, new_predecessor_node):
@@ -217,6 +254,7 @@ class Node:
         # TODO ok forse la modifica non serve visto che ora nel metodo stabilize invoco la funzione sul successore
 
     # ************************** METODI FINGER TABLE *******************************
+    # TODO
     def node_join(self, n_primo):
         """
         Funzione per il join del nodo a chord
@@ -235,6 +273,7 @@ class Node:
             self.__predecessor_node = self
             self.__successor_node = self
 
+    # TODO
     # forse ok
     # funzione presa dallo pseudocodice del paper
     def init_finger_table(self, n_primo):
@@ -258,6 +297,7 @@ class Node:
                 self.__finger_table.add_finger_by_index(i + 1, n_primo.find_successor(
                     self.__node_info.get_node_id() + 2 ** ((i + 1) - 1)))  # TODO da verificare
 
+    # TODO
     # forse ok
     # funzione presa dallo pseudocodice del paper
     def update_others(self):
@@ -271,6 +311,7 @@ class Node:
             p = self.find_predecessor(self.__node_info.get_node_id() - 2 ** (i - 1))
             p.update_finger_table(self, i)
 
+    # TODO
     # forse ok
     # funzione presa dallo pseudocodice del paper
     def update_finger_table(self, s, index):
@@ -292,6 +333,7 @@ class Node:
             p = self.__predecessor_node
             p.update_finger_table(s, index)
 
+    # TODO
     # ok
     # funzione presa dallo pseudocodice del paper
     def fix_fingers(self):
@@ -306,6 +348,31 @@ class Node:
         # presa dalle slide
         self.__finger_table.add_finger_by_index(index, self.find_successor(
             self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO
+
+    # ok
+    def notify_leaving_precedessor(self, new_precedessor_node_info):
+        """
+        Metodo per la gestione dei messaggi notify leaving precedessor.
+        Consente di aggiornare il proprio nodo predecessore con uno nuovo.
+
+        :param new_precedessor_node_info: node info del nuovo nodo predecessore
+        """
+
+        if new_precedessor_node_info:
+            self.set_precedessor(new_precedessor_node_info)
+
+    # ok
+    def notify_leaving_successor(self, new_successor_node_info):
+        """
+        Metodo per la gestione dei messaggi notify leaving successor.
+        Consente di aggiornare il proprio nodo successore con uno nuovo.
+        La finger table viene aggiornata di conseguenza.
+
+        :param set_successor: node info del nuovo nodo successore
+        """
+
+        self.set_successor(new_successor_node_info)
+        self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
     # ************************** METODI RELATIVE AI FILE *******************************
     # def find_key_holder(self):
@@ -400,5 +467,5 @@ class Node:
         """
         Metodo di debug per la stampa dello stato del nodo corrente
         """
-        
+
         pass
