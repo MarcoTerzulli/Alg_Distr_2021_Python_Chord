@@ -93,7 +93,7 @@ class Node:
 
         return self.__finger_table
 
-    def set_precedessor(self, new_precedessor_node_info):
+    def set_predecessor(self, new_precedessor_node_info):
         """
         Metodo setter per il proprio predecessore
 
@@ -419,7 +419,7 @@ class Node:
         """
 
         if new_precedessor_node_info:
-            self.set_precedessor(new_precedessor_node_info)
+            self.set_predecessor(new_precedessor_node_info)
 
     # ok
     def notify_leaving_successor(self, new_successor_node_info):
