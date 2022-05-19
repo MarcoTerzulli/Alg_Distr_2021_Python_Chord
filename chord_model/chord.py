@@ -24,143 +24,7 @@ class Chord:
 
         self.node_delete_all()
 
-    # TODO da levare
-    def create(self):
-        """
-        Funzione per la creazione di una nuova istanza di chord.
-        Creazione di un nuovo nodo ed inserimento dentro chord.
-
-        TODO: da chiamare dentro la init?
-        :return:
-        """
-        pass
-
-    def node_join(self, port):
-        """
-        Creazione di un nuovo nodo ed inserimento dentro chord
-
-        :port: porta TCP del nuovo nodo
-        :return:
-        """
-
-        new_node_info = NodeInfo(port=port)
-        try:
-            new_node = Node(new_node_info)
-        except AlreadyUsedPortError:
-            raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
-
-        self.__node_dict[port] = new_node
-
-        other_node = None
-        if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
-            while other_node is None or other_node == new_node:
-                other_node = random.choice(list(self.__node_dict.values()))
-
-        # inizializzo la finger table e sposto le eventuali chiavi di competenza
-        new_node.initalize(other_node)
-
-    # TODO
-    def file_publish(self, port, file):
-        """
-        Inserimento di un file all'interno di Chord
-
-        :param port: porta del nodo chiamante
-        :param file: il file da inserire nella rete
-        :return key: la chiave del file
-        """
-
-        file_name = file.get_name() # TODO
-        file_key = hash_function(file_name)
-
-        found_node = None
-        for node in self.__node_dict:
-            if node.get_node_info().get_port() == port:
-                found_node = node
-
-        if not found_node:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
-            raise NoNodeFoundOnPortError
-
-        found_node.put_file(file_key, file)
-        print(f"Successfully published the file with key {file_key}.")
-
-        return file_key
-
-    # TODO
-    def file_lookup(self, key, port):
-        """
-        Ricerca del nodo responsabile della chiave key
-
-        :param key: la chiave del file
-        :param port: porta del nodo chiamante
-        :return file: il file richiesto, se presente
-        """
-
-        found_node = None
-        for node in self.__node_dict:
-            if node.get_node_info().get_port() == port:
-                found_node = node
-
-        if not found_node:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
-            raise NoNodeFoundOnPortError
-
-        return found_node.get_file(key)
-
-    # TODO
-    def file_delete(self, key):
-        """
-        Rimozione di un file da chord data la sua chiave
-
-        :param key: la chiave del file da eliminare
-        :param port: porta del nodo chiamante
-        """
-
-        found_node = None
-        for node in self.__node_dict:
-            if node.get_node_info().get_port() == port:
-                found_node = node
-
-        if not found_node:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
-            raise NoNodeFoundOnPortError
-
-        found_node.delete_file(key)
-        print(f"Successfully deleted the file with key {key}.")
-
-    def node_delete(self, port):
-        """
-        Rimozione di un nodo da chord associato ad una determinata porta TCP
-        """
-
-        try:
-            node = self.__node_dict[port]
-        except KeyError:
-            raise NoNodeFoundOnPortError
-
-        if node is not None:
-            # comunico al mio predecessore e successore della mia uscita da chord
-            node.terminate()
-
-            node.tcp_server_close()
-            node.join()
-            del self.__node_dict[port]
-            print(f"Successfully deleted the node on the TCP port {port}.")
-        else:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
-            raise NoNodeFoundOnPortError
-
-    def node_delete_all(self):
-        """
-        Rimozione di tutti i nodi presenti nell'applicazione
-        """
-
-        for key, node in self.__node_dict.items():
-            if node is not None:
-                node.terminate() # si potrebbe anche omettere
-
-                node.tcp_server_close()
-                node.join()
+    # ************************** METODI INTERNI CHORD *******************************
 
     def print_chord(self):
         """
@@ -187,3 +51,133 @@ class Chord:
         :return:
         """
         pass
+
+    # ************************** METODI NODO CHORD *******************************
+
+    def node_join(self, port):
+        """
+        Creazione di un nuovo nodo ed inserimento dentro chord
+
+        :port: porta TCP del nuovo nodo
+        :return:
+        """
+
+        new_node_info = NodeInfo(port=port)
+        try:
+            new_node = Node(new_node_info)
+        except AlreadyUsedPortError:
+            raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
+
+        self.__node_dict[port] = new_node
+
+        other_node = None
+        if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
+            while other_node is None or other_node == new_node:
+                other_node = random.choice(list(self.__node_dict.values()))
+
+        # inizializzo la finger table e sposto le eventuali chiavi di competenza
+        new_node.initalize(other_node)
+
+    # TODO
+    def node_delete(self, port):
+        """
+        Rimozione di un nodo da chord associato ad una determinata porta TCP
+        """
+
+        try:
+            node = self.__node_dict[port]
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
+        if node is not None:
+            # comunico al mio predecessore e successore della mia uscita da chord
+            node.terminate()
+
+            node.tcp_server_close()
+            node.join()  # TODO da verificare
+            del self.__node_dict[port]
+            print(f"Successfully deleted the node on the TCP port {port}.")
+        else:
+            print(f"ERROR: no node is associated to this TCP port {port}.")
+            raise NoNodeFoundOnPortError
+
+    def node_delete_all(self):
+        """
+        Rimozione di tutti i nodi presenti nell'applicazione
+        """
+
+        for key, node in self.__node_dict.items():
+            if node is not None:
+                node.terminate()  # si potrebbe anche omettere
+
+                node.tcp_server_close()
+                node.join()  # TODO da verificare
+
+    # ************************** METODI RELATIVE AI FILE *******************************
+
+    # TODO
+    def file_publish(self, port, file):
+        """
+        Inserimento di un file all'interno di Chord
+
+        :param port: porta del nodo chiamante
+        :param file: il file da inserire nella rete
+        :return key: la chiave del file
+        """
+
+        file_name = file.get_name()  # TODO da verificare come ottenere il nome. Si passa il path o direttamente il file?
+        file_key = hash_function(file_name)
+
+        found_node = None
+        for node in self.__node_dict:
+            if node.get_node_info().get_port() == port:
+                found_node = node
+
+        if not found_node:
+            print(f"ERROR: no node is associated to this TCP port {port}.")
+            raise NoNodeFoundOnPortError
+
+        found_node.put_file(file_key, file)
+        print(f"Successfully published the file with key {file_key}.")
+
+        return file_key
+
+    def file_lookup(self, key, port):
+        """
+        Ricerca del nodo responsabile della chiave key
+
+        :param key: la chiave del file
+        :param port: porta del nodo chiamante
+        :return file: il file richiesto, se presente
+        """
+
+        found_node = None
+        for node in self.__node_dict:
+            if node.get_node_info().get_port() == port:
+                found_node = node
+
+        if not found_node:
+            print(f"ERROR: no node is associated to this TCP port {port}.")
+            raise NoNodeFoundOnPortError
+
+        return found_node.get_file(key)
+
+    def file_delete(self, key, port):
+        """
+        Rimozione di un file da chord data la sua chiave
+
+        :param key: la chiave del file da eliminare
+        :param port: porta del nodo chiamante
+        """
+
+        found_node = None
+        for node in self.__node_dict:
+            if node.get_node_info().get_port() == port:
+                found_node = node
+
+        if not found_node:
+            print(f"ERROR: no node is associated to this TCP port {port}.")
+            raise NoNodeFoundOnPortError
+
+        found_node.delete_file(key)
+        print(f"Successfully deleted the file with key {key}.")
