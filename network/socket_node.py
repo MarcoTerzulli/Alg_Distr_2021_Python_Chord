@@ -5,7 +5,21 @@ from tcp_socket_module import TCPServerModule, TCPClientModule
 
 
 class SocketNode(Process):
+    """
+    Classe per la gestione del server socket di un nodo tramite processi
+    """
+
     def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2):
+        """
+        Metodo init della classe.
+        Inizializzazione degli attributi interni e chiamata al costrutture del processo.
+
+        :param this_node: nodo di riferimento
+        :param this_msg_handler: riferimento al proprio message handler
+        :param port: porta del nodo
+        :param tcp_request_timeout: timout per le richieste TCP
+        """
+
         super().__init__()
 
         self.__this_node = this_node

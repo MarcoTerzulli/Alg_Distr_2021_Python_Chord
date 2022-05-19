@@ -2,6 +2,7 @@ import random
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
+from chord_model.node_periodic_operations import NodePeriodicOperations
 from chord_model.successor_list import SuccessorList
 from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSuccessorFoundError, \
     ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError
@@ -14,14 +15,14 @@ class Node:
     """
 
     def __init__(self, node_info, file_path="", tcp_request_timeout=5000,
-                 chord_stabilize_timeout=5000, chord_fix_fingers_timeout=3000, max_successor_number=3):
+                 periodic_operations_timeout=5000, max_successor_number=3):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni.
 
         :param node_info: informazioni del nodo
         :param file_path: file path su disco di competenza del nodo
         :param tcp_request_timeout: timeout per le richieste TCP in arrivo in ms (opzionale)
-        :param chord_stabilize_timeout: intervallo tra l'invio di richieste di stabilizzazione in ms (opzionale)
+        :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
         :param chord_fix_fingers_timeout: intervallo tra l'invio di richieste di fix fingers in ms (opzionale)
         :param max_successor_number: massimo numero di successori memorizzati (opzionale)
         """
@@ -42,9 +43,9 @@ class Node:
         # Gestione rete
         self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout)
 
-        # Timeout operazioni chord periodiche
-        self.__chord_stabilize_timeout = chord_stabilize_timeout
-        self.__chord_fix_fingers_timeout = chord_fix_fingers_timeout
+        # Processo per gestione delle operazioni periodiche
+        self.__node_periodic_operations_manager = NodePeriodicOperations(self, periodic_operations_timeout)
+        self.__node_periodic_operations_manager.start()
 
         # Inizializzazione della finger table e dei successori
         # self._initialize() # TODO ha senso tenerlo? forse basta òa chiamata successiva
@@ -205,13 +206,17 @@ class Node:
         Comunica al proprio predecessore e successore della propria uscita dalla rete.
         """
 
+        self.__node_periodic_operations_manager.join()
+
         try:
             # invio il messaggio al mio successore, comunicandogli il mio predecessore
-            self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__successor_node_list.get_first(), self.__predecessor_node)
+            self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__successor_node_list.get_first(),
+                                                                      self.__predecessor_node)
 
             if self.__predecessor_node:
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
-                self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__predecessor_node, self.__successor_node_list.get_first())
+                self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__predecessor_node,
+                                                                          self.__successor_node_list.get_first())
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
             pass
 
@@ -239,6 +244,18 @@ class Node:
             self.__successor_node_list.append(new_succ_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
             self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
+
+    # forse ok
+    def check_predecessor(self):
+        """
+        Funzione per verificare che il nodo predecessore sia ancora al'interno della rete chord e sia funzionante
+        """
+
+        if self.__predecessor_node:
+            try:
+                self.__tcp_requests_handler.sendPing(self.__predecessor_node, self.__node_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                self.__predecessor_node = None
 
     # forse ok
     def find_successor(self, key):
@@ -274,6 +291,27 @@ class Node:
             self.repopulate_successor_list(0)
 
         return successor_node_info
+
+    # forse ok
+    # TODO da verificare
+    def fix_successor_list(self):
+        last_known_node = None
+
+        try:
+            for i in range(0, self.__successor_node_list.__len__()):
+                last_known_node = self.__successor_node_list[i]
+                successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_known_node,
+                                                                                            self.__node_info)
+
+                if successor_node_info.get_node_id() == self.__node_info.get_node_id():
+                    while i < self.__successor_node_list.__len__() - 1:
+                        self.__successor_node_list[i + 1] = self.__node_info
+                        i += 1
+                else:
+                    self.__successor_node_list[i + 1] = successor_node_info
+
+        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            pass
 
     # TODO da verificare
     # funzione presa dallo pseudocodice del paper
@@ -414,7 +452,7 @@ class Node:
     # TODO
     # ok
     # funzione presa dallo pseudocodice del paper
-    def fix_fingers(self):
+    def fix_finger(self):
         """
         Funzione per la correzione di un finger randomico della finger table.
         Da richiamare periodicamente
