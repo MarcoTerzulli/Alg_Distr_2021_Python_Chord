@@ -190,6 +190,7 @@ class Node:
                 computed_key = compute_finger(self.__node_info.get_node_id(), i)
                 try:
                     finger_node_info = self.__tcp_requests_handler.sendSuccessorRequest(self.__successor_node_list[0],
+                                                                                        computed_key, self.__node_info)
 
                     if finger_node_info:
                         self.__finger_table.add_finger(finger_node_info)
@@ -237,7 +238,7 @@ class Node:
 
         # controllo se il nodo è responsabile della key
         if self.__predecessor_node is not None:
-            if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key)
+            if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
                 return self.__node_info
 
         # effettuo una ricerc anella lista dei successori
@@ -249,7 +250,8 @@ class Node:
         # effettuo una ricerca nella finger table
         try:
             closest_precedessor_node_info = self.closest_preceding_finger(key)
-            successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(closest_precedessor_node_info, key, self.__node_info)
+            successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(closest_precedessor_node_info, key,
+                                                                                   self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
             self.repopulate_successor_list(0)
 
@@ -271,8 +273,6 @@ class Node:
                 return self.__finger_table.get_finger(i)
             return self
 
-
-
     def _am_i_responsable_for_the_key(self, precedessor_node_id, key):
         """
         Funzione per verificare se sono responsabile di una determinata key, confrontandomi con l'id del mio predecessore
@@ -286,7 +286,7 @@ class Node:
             return False
         elif self.__node_info.get_node_id() > precedessor_node_id:
             return False
-        else
+        else:
             return True
 
     # # TODO
