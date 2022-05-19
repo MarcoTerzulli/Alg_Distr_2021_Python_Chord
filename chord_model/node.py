@@ -246,18 +246,6 @@ class Node:
             self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
     # forse ok
-    def check_predecessor(self):
-        """
-        Funzione per verificare che il nodo predecessore sia ancora al'interno della rete chord e sia funzionante
-        """
-
-        if self.__predecessor_node:
-            try:
-                self.__tcp_requests_handler.sendPing(self.__predecessor_node, self.__node_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
-                self.__predecessor_node = None
-
-    # forse ok
     def find_successor(self, key):
         """
         Funzione per la ricerca del nodo predecessore di una determinata key
@@ -291,27 +279,6 @@ class Node:
             self.repopulate_successor_list(0)
 
         return successor_node_info
-
-    # forse ok
-    # TODO da verificare
-    def fix_successor_list(self):
-        last_known_node = None
-
-        try:
-            for i in range(0, self.__successor_node_list.__len__()):
-                last_known_node = self.__successor_node_list[i]
-                successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_known_node,
-                                                                                            self.__node_info)
-
-                if successor_node_info.get_node_id() == self.__node_info.get_node_id():
-                    while i < self.__successor_node_list.__len__() - 1:
-                        self.__successor_node_list[i + 1] = self.__node_info
-                        i += 1
-                else:
-                    self.__successor_node_list[i + 1] = successor_node_info
-
-        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
-            pass
 
     # TODO da verificare
     # funzione presa dallo pseudocodice del paper
@@ -371,21 +338,6 @@ class Node:
 
     # ************************** METODI FINGER TABLE *******************************
 
-    # TODO
-    # ok
-    # funzione presa dallo pseudocodice del paper
-    def fix_finger(self):
-        """
-        Funzione per la correzione di un finger randomico della finger table.
-        Da richiamare periodicamente
-        """
-
-        # TODO da mettere nella classe finger table?
-        # prendo un finger randomico
-        index = random.randint(1, CONST_M)
-        # presa dalle slide
-        self.__finger_table.add_finger_by_index(index, self.find_successor(
-            self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO
 
     # ok
     def notify_leaving_precedessor(self, new_precedessor_node_info):
@@ -412,9 +364,83 @@ class Node:
         self.set_successor(new_successor_node_info)
         self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
+    # ************************ METODI OPERAZIONI PERIODICHE *****************************
+
+    # todo da verificare
+    def stabilize(self):
+        """
+        Funzione per la stabilizzazione di chord.
+        Da eseguire periodicamente.
+        """
+
+        if self.__successor_node is not None:
+            x = self.__successor_node.get_precedessor()
+
+            if self.__node_info.get_node_id() < x.get_node_info().get_node_id() < self.__successor_node.get_node_info().get_node_id():
+                self.__successor_node = x
+                # chiamo il metodo notify sul successore per informarlo che credo di essere il suo predecessore
+                self.__successor_node.notify(self)
+
+
+    # TODO
+    # ok
+    # funzione presa dallo pseudocodice del paper
+    def fix_finger(self):
+        """
+        Funzione per la correzione di un finger randomico della finger table.
+        Da eseguire periodicamente
+        """
+
+        # TODO da mettere nella classe finger table?
+        # prendo un finger randomico
+        index = random.randint(1, CONST_M)
+        # presa dalle slide
+        self.__finger_table.add_finger_by_index(index, self.find_successor(
+            self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO
+
+
+    # forse ok
+    def check_predecessor(self):
+        """
+        Funzione per verificare che il nodo predecessore sia ancora al'interno della rete chord e sia funzionante.
+        Da eseguire periodicamente
+        """
+
+        if self.__predecessor_node:
+            try:
+                self.__tcp_requests_handler.sendPing(self.__predecessor_node, self.__node_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                self.__predecessor_node = None
+
+    # forse ok
+    # TODO da verificare
+    def fix_successor_list(self):
+        """
+        Metodo per il controllo e la correzione della lista dei successori del nodo.
+        Da eseguire periodicamente.
+        """
+
+        last_known_node = None
+
+        try:
+            for i in range(0, self.__successor_node_list.__len__()):
+                last_known_node = self.__successor_node_list[i]
+                successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_known_node,
+                                                                                            self.__node_info)
+
+                if successor_node_info.get_node_id() == self.__node_info.get_node_id():
+                    while i < self.__successor_node_list.__len__() - 1:
+                        self.__successor_node_list[i + 1] = self.__node_info
+                        i += 1
+                else:
+                    self.__successor_node_list[i + 1] = successor_node_info
+
+        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            pass
+
+
+
     # ************************** METODI RELATIVE AI FILE *******************************
-    # def find_key_holder(self):
-    #    pass
 
     def put_file(self, key, file):
         """
