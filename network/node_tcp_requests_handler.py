@@ -25,6 +25,14 @@ class NodeTCPRequestHandler():
 
         self.__socket_node.start()
 
+    def socket_node_join(self):
+        """
+        Metodo per il join del processo socket node.
+        Da chiamare nel momento della terminazione di un nodo.
+        """
+
+        self.__socket_node.join()
+
     # sembra ok
     def sendNotify(self, destination_node_info, sender_node_info):
         """

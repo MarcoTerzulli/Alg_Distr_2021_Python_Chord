@@ -215,6 +215,7 @@ class Node:
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
             pass
 
+        self.__tcp_requests_handler.socket_node_join()
 
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):

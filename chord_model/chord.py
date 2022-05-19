@@ -94,7 +94,7 @@ class Chord:
             node.terminate()
 
             node.tcp_server_close()
-            node.join()  # TODO da verificare
+            node.join()  # ora gestito nel terminate
             del self.__node_dict[port]
             print(f"Successfully deleted the node on the TCP port {port}.")
         else:
@@ -111,7 +111,7 @@ class Chord:
                 node.terminate()  # si potrebbe anche omettere
 
                 node.tcp_server_close()
-                node.join()  # TODO da verificare
+                # node.join()  #  ora gestito nel terminate
 
     # ************************** METODI RELATIVE AI FILE *******************************
 
