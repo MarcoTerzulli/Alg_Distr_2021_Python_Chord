@@ -199,6 +199,23 @@ class Node:
 
             # TODO forse è necessaria una parte per avviare i vari server tcp / thread
 
+    def terminate(self):
+        """
+        Metodo responsabile della terminazione del nodo corrente.
+        Comunica al proprio predecessore e successore della propria uscita dalla rete.
+        """
+
+        try:
+            # invio il messaggio al mio successore, comunicandogli il mio predecessore
+            self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__successor_node_list.get_first(), self.__predecessor_node)
+
+            if self.__predecessor_node:
+                # invio il messaggio al mio predecessore, comunicandogli il mio successore
+                self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__predecessor_node, self.__successor_node_list.get_first())
+        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            pass
+
+
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):
         """
