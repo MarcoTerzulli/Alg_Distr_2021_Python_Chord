@@ -431,7 +431,7 @@ class FirstSuccessorRequestMessage(Message):
 
 # *********+ File Messages
 
-class DeleteFileAnswerMessage(Message):
+class FileDeleteAnswerMessage(Message):
     """
     Classe per la gestione delle risposte dei messaggi di tipo delete file
     """
@@ -448,7 +448,7 @@ class DeleteFileAnswerMessage(Message):
         super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
 
 
-class DeleteFileRequestMessage(Message):
+class FileDeleteRequestMessage(Message):
     """
     Classe per la gestione delle richieste dei messaggi di tipo delete file
     """

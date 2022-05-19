@@ -105,7 +105,7 @@ class MessageHandler:
             file_key = message.get_file_key()
             self.__my_node.delete_my_file(file_key)
 
-            answer = DeleteFileAnswerMessage(dest, send, ticket)
+            answer = FileDeleteAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
         # file request (get)

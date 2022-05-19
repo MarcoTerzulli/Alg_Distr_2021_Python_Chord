@@ -177,34 +177,230 @@ class NodeTCPRequestHandler():
         return answer.get_successor_node_info()
 
     # TODO
-    def sendPing(self, destination_node_info, sender_node_info):
-        pass
-
-    # TODO
     def sendStartRequest(self, destination_node_info, sender_node_info):
         pass
         # serve?
         # probabilmente da levare
 
-    # TODO
-    def sendLeavingPrecedessorRequest(self, destination_node_info, sender_node_info):
-        pass
+    # forse ok
+    def sendLeavingPredecessorRequest(self, destination_node_info, sender_node_info):
+        """
+        Creazione ed invio di un messaggio leaving predecessor.
+        Consente di notificare che il predecessore del destinatario sta lasciando chord
 
-    # TODO
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        leaving_request_message = LeavingPredecessorRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+    # forse ok
     def sendLeavingSuccessorRequest(self, destination_node_info, sender_node_info):
-        pass
+        """
+        Creazione ed invio di un messaggio leaving successor.
+        Consente di notificare che il successore del destinatario sta lasciando chord
 
-    # TODO
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        leaving_request_message = LeavingSuccessorRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+    # forse ok
     def sendPublishRequest(self, destination_node_info, sender_node_info, key, file):
-        pass
+        """
+         Creazione ed invio di un messaggio file publish.
+         Consente di inserire un file all'interno della rete chord
 
-    # TODO
+         :param destination_node_info: node info del nodo di destinazione
+         :param sender_node_info: node info del nodo mittente
+         :param key: chiave del file da pubblicare
+         :param file: il file da pubblicare
+         """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        file_publish_request_message = FilePublishRequestMessage(destination_node_info, sender_node_info,
+                                                                 message_ticket, key, file)
+        self.__socket_node.send_message(destination_node_info.get_port(), file_publish_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+    # forse ok
     def sendFileRequest(self, destination_node_info, sender_node_info, key):
-        pass
+        """
+         Creazione ed invio di un messaggio file request
+         Consente di ottenere un file dalla rete chord, se presente
 
-    # TODO
+         :param destination_node_info: node info del nodo di destinazione
+         :param sender_node_info: node info del nodo mittente
+         :param key: chiave del file richiesto
+         :return file: il file richiesto
+         """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        file_request_message = FileRequestMessage(destination_node_info, sender_node_info,
+                                                                 message_ticket, key)
+        self.__socket_node.send_message(destination_node_info.get_port(), file_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+        return answer.get_file()
+
+    # forse ok
     def sendDeleteFileRequest(self, destination_node_info, sender_node_info, key):
-        pass
+        """
+         Creazione ed invio di un messaggio file delete.
+         Consente di eliminare un file all'interno della rete chord, se presente
+
+         :param destination_node_info: node info del nodo di destinazione
+         :param sender_node_info: node info del nodo mittente
+         :param key: chiave del file da eliminare
+         """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        file_delete_request_message = FileDeleteRequestMessage(destination_node_info, sender_node_info,
+                                                                 message_ticket, key)
+        self.__socket_node.send_message(destination_node_info.get_port(), file_delete_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+    # forse ok
+    def sendPing(self, destination_node_info, sender_node_info):
+        """
+        Creazione ed invio di un messaggio ping.
+        Consente di verificare se il nodo destinatario è ancora presente nella rete ed è operativo
+
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        ping_request_message = PingRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), ping_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
 
     # TODO da verificare
     def addAnswer(self, message):
