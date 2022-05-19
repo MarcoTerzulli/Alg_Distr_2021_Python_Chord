@@ -2,6 +2,7 @@ import random
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
+from chord_model.successor_list import SuccessorList
 from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSuccessorFoundError, \
     ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError
 from network.node_tcp_requests_handler import NodeTCPRequestHandler
@@ -32,7 +33,7 @@ class Node:
         # attributi chord
         self.__finger_table = FingerTable(self.__node_info)
         self.__predecessor_node = None
-        self.__successor_node_list = list()
+        self.__successor_node_list = SuccessorList(self.__node_info)
         self.__CONST_MAX_SUCC_NUMBER = max_successor_number
 
         # File system
@@ -170,8 +171,7 @@ class Node:
 
             try:
                 for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
-                    last_node_info = self.__successor_node_list[
-                        self.__successor_node_list.__len__() - 1]  # ultimo elemento della lista
+                    last_node_info = self.__successor_node_list.get_last()
                     successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_node_info,
                                                                                                 self.__node_info)
 
@@ -189,7 +189,6 @@ class Node:
             for i in range(1, CONST_M + 1):  # da 1 a M compreso
                 computed_key = compute_finger(self.__node_info.get_node_id(), i)
                 try:
-                    finger_node_info = None
                     finger_node_info = self.__tcp_requests_handler.sendSuccessorRequest(self.__successor_node_list[0],
 
                     if finger_node_info:
@@ -217,10 +216,10 @@ class Node:
         # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
         try:
             new_succ_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(
-                self.__successor_node_list[self.__successor_node_list.__len__() - 1], self.__node_info)
+                self.__successor_node_list.get_last(), self.__node_info)
             self.__successor_node_list.append(new_succ_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
-            self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)git
+            self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
     # forse ok
     def find_successor(self, key):

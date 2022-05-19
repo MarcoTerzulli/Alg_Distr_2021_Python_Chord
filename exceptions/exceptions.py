@@ -47,3 +47,6 @@ class NoSuccessorFoundError(Exception):
 
 class ImpossibleInitializationError(Exception):
     pass
+
+class SuccessorListIsFullError(Exception):
+    pass
