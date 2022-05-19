@@ -35,6 +35,7 @@ class NodeTCPRequestHandler():
         :return files: dizionario degli eventuali file che ora sono assegnati al nodo sender
         """
 
+        # Generazione ticket ed invio del messaggio
         message_ticket = self._get_ticket()
         notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info, message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
@@ -61,19 +62,119 @@ class NodeTCPRequestHandler():
 
         return answer.get_files()
 
-    # TODO
-    def sendPrecedessorRequest(self, destination_node_info, key, sender_node_info):
-        pass
+    # sembra ok
+    def sendPredecessorRequest(self, destination_node_info, key, sender_node_info):
+        """
+        Creazione ed invio di un messaggio predecessor request.
+        Consente di ottenere il predecessore del nodo destinatario
 
-    # TODO
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        :return: il predecessore del nodo destinatario, se esiste
+        """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        predecessor_request_message = PredecessorRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), predecessor_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+        return answer.get_predecessor_node_info()
+
+    # sembra ok
     def sendSuccessorRequest(self, destination_node_info, key, sender_node_info):
-        pass
+        """
+        Creazione ed invio di un messaggio successor request.
+        Consente di ottenere il successore del nodo destinatario
 
-    # TODO
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        :return: il successore del nodo destinatario, se esiste
+        """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        successor_request_message = SuccessorRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), successor_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+        return answer.get_successor_node_info()
+
+    # sembra ok
     def sendFirstSuccessorRequest(self, destination_node_info, sender_node_info):
-        pass
-        # serve?
-        # probabilmente da levare
+        """
+        Creazione ed invio di un messaggio first successor request.
+        Consente di ottenere il primo nodo successore del nodo destinatario
+
+        :param destination_node_info: node info del nodo di destinazione
+        :param sender_node_info: node info del nodo mittente
+        :return: il primo successore del nodo destinatario, se esiste
+        """
+
+        # Generazione ticket ed invio del messaggio
+        message_ticket = self._get_ticket()
+        first_successor_request_message = FirstSuccessorRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), first_successor_request_message)
+        self.__waiting_tickets.append(message_ticket)
+
+        # Resto in attesa della risposta
+        sent_time = current_millis_time()
+        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
+            pass
+
+        # La richiesta è andata in timeout
+        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+            raise TCPRequestTimerExpiredError
+
+        # Processo la risposta
+        answer = self.__received_answers_unprocessed[message_ticket]
+        self.__waiting_tickets.pop(message_ticket)
+        del self.__received_answers_unprocessed[message_ticket]
+
+        try:
+            answer.check()
+        except TCPRequestSendError:
+            raise TCPRequestSendError
+
+        return answer.get_successor_node_info()
 
     # TODO
     def sendPing(self, destination_node_info, sender_node_info):

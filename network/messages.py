@@ -101,6 +101,10 @@ class NotifyAnswerMessage(Message):
         self.__file_dict = files
 
     def get_files(self):
+        """
+        Metodo getter per il dizionario dei file contenuti nel messaggio
+        """
+
         return self.__file_dict
 
 
@@ -140,6 +144,10 @@ class PredecessorAnswerMessage(Message):
         self.__predecessor_node_info = predecessor_node_info
 
     def get_predecessor_node_info(self):
+        """
+        Metodo getter per il node info del nodo predecessore contenuto nel messaggio
+        """
+
         return self.__predecessor_node_info
 
 
@@ -179,6 +187,10 @@ class SuccessorAnswerMessage(Message):
         self.__successor_node_info = successor_node_info
 
     def get_successor_node_info(self):
+        """
+        Metodo getter per il node info del nodo successore contenuto nel messaggio
+        """
+
         return self.__successor_node_info
 
 
@@ -237,9 +249,17 @@ class LeavingPredecessorRequestMessage(Message):
         self.__files = files
 
     def get_new_precedessor_node_info(self):
+        """
+        Metodo getter per il node info del nuovo nodo predecessore contenuto nel messaggio
+        """
+
         return self.__new_precedessor_node_info
 
     def get_files(self):
+        """
+        Metodo getter per il dizionario dei file contenuto nel messaggio
+        """
+
         return self.__files
 
 
@@ -279,6 +299,10 @@ class LeavingSuccessorRequestMessage(Message):
         self.__new_successor_node_info = new_successor_node_info
 
     def get_new_successor_node_info(self):
+        """
+        Metodo getter per il node info del nuovo nodo successore contenuto nel messaggio
+        """
+
         return self.__new_successor_node_info
 
 
@@ -300,7 +324,11 @@ class FirstSuccessorAnswerMessage(Message):
         super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
         self.__successor_node_info = successor_node_info
 
-    def get_successor_node_info(self):
+    def get_successor(self):
+        """
+        Metodo getter per il node info del primo nodo successore contenuto nel messaggio
+        """
+
         return self.__successor_node_info
 
 
@@ -439,6 +467,10 @@ class DeleteFileRequestMessage(Message):
         self.__file_key = file_key
 
     def get_file_key(self):
+        """
+        Metodo getter per la chiave del file contenuta nel messaggio
+        """
+
         return self.__file_key
 
 
@@ -461,6 +493,10 @@ class FileAnswerMessage(Message):
         self.__file = file
 
     def get_file(self):
+        """
+        Metodo getter per il file contenuto nel messaggio
+        """
+
         return self.__file
 
 
@@ -483,6 +519,10 @@ class FileRequestMessage(Message):
         self.__file_key = file_key
 
     def get_file_key(self):
+        """
+        Metodo getter per la chiave del file contenuta nel messaggio
+        """
+
         return self.__file_key
 
 
@@ -524,9 +564,17 @@ class FilePublishRequestMessage(Message):
         self.__file_data = file_data
 
     def get_file_key(self):
+        """
+        Metodo getter per la chiave del file contenuta nel messaggio
+        """
+
         return self.__file_key
 
     def get_file_data(self):
+        """
+        Metodo getter per il file contenuto nel messaggio
+        """
+
         return self.__file_data
 
 
