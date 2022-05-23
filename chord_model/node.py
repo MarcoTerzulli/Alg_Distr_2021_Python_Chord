@@ -1,8 +1,10 @@
 import random
+import weakref
+from multiprocessing import Process
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
-from chord_model.node_periodic_operations import NodePeriodicOperations
+from chord_model.node_periodic_operations_thread import NodePeriodicOperationsThread
 from chord_model.successor_list import SuccessorList
 from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSuccessorFoundError, \
     ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError
@@ -43,7 +45,9 @@ class Node:
         self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout)
 
         # Processo per gestione delle operazioni periodiche
-        self.__node_periodic_operations_manager = NodePeriodicOperations(self, periodic_operations_timeout)
+        # self.__node_periodic_operations_manager = None
+        # self.__periodic_operations_timeout = periodic_operations_timeout
+        self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout)
         self.__node_periodic_operations_manager.start()
 
         # Inizializzazione della finger table e dei successori

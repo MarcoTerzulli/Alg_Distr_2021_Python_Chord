@@ -1,14 +1,15 @@
 from multiprocessing import Process
+from threading import Thread
 
 from utilities.chord_utils import current_millis_time
 
 
-class NodePeriodicOperations(Process):
+class NodePeriodicOperationsThread(Thread):
     """
     Classe per la gestione delle operazioni periodiche di un nodo tramite processi
     """
 
-    def __init__(self, this_node, periodic_operations_timeout=5000):
+    def __init__(self, this_node, chord_global_node_dict_reference, periodic_operations_timeout=5000):
         """
         Metodo init della classe.
         Inizializzazione degli attributi interni e chiamata al costruttore del processo
@@ -33,6 +34,11 @@ class NodePeriodicOperations(Process):
 
         if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
             self.__last_execution_time = current_millis_time()
+
+            # self.__chord_global_node_dict_reference[self.__this_node].stabilize()
+            # self.__chord_global_node_dict_reference[self.__this_node].fix_finger()
+            # self.__chord_global_node_dict_reference[self.__this_node].check_predecessor()
+            # self.__chord_global_node_dict_reference[self.__this_node].fix_successor_list()
 
             self.__this_node.stabilize()
             self.__this_node.fix_finger()

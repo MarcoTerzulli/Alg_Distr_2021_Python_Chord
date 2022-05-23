@@ -7,7 +7,9 @@ from exceptions.exceptions import *
 import sys
 import platform
 import multiprocessing as mp
+from multiprocessing import Manager
 
+global chord
 
 # ********+++++******* Gestione Funzioni menu ********************
 
@@ -205,8 +207,15 @@ if __name__ == "__main__":
             chord.node_delete_all()
             print("Goodye!")
             sys.exit()
-        except IndexError:
+        except (ValueError, IndexError):
             print("ERROR: invalid input!")
+            continue
+
+        try:
+            int(selected_op)
+        except ValueError:
+            print("ERROR: invalid input!")
+            continue
 
         if int(selected_op) == 1:  # creazione e join
             menu_node_create_and_join()

@@ -1,7 +1,7 @@
 from multiprocessing import Process
 
 from exceptions.exceptions import *
-from tcp_socket_module import TCPServerModule, TCPClientModule
+from network.tcp_socket_module import TCPServerModule, TCPClientModule
 
 
 class SocketNode(Process):

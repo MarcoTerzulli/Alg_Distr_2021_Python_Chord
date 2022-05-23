@@ -1,6 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from exceptions.exceptions import *
-from tcp_socket_module import TCPServerModule
+from network.tcp_socket_module import *
 
 
 def check_if_port_is_available(port):
