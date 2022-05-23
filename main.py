@@ -70,7 +70,7 @@ def menu_DEBUG_OPERATION_1():
 
         # Gestione richiesta nuova porta in caso in cui quella scelta sia stata occupata nel mentre da altri processi
         try:
-            tcp_port_manager.check_if_port_is_available(port)
+            check_if_port_is_available(port)
             new_node = Node(NodeInfo(port=port))
         except AlreadyUsedPortError:
             print("ERROR: the selected port is already in use. A new port is going to be chosen.")

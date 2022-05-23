@@ -1,6 +1,18 @@
-from socket import socket
+from socket import socket, AF_INET, SOCK_STREAM
 from exceptions.exceptions import *
 from tcp_socket_module import TCPServerModule
+
+
+def check_if_port_is_available(port):
+    tcp_test_socket = TCPServerModule(port)
+
+    try:
+        tcp_test_socket.tpc_server_connect()
+    except AlreadyUsedPortError:
+        raise AlreadyUsedPortError(
+            f"ERROR: TCP server socket port {port} is already in use!")
+
+    tcp_test_socket.tcp_server_close()
 
 
 class TCPPortManager:
@@ -23,8 +35,10 @@ class TCPPortManager:
         self.__LAST_DYNAMIC_PORT_NUMBER = 65535
 
         # Inizializzo le porte considerandole tutte disponibili
-        self.__registered_ports_available = {key: True for key in range(self.__FIRST_REGISTERED_PORT_NUMBER, self.__LAST_REGISTERED_PORT_NUMBER + 1)}
-        self.__dynamic_ports_available = {key: True for key in range(self.__FIRST_DYNAMIC_PORT_NUMBER, self.__LAST_DYNAMIC_PORT_NUMBER + 1)}
+        self.__registered_ports_available = {key: True for key in range(self.__FIRST_REGISTERED_PORT_NUMBER,
+                                                                        self.__LAST_REGISTERED_PORT_NUMBER + 1)}
+        self.__dynamic_ports_available = {key: True for key in
+                                          range(self.__FIRST_DYNAMIC_PORT_NUMBER, self.__LAST_DYNAMIC_PORT_NUMBER + 1)}
 
         # Contatori per ottenere rapidamente il numero di porte utilizzate senza dover scorrere i dizionari
         self.__used_registered_ports_counter = 0
@@ -44,7 +58,8 @@ class TCPPortManager:
                     self.mark_port_as_used(i)
                     return i
 
-        elif self.__used_registered_ports_counter < (self.__LAST_REGISTERED_PORT_NUMBER - self.__FIRST_REGISTERED_PORT_NUMBER):
+        elif self.__used_registered_ports_counter < (
+                self.__LAST_REGISTERED_PORT_NUMBER - self.__FIRST_REGISTERED_PORT_NUMBER):
             print("Dynamic TCP ports are out of stock. A registered port is going to be used.")
 
             for i in range(self.__FIRST_REGISTERED_PORT_NUMBER, self.__LAST_REGISTERED_PORT_NUMBER + 1):
@@ -53,12 +68,12 @@ class TCPPortManager:
                     self.mark_port_as_used(i)
                     return i
         else:
-            #print("ERROR: TCP ports are out of stock!")
-            #return None # Ho esaurito le porte
+            # print("ERROR: TCP ports are out of stock!")
+            # return None # Ho esaurito le porte
             raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
 
-        #print("ERROR: TCP ports are out of stock!")
-        #return None # Non dovremmo mai arrivare qui
+        # print("ERROR: TCP ports are out of stock!")
+        # return None # Non dovremmo mai arrivare qui
         raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
 
     def mark_port_as_free(self, port):
@@ -72,20 +87,22 @@ class TCPPortManager:
             self.__dynamic_ports_available[port] = True
 
             if self.__used_dynamic_ports_counter < 0:
-                self.__used_dynamic_ports_counter = 0 # Ripristino il contatore
-                #print("ERROR: something went wrong in the management of the dinamicheTCP ports. We're trying to free a ports, but none is used!")
-                raise FreeingNonUsedDynamicTCPPortError("ERROR: something went wrong in the management of the dynamicTCP ports. We're trying to free a ports, but none is used!")
+                self.__used_dynamic_ports_counter = 0  # Ripristino il contatore
+                # print("ERROR: something went wrong in the management of the dinamicheTCP ports. We're trying to free a ports, but none is used!")
+                raise FreeingNonUsedDynamicTCPPortError(
+                    "ERROR: something went wrong in the management of the dynamicTCP ports. We're trying to free a ports, but none is used!")
 
         elif self.get_port_type(port) == "registered":
             self.__used_registered_ports_counter -= 1
             self.__registered_ports_available[port] = True
 
             if self.__used_registered_ports_counter < 0:
-                self.__used_registered_ports_counter = 0 # Ripristino il contatore
-                #print("ERROR: something went wrong in the management of the registrateTCP ports. We're trying to free a ports, but none is used!")
-                raise FreeingNonUsedRegisteredTCPPortError("ERROR: something went wrong in the management of the registeredTCP ports. We're trying to free a ports, but none is used!")
+                self.__used_registered_ports_counter = 0  # Ripristino il contatore
+                # print("ERROR: something went wrong in the management of the registrateTCP ports. We're trying to free a ports, but none is used!")
+                raise FreeingNonUsedRegisteredTCPPortError(
+                    "ERROR: something went wrong in the management of the registeredTCP ports. We're trying to free a ports, but none is used!")
         else:
-            #print("ERROR: invalid TCP port.")
+            # print("ERROR: invalid TCP port.")
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
     def mark_port_as_used(self, port):
@@ -105,7 +122,7 @@ class TCPPortManager:
             self.__registered_ports_available[port] = False
 
         else:
-            #print("ERROR: invalid TCP port.")
+            # print("ERROR: invalid TCP port.")
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
     def _check_if_port_is_open(self, port):
@@ -116,11 +133,11 @@ class TCPPortManager:
         :return: True se è disponibile, False altrimenti
         """
 
-        test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = test_socket.connect_ex(self.__ip, port)
+        test_socket = socket(AF_INET, SOCK_STREAM)
+        result = test_socket.connect_ex((self.__ip, port))
         test_socket.close()
 
-        if result == 0: # La porta è disponibile
+        if result == 0:  # La porta è disponibile
             return True
         else:
             return False
@@ -138,16 +155,5 @@ class TCPPortManager:
         elif self.__FIRST_REGISTERED_PORT_NUMBER <= port <= self.__LAST_REGISTERED_PORT_NUMBER:
             return "registered"
         else:
-            #return None # porta non valida
+            # return None # porta non valida
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
-
-    def check_if_port_is_available(self, port):
-        tcp_test_socket = TCPServerModule(port)
-
-        try:
-            tcp_test_socket.tpc_server_connect()
-        except AlreadyUsedPortError:
-            raise AlreadyUsedPortError(
-                f"ERROR: TCP server socket port {port} is already in use!")
-
-        tcp_test_socket.tcp_server_close()

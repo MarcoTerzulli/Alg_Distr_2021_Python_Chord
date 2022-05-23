@@ -83,6 +83,7 @@ class TCPServerModule:
             pass
         self.__tcp_server.close()
 
+
 class TCPClientModule:
     """
     Modulo di gestione del TCP Socket Client
@@ -109,7 +110,7 @@ class TCPClientModule:
 
     def tcp_client_send_message(self, message=""):
         """
-        Funzione per inviare un messaggio tcp ad un server
+        Funzione per inviare un messaggio tcp a un server
 
         :param message: messaggio da inviare
         """
@@ -135,15 +136,15 @@ class TCPClientModule:
 
     def tcp_client_connect_and_send_message(self, ip="localhost", port=8091, message=""):
         """
-        Funzione per connettersi ad un server tcp ed inviare un messaggio, per poi disconnettersi
+        Funzione per connettersi a un server tcp e inviare un messaggio, per poi disconnettersi
 
         :param ip: ip del server
         :param port: porta del server
         :param message: messaggio da inviare
         """
 
-        self.__tcp_client.close()  # CHiusura di eventuali connessioni aperte
-        self.__tcp_client = socket.socket()  # Creazione di un nuooo socket
+        self.__tcp_client.close()  # Chiusura di eventuali connessioni aperte
+        self.__tcp_client = socket.socket()  # Creazione di un nuovo socket
 
         try:
             self.__tcp_client.connect((ip, port))

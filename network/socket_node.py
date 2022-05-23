@@ -12,7 +12,7 @@ class SocketNode(Process):
     def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2):
         """
         Metodo init della classe.
-        Inizializzazione degli attributi interni e chiamata al costrutture del processo.
+        Inizializzazione degli attributi interni e chiamata al costruttore del processo.
 
         :param this_node: nodo di riferimento
         :param this_msg_handler: riferimento al proprio message handler
@@ -50,12 +50,13 @@ class SocketNode(Process):
     def send_message(self, destination_port, message):
         tcp_client = TCPClientModule(port=destination_port)
 
-        # Tento di provo ad inviare la richiesta finchè non riesco
-        while(True):
+        # Tento di provo a inviare la richiesta finché non riesco
+        while True:
             try:
                 tcp_client.tcp_client_connect_and_send_message(port=destination_port, message=message)
             except TCPRequestSendError:
-                print(f"ERROR: Node with port {self.__port}: message to the node on port {destination_port} not delivered. I\'ll retry soon.")
+                print(
+                    f"ERROR: Node with port {self.__port}: message to the node on port {destination_port} not delivered. I\'ll retry soon.")
             else:
                 break
 
