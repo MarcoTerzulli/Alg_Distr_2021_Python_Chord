@@ -71,7 +71,7 @@ class NodeTCPRequestHandler():
         return answer.get_files()
 
     # sembra ok
-    def sendPredecessorRequest(self, destination_node_info, key, sender_node_info):
+    def sendPredecessorRequest(self, destination_node_info, sender_node_info):
         """
         Creazione ed invio di un messaggio predecessor request.
         Consente di ottenere il predecessore del nodo destinatario
@@ -115,13 +115,14 @@ class NodeTCPRequestHandler():
         Consente di ottenere il successore del nodo destinatario
 
         :param destination_node_info: node info del nodo di destinazione
+        :param key: la chiave del nodo di cui il mittente sta cercando il successore
         :param sender_node_info: node info del nodo mittente
         :return: il successore del nodo destinatario, se esiste
         """
 
         # Generazione ticket ed invio del messaggio
         message_ticket = self._get_ticket()
-        successor_request_message = SuccessorRequestMessage(destination_node_info, sender_node_info, message_ticket)
+        successor_request_message = SuccessorRequestMessage(destination_node_info, key, sender_node_info, message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), successor_request_message)
         self.__waiting_tickets.append(message_ticket)
 

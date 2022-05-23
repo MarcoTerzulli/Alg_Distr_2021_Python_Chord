@@ -199,16 +199,27 @@ class SuccessorRequestMessage(Message):
     Classe per la gestione delle richieste dei messaggi di tipo successor request
     """
 
-    def __init__(self, destination_node_info, sender_node_info, ticket):
+    def __init__(self, destination_node_info, key, sender_node_info, ticket):
         """
         Inizializzazione degli attributi interni della classe.
 
         :param destination_node_info: node_info del nodo destinatario
+        :param key: la chiave del nodo di cui il mittente sta cercando il successore
         :param sender_node_info: node_info del nodo mittente
         :param ticket: identificatore della richiesta
         """
 
         super().__init__(MSG_TYPE_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
+        self.__key = key
+
+    def get_key(self):
+        """
+        Getter per la chiave di cui si sta cercando il successore
+
+        :return key
+        """
+
+        return self.__key
 
 
 class LeavingPredecessorAnswerMessage(Message):

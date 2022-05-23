@@ -1,4 +1,3 @@
-from exceptions.exceptions import EmptyMessageError
 from network.messages import *
 
 
@@ -49,22 +48,22 @@ class MessageHandler:
         #     answer = SuccessorAnswerMessage(dest, send, successor, ticket)
         #     self.__my_socket_node.send_message(sender_port, answer)
 
-        # precedessor request
+        # predecessor request
         elif message.get_type() == MSG_TYPE_PREC_RQST:
-            found_precedessor = self.__my_node.get_precedessor(send)
-            answer = PredecessorAnswerMessage(dest, send, found_precedessor, ticket)
+            found_predecessor = self.__my_node.get_precedessor(send)
+            answer = PredecessorAnswerMessage(dest, send, found_predecessor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
         # Find successor request
         elif message.get_type() == MSG_TYPE_SUCC_RQST:
-            found_successor = self.__my_node.find_successor()
+            found_successor = self.__my_node.find_successor(message.get_key())
             answer = SuccessorAnswerMessage(dest, send, found_successor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # leaving precedessor request
+        # leaving predecessor request
         elif message.get_type() == MSG_TYPE_LEAVE_PREC_RQST:
-            new_precedessor_node_info = message.get_new_precedessor_node_info()
-            self.__my_node.notify_leaving_precedessor(new_precedessor_node_info)
+            new_predecessor_node_info = message.get_new_precedessor_node_info()
+            self.__my_node.notify_leaving_precedessor(new_predecessor_node_info)
 
             files = message.get_files()
 

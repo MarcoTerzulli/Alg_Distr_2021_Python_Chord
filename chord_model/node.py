@@ -23,7 +23,6 @@ class Node:
         :param file_path: file path su disco di competenza del nodo
         :param tcp_request_timeout: timeout per le richieste TCP in arrivo in ms (opzionale)
         :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
-        :param chord_fix_fingers_timeout: intervallo tra l'invio di richieste di fix fingers in ms (opzionale)
         :param max_successor_number: massimo numero di successori memorizzati (opzionale)
         """
 
@@ -146,7 +145,7 @@ class Node:
         for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
             self.__successor_node_list.insert(i, self.__node_info)
 
-    def initalize(self, n_primo=None):
+    def initialize(self, n_primo=None):
         """
         Metodo per l'inizializzazione della finger table del nodo e della lista di successori.
 
@@ -161,7 +160,7 @@ class Node:
                 successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(n_primo,
                                                                                        self.__node_info.get_node_id(),
                                                                                        self.__node_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 raise ImpossibleInitializationError
 
             self.__successor_node_list.append(successor_node_info)
@@ -217,7 +216,7 @@ class Node:
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
                 self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__predecessor_node,
                                                                           self.__successor_node_list.get_first())
-        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
         self.__tcp_requests_handler.socket_node_join()
@@ -333,7 +332,7 @@ class Node:
         Consente di aggiornare il proprio nodo successore con uno nuovo.
         La finger table viene aggiornata di conseguenza.
 
-        :param set_successor: node info del nuovo nodo successore
+        :param new_successor_node_info: node info del nuovo nodo successore
         """
 
         self.set_successor(new_successor_node_info)
@@ -358,7 +357,7 @@ class Node:
                 # chiedo al mio successore chi è il suo predecessore
                 potential_successor = self.__tcp_requests_handler.sendPredecessorRequest(actual_successor,
                                                                                          self.__node_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.repopulate_successor_list(0)
             except NoPrecedessorFoundError:
                 pass  # non devo fare altro
@@ -421,8 +420,6 @@ class Node:
         Metodo per il controllo e la correzione della lista dei successori del nodo.
         Da eseguire periodicamente.
         """
-
-        last_known_node = None
 
         try:
             for i in range(0, self.__successor_node_list.__len__()):

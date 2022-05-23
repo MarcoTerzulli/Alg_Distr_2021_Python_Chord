@@ -76,7 +76,7 @@ class Chord:
                 other_node = random.choice(list(self.__node_dict.values()))
 
         # inizializzo la finger table e sposto le eventuali chiavi di competenza
-        new_node.initalize(other_node)
+        new_node.initialize(other_node)
 
     # TODO
     def node_delete(self, port):
