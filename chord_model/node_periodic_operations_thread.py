@@ -35,11 +35,6 @@ class NodePeriodicOperationsThread(Thread):
         if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
             self.__last_execution_time = current_millis_time()
 
-            # self.__chord_global_node_dict_reference[self.__this_node].stabilize()
-            # self.__chord_global_node_dict_reference[self.__this_node].fix_finger()
-            # self.__chord_global_node_dict_reference[self.__this_node].check_predecessor()
-            # self.__chord_global_node_dict_reference[self.__this_node].fix_successor_list()
-
             self.__this_node.stabilize()
             self.__this_node.fix_finger()
             self.__this_node.check_predecessor()

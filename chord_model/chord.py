@@ -8,17 +8,13 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self, node_dict_reference=None):
+    def __init__(self):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
         """
 
-        if node_dict_reference:
-            self.__node_dict = node_dict_reference
-        else:
-            self.__node_dict = dict()
+        self.__node_dict = dict()
 
-        #self.__node_periodic_operations_process_dict = dict()
 
     def __del__(self):
         """
@@ -72,8 +68,6 @@ class Chord:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
         self.__node_dict[port] = new_node
-        #self.__node_periodic_operations_process_dict[port] = NodePeriodicOperationsThread(None, self.__node_dict, 5000)
-        #self.__node_periodic_operations_process_dict[port].start()
 
         other_node = None
         if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
@@ -95,9 +89,6 @@ class Chord:
             raise NoNodeFoundOnPortError
 
         if node is not None:
-            # terminazione del processo per le operazion periodiche
-            #self.__node_periodic_operations_process_dict[port].join()
-
             # comunico al mio predecessore e successore della mia uscita da chord
             node.terminate()
 
@@ -106,7 +97,6 @@ class Chord:
 
             # eliminazione delle entry dal dizionario
             del self.__node_dict[port]
-            #del self.__node_periodic_operations_process_dict[port]
 
             print(f"Successfully deleted the node on the TCP port {port}.")
         else:

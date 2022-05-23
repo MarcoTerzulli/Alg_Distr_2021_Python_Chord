@@ -85,4 +85,4 @@ class NodeInfo:
         :param n: seconda node info
         :return: True se le node info sono uguali, False altrimenti
         """
-        return self.__node_id == n.get_node_id()
+        return self.__node_id == n

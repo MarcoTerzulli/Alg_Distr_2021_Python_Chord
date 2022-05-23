@@ -45,13 +45,10 @@ class Node:
         self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout)
 
         # Processo per gestione delle operazioni periodiche
-        # self.__node_periodic_operations_manager = None
-        # self.__periodic_operations_timeout = periodic_operations_timeout
         self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout)
         self.__node_periodic_operations_manager.start()
 
-        # Inizializzazione della finger table e dei successori
-        # self._initialize() # TODO ha senso tenerlo? forse basta òa chiamata successiva
+        # Creazione della finger table (vuota)
         self.__finger_table.add_finger(self.__node_info)
 
     # ************************** GETTER E SETTER NODO *******************************
@@ -227,19 +224,21 @@ class Node:
         :param index_of_invalid_node: posizione del nodo problematico
         """
 
-        # se il nodo non risponde, lo rimuovo e provo a contattare i successori
-
         assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
-        self.__successor_node_list.pop(index_of_invalid_node)
-        # ora in i c'è il nodo successivo
 
-        # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
-        try:
-            new_successor_info = self.__tcp_requests_handler.send_first_successor_request(
-                self.__successor_node_list.get_last(), self.__node_info)
-            self.__successor_node_list.append(new_successor_info)
-        except (TCPRequestTimerExpiredError, TCPRequestSendError):
-            self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
+        if not self.__successor_node_list.is_empty():
+
+            # se il nodo non risponde, lo rimuovo e provo a contattare i successori
+            self.__successor_node_list.pop(index_of_invalid_node)
+            # ora in i c'è il nodo successivo
+
+            # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
+            try:
+                new_successor_info = self.__tcp_requests_handler.send_first_successor_request(
+                    self.__successor_node_list.get_last(), self.__node_info)
+                self.__successor_node_list.append(new_successor_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
     # forse ok
     def find_successor(self, key):
@@ -249,6 +248,9 @@ class Node:
         :param key: la chiave del nodo o file
         :return il predecessore della key
         """
+
+        if not key:
+            return None
 
         successor_node_info = None
 
@@ -268,7 +270,7 @@ class Node:
 
         # effettuo una ricerca nella finger table
         try:
-            closest_predecessor_node_info = self.closest_preceding_finger(key)
+            closest_predecessor_node_info = self.closest_preceding_finger(key).get_node_info()
             successor_node_info = self.__tcp_requests_handler.send_successor_request(closest_predecessor_node_info, key,
                                                                                      self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -287,9 +289,10 @@ class Node:
         """
 
         for i in range(CONST_M, 0, -1):  # da m a 1
-            if self.__node_info.get_node_id() <= self.__finger_table.get_finger(
-                    i).get_node_id() <= key:  # TODO da verificare
-                return self.__finger_table.get_finger(i)
+            finger = self.__finger_table.get_finger(i)
+            if finger:
+                if self.__node_info.get_node_id() <= finger.get_node_id() <= key:  # TODO da verificare
+                    return finger
             return self
 
     def _am_i_responsable_for_the_key(self, predecessor_node_id, key):
