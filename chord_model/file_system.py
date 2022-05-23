@@ -41,7 +41,7 @@ class FileSystem:
         except KeyError:
             raise FileKeyError
 
-    def free_file_system(self):
+    def empty_file_system(self):
         """
         Funzione richiamata nella fase di terminazione di un nodo, per trasferire i suoi file al suo successore
 

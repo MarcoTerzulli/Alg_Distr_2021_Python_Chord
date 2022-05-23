@@ -8,7 +8,7 @@ class SuccessorList:
 
     def __init__(self, my_node_info, max_successor_number=3):
         """
-        Metodo init della classe. Inizializzazione degli atytributi interni e chiamata al costrutture della classe list
+        Metodo init della classe. Inizializzazione degli attributi interni e chiamata al costruttore della classe list
 
         :param my_node_info: node info del nodo assegnato
         :param max_successor_number: massimo numero di entry della lista (opzionale)
@@ -43,7 +43,7 @@ class SuccessorList:
         """
         Getter per l'ultimo elemento della lista
 
-        :return: l'ultimo  elemento della lista. None se vuota
+        :return: l'ultimo elemento della lista. None se vuota
         """
 
         if self.__node_list.__len__() > 1:
@@ -93,7 +93,6 @@ class SuccessorList:
         else:
             raise SuccessorListIsFullError
 
-
     def __len__(self):
         """
         Overload del metodo __len__ della lista
@@ -113,15 +112,15 @@ class SuccessorList:
 
         self.__node_list.__getitem__(i)
 
-    def __setitem__(self, i, object):
+    def __setitem__(self, i, object_to_be_inserted):
         """
         Overload del metodo __setitem__ della lista
 
         :param i: indice dell'elemento selezionato
-        :param object: l'elemento da inserire
+        :param object_to_be_inserted: l'elemento da inserire
         """
 
-        self.__node_list.__setitem__(i, object)
+        self.__node_list.__setitem__(i, object_to_be_inserted)
 
     def __delitem__(self, i):
         """

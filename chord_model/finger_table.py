@@ -92,7 +92,7 @@ class FingerTable:
     # funzione di debug
     def _remove_finger(self, finger_info):
         """
-        Funzione di debug per la rimozione di un dnodo alla finger table.
+        Funzione di debug per la rimozione di un nodo alla finger table.
         Nota: subito dopo bisogna invocare add_finger!
         :param finger_info: node_info del finger da rimuovere
         """

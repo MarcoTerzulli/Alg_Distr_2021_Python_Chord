@@ -148,9 +148,9 @@ class Node:
         else:
             # richiesta al nodo successore
             try:
-                successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(n_primo,
-                                                                                       self.__node_info.get_node_id(),
-                                                                                       self.__node_info)
+                successor_node_info = self.__tcp_requests_handler.send_successor_request(n_primo,
+                                                                                         self.__node_info.get_node_id(),
+                                                                                         self.__node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 raise ImpossibleInitializationError
 
@@ -163,8 +163,8 @@ class Node:
             try:
                 for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                     last_node_info = self.__successor_node_list.get_last()
-                    successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_node_info,
-                                                                                                self.__node_info)
+                    successor_node_info = self.__tcp_requests_handler.send_first_successor_request(last_node_info,
+                                                                                                   self.__node_info)
 
                     if self.__node_info.equals(successor_node_info.get_node_id()):
                         while i < self.__CONST_MAX_SUCC_NUMBER:
@@ -180,8 +180,9 @@ class Node:
             for i in range(1, CONST_M + 1):  # da 1 a M compreso
                 computed_key = compute_finger(self.__node_info.get_node_id(), i)
                 try:
-                    finger_node_info = self.__tcp_requests_handler.sendSuccessorRequest(self.__successor_node_list[0],
-                                                                                        computed_key, self.__node_info)
+                    finger_node_info = self.__tcp_requests_handler.send_successor_request(self.__successor_node_list[0],
+                                                                                          computed_key,
+                                                                                          self.__node_info)
 
                     if finger_node_info:
                         self.__finger_table.add_finger(finger_node_info)
@@ -200,13 +201,14 @@ class Node:
 
         try:
             # invio il messaggio al mio successore, comunicandogli il mio predecessore
-            self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__successor_node_list.get_first(),
-                                                                      self.__predecessor_node)
+            self.__tcp_requests_handler.send_leaving_predecessor_request(self.__successor_node_list.get_first(),
+                                                                         self.__node_info, self.__predecessor_node,
+                                                                         self.__file_system.empty_file_system())
 
             if self.__predecessor_node:
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
-                self.__tcp_requests_handler.sendLeavingPredecessorRequest(self.__predecessor_node,
-                                                                          self.__successor_node_list.get_first())
+                self.__tcp_requests_handler.send_leaving_successor_request(self.__predecessor_node, self.__node_info,
+                                                                             self.__successor_node_list.get_first())
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
@@ -229,7 +231,7 @@ class Node:
 
         # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
         try:
-            new_successor_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(
+            new_successor_info = self.__tcp_requests_handler.send_first_successor_request(
                 self.__successor_node_list.get_last(), self.__node_info)
             self.__successor_node_list.append(new_successor_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -263,8 +265,8 @@ class Node:
         # effettuo una ricerca nella finger table
         try:
             closest_predecessor_node_info = self.closest_preceding_finger(key)
-            successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(closest_predecessor_node_info, key,
-                                                                                   self.__node_info)
+            successor_node_info = self.__tcp_requests_handler.send_successor_request(closest_predecessor_node_info, key,
+                                                                                     self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self.repopulate_successor_list(0)
 
@@ -346,8 +348,8 @@ class Node:
 
             try:
                 # chiedo al mio successore chi è il suo predecessore
-                potential_successor = self.__tcp_requests_handler.sendPredecessorRequest(actual_successor,
-                                                                                         self.__node_info)
+                potential_successor = self.__tcp_requests_handler.send_predecessor_request(actual_successor,
+                                                                                           self.__node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.repopulate_successor_list(0)
             except NoPrecedessorFoundError:
@@ -366,7 +368,7 @@ class Node:
                     # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
                     # ed ottengo gli eventuali file che ora sono di mia competenza
                     try:
-                        new_files_dict = self.__tcp_requests_handler.sendNotify(new_successor, self.__node_info)
+                        new_files_dict = self.__tcp_requests_handler.send_notify(new_successor, self.__node_info)
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         # il nodo potrebbe aver avuto problemi o essere uscito da chord
                         self.repopulate_successor_list(0)
@@ -400,7 +402,7 @@ class Node:
 
         if self.__predecessor_node:
             try:
-                self.__tcp_requests_handler.sendPing(self.__predecessor_node, self.__node_info)
+                self.__tcp_requests_handler.send_ping(self.__predecessor_node, self.__node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.__predecessor_node = None
 
@@ -415,8 +417,8 @@ class Node:
         try:
             for i in range(0, self.__successor_node_list.__len__()):
                 last_known_node = self.__successor_node_list[i]
-                successor_node_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(last_known_node,
-                                                                                            self.__node_info)
+                successor_node_info = self.__tcp_requests_handler.send_first_successor_request(last_known_node,
+                                                                                               self.__node_info)
 
                 if successor_node_info.get_node_id() == self.__node_info.get_node_id():
                     while i < self.__successor_node_list.__len__() - 1:
@@ -441,7 +443,7 @@ class Node:
         # Inserimento nella rete
         successor = self.find_successor(key)
         if not self.__node_info.equals(successor.get_node_info):
-            self.__tcp_requests_handler.sendPublishRequest(successor.get_node_info(), self.__node_info, key, file)
+            self.__tcp_requests_handler.send_publish_request(successor.get_node_info(), self.__node_info, key, file)
 
     def put_file_here(self, key, file):
         """
@@ -468,7 +470,7 @@ class Node:
         if self.__node_info.equals(successor.get_node_info):
             file = self.get_my_file(key)
         else:
-            file = self.__tcp_requests_handler.sendFileRequest(successor.get_node_info(), self.__node_info, key)
+            file = self.__tcp_requests_handler.send_file_request(successor.get_node_info(), self.__node_info, key)
 
         return file
 
@@ -499,7 +501,7 @@ class Node:
         if self.__node_info.equals(successor.get_node_info):
             self.delete_my_file(key)
         else:
-            self.__tcp_requests_handler.sendDeleteFileRequest(successor.get_node_info(), self.__node_info, key)
+            self.__tcp_requests_handler.send_delete_file_request(successor.get_node_info(), self.__node_info, key)
 
     def delete_my_file(self, key):
         """

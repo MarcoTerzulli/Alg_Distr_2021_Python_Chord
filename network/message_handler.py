@@ -42,12 +42,6 @@ class MessageHandler:
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # # da levare
-        # elif message.get_type() == MSG_TYPE_SUCC_RQST:
-        #     successor = self.__my_node.get_successor()
-        #     answer = SuccessorAnswerMessage(dest, send, successor, ticket)
-        #     self.__my_socket_node.send_message(sender_port, answer)
-
         # predecessor request
         elif message.get_type() == MSG_TYPE_PREC_RQST:
             found_predecessor = self.__my_node.get_predecessor(send)
@@ -125,7 +119,7 @@ class MessageHandler:
         # forse è già ok
         # answer
         elif message.get_type() == MSG_TYPE_ANSWER:
-            self.__my_tcp_request_handler.addAnswer(message)
+            self.__my_tcp_request_handler.add_answer(message)
 
         else:
             raise InvalidMessageTypeError
