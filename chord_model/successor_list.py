@@ -59,6 +59,15 @@ class SuccessorList:
 
         return self.__node_list.__len__() == self.__CONST_MAX_SUCC_NUMBER
 
+    def is_empty(self):
+        """
+        Metodo per verificare se la lista è vuota
+
+        :return: True se è vuota, False altrimenti
+        """
+
+        return self.__node_list.__len__() == 0
+
     def append(self, object):
         """
         Metodo per inserire un elemento in fondo alla lista.

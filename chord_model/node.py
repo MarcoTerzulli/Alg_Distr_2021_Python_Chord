@@ -312,32 +312,7 @@ class Node:
         else:
             return True
 
-    # # TODO
-    # # funzione presa dallo pseudocodice del paper
-    # def stabilize(self):
-    #     """
-    #     Funzione per la stabilizzazione di chord. Da richiamare periodicamente
-    #     """
-    #
-    #     if self.__successor_node is not None:
-    #         x = self.__successor_node.get_precedessor()
-    #
-    #         if self.__node_info.get_node_id() < x.get_node_info().get_node_id() < self.__successor_node.get_node_info().get_node_id():
-    #             self.__successor_node = x
-    #             # chiamo il metodo notify sul successore per informarlo che credo di essere il suo predecessore
-    #             self.__successor_node.notify(self)
-    #
-    # # TODO
-    # # funzione presa dallo pseudocodice del paper
-    # # forese non serve
-    # def notify(self, new_predecessor_node):
-    #     if self.__predecessor_node is None or self.__predecessor_node.get_node_info().get_node_id() <= new_predecessor_node.get_node_info().get_node_id() <= self.__node_info.get_node_id():
-    #         self.__predecessor_node = new_predecessor_node
-    #     # TODO da modificare perchè nel paper questa funzione viene invocata dal nuovo predecessore...
-    #     # TODO ok forse la modifica non serve visto che ora nel metodo stabilize invoco la funzione sul successore
-
     # ************************** METODI FINGER TABLE *******************************
-
 
     # ok
     def notify_leaving_precedessor(self, new_precedessor_node_info):
@@ -367,20 +342,48 @@ class Node:
     # ************************ METODI OPERAZIONI PERIODICHE *****************************
 
     # todo da verificare
+    # forse ok
     def stabilize(self):
         """
         Funzione per la stabilizzazione di chord.
         Da eseguire periodicamente.
         """
 
-        if self.__successor_node is not None:
-            x = self.__successor_node.get_precedessor()
+        if self.__successor_node_list.is_empty():
+            self.repopulate_successor_list(0)
+        else:
+            actual_successor = self.__successor_node_list.get_first()
 
-            if self.__node_info.get_node_id() < x.get_node_info().get_node_id() < self.__successor_node.get_node_info().get_node_id():
-                self.__successor_node = x
-                # chiamo il metodo notify sul successore per informarlo che credo di essere il suo predecessore
-                self.__successor_node.notify(self)
+            try:
+                # chiedo al mio successore chi è il suo predecessore
+                potential_successor = self.__tcp_requests_handler.sendPredecessorRequest(actual_successor,
+                                                                                         self.__node_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                self.repopulate_successor_list(0)
+            except NoPrecedessorFoundError:
+                pass  # non devo fare altro
+            else:
+                # verifico se il predecessore del mio successore sono io
+                if potential_successor.get_node_id() == self.__node_info.get_node_id():
+                    return  # non devo fare altro
 
+                # se il potenziale successore individuato ha un id del mio successore attuale,
+                # diventerà il mio nuovo successore
+                if potential_successor.get_node_id() < actual_successor.get_node_id():
+                    new_successor = potential_successor  # per chiarezza di lettura
+                    self.__successor_node_list[0] = new_successor
+
+                    # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
+                    # ed ottengo gli eventuali file che ora sono di mia competenza
+                    try:
+                        new_files_dict = self.__tcp_requests_handler.sendNotify(new_successor, self.__node_info)
+                    except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                        # il nodo potrebbe aver avuto problemi o essere uscito da chord
+                        self.repopulate_successor_list(0)
+                    else:
+                        if new_files_dict is not None and new_files_dict.__len__() > 0:
+                            for key in new_files_dict.keys():
+                                self.__file_system.put_file(key, new_files_dict[key])
 
     # TODO
     # ok
@@ -396,8 +399,7 @@ class Node:
         index = random.randint(1, CONST_M)
         # presa dalle slide
         self.__finger_table.add_finger_by_index(index, self.find_successor(
-            self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO
-
+            self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO da verificare
 
     # forse ok
     def check_predecessor(self):
@@ -437,8 +439,6 @@ class Node:
 
         except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
             pass
-
-
 
     # ************************** METODI RELATIVE AI FILE *******************************
 
