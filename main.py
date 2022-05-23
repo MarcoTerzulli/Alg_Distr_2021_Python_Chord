@@ -12,8 +12,6 @@ import multiprocessing as mp
 # ********+++++******* Gestione Funzioni menu ********************
 
 def menu_node_create_and_join():
-    port = None
-
     while True:
         # Ottengo una nuova porta TCP
         try:
@@ -35,7 +33,6 @@ def menu_node_create_and_join():
 
 
 def menu_node_delete():
-    selected_port = None
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node that you want to delete?\n"))
     except KeyboardInterrupt:
@@ -51,6 +48,80 @@ def menu_node_delete():
     else:
         # libero la porta tcp
         tcp_port_manager.mark_port_as_free(selected_port)
+
+
+def menu_file_insert():
+    try:
+        file_data = input(f"\nInsert the file data: \n")
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        chord.file_publish(selected_port, file_data)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+
+
+def menu_file_search():
+    try:
+        file_key = input(f"\nInsert the file key: \n")
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        file = chord.file_lookup(selected_port, file_key)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+    else:
+        if file:
+            print(f"Here's the requested file:\n{file}")
+        else:
+            print("ERROR: File not found!")
+
+
+def menu_file_delete():
+    try:
+        file_key = input(f"\nInsert the file key: \n")
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        chord.file_delete(selected_port, file_key)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
 
 
 def menu_DEBUG_OPERATION_1():
@@ -78,9 +149,9 @@ def menu_DEBUG_OPERATION_1():
             print(f"Successfully created node on port {tcp_port_manager.get_port_type(port)} {port}")
             break  # Se tutto è andato bene, esco dal loop
 
-    new_node.start()
-    new_node.tcp_server_close()
-    new_node.join()
+    # new_node.start()
+    # new_node.tcp_server_close()
+    # new_node.join()
 
     tcp_port_manager.mark_port_as_free(port)
 
@@ -89,7 +160,7 @@ def menu_DEBUG_OPERATION_2():
     print("DEBUG: terminazione nodo di test sulla porta 50000")
 
     # new_node.terminate()
-    new_node.join()
+    # new_node.join()
 
 
 # ******************* Main Vero e Proprio ***********************
@@ -144,16 +215,17 @@ if __name__ == "__main__":
             menu_node_delete()
 
         elif int(selected_op) == 3:  # insert file
-            pass
+            menu_file_insert()
 
         elif int(selected_op) == 4:  # search fle
-            pass
+            menu_file_search()
 
         elif int(selected_op) == 5:  # delete file
-            pass
+            menu_file_delete()
 
         elif int(selected_op) == 6:  # chord status
-            pass
+            print("The Chord Network is going to be printed:\n")
+            chord.print_chord()
 
         elif int(selected_op) == 7:  # TODO node start debug
             menu_DEBUG_OPERATION_1()

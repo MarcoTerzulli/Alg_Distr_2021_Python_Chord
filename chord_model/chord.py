@@ -98,7 +98,6 @@ class Chord:
             del self.__node_dict[port]
             print(f"Successfully deleted the node on the TCP port {port}.")
         else:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
             raise NoNodeFoundOnPortError
 
     def node_delete_all(self):
@@ -125,7 +124,8 @@ class Chord:
         :return key: la chiave del file
         """
 
-        file_name = file.get_name()  # TODO verificare come ottenere il nome. Si passa il path o direttamente il file?
+        file_name = file
+        #file_name = file.get_name()  # TODO verificare come ottenere il nome. Si passa il path o direttamente il file?
         file_key = hash_function(file_name)
 
         found_node = None
@@ -134,7 +134,6 @@ class Chord:
                 found_node = node
 
         if not found_node:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
             raise NoNodeFoundOnPortError
 
         found_node.put_file(file_key, file)
@@ -157,7 +156,6 @@ class Chord:
                 found_node = node
 
         if not found_node:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
             raise NoNodeFoundOnPortError
 
         return found_node.get_file(key)
@@ -176,7 +174,6 @@ class Chord:
                 found_node = node
 
         if not found_node:
-            print(f"ERROR: no node is associated to this TCP port {port}.")
             raise NoNodeFoundOnPortError
 
         found_node.delete_file(key)
