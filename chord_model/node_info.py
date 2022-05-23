@@ -1,8 +1,9 @@
 from utilities.chord_utils import *
 
+
 class NodeInfo:
     """
-    Classe che memorizza le informazioni relative ad un nodo:
+    Classe che memorizza le informazioni relative a un nodo:
     - indirizzo IP
     - porta
     - id hashato
@@ -19,7 +20,7 @@ class NodeInfo:
         self.__ip = ip
         self.__port = port
         # L'assegnazione del node id viene fatta solo per chiarezza, visto che la funzione lo aggiorna già
-        self.__node_id = self._update_node_id() # hashato
+        self.__node_id = self._update_node_id()  # hashato
 
     def get_ip(self):
         """

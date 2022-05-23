@@ -72,7 +72,7 @@ class Node:
 
         return self.__successor_node_list[0]
 
-    def get_precedessor(self):
+    def get_predecessor(self):
         """
         Metodo getter per il node info del proprio nodo predecessore
 
@@ -93,23 +93,14 @@ class Node:
 
         return self.__finger_table
 
-    def set_predecessor(self, new_precedessor_node_info):
+    def set_predecessor(self, new_predecessor_node_info):
         """
         Metodo setter per il proprio predecessore
 
-        :param new_precedessor_node_info: node info del nuovo nodo predecessore
+        :param new_predecessor_node_info: node info del nuovo nodo predecessore
         """
 
-        self.__predecessor_node = new_precedessor_node_info
-
-    def set_successor(self, new_successor_node_info):
-        """
-        Metodo setter per il proprio successore
-
-        :param new_successor_node_info: node info del nuovo nodo successore
-        """
-
-        self.__successor_node = new_successor_node_info
+        self.__predecessor_node = new_predecessor_node_info
 
     def get_file_system(self):
         """
@@ -181,7 +172,7 @@ class Node:
                             i += 1  # TODO da verificare che non dia fastidio con il range del for
                     else:
                         self.__successor_node_list.insert(i, successor_node_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                     self.__successor_node_list.insert(i, self.__node_info)
 
@@ -194,7 +185,7 @@ class Node:
 
                     if finger_node_info:
                         self.__finger_table.add_finger(finger_node_info)
-                except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                except (TCPRequestTimerExpiredError, TCPRequestSendError):
                     self.repopulate_successor_list(i)
 
             # TODO forse è necessaria una parte per avviare i vari server tcp / thread
@@ -224,8 +215,8 @@ class Node:
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):
         """
-        Metodo per ripopolare la lista dei successore se un nodo non risponde.
-        Invio della notific agli altri nodi
+        Metodo per ripopolare la lista dei successori se un nodo non risponde.
+        Invio della notifica agli altri nodi
 
         :param index_of_invalid_node: posizione del nodo problematico
         """
@@ -238,10 +229,10 @@ class Node:
 
         # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
         try:
-            new_succ_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(
+            new_successor_info = self.__tcp_requests_handler.sendFirstSuccessorRequest(
                 self.__successor_node_list.get_last(), self.__node_info)
-            self.__successor_node_list.append(new_succ_info)
-        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            self.__successor_node_list.append(new_successor_info)
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
     # forse ok
@@ -263,7 +254,7 @@ class Node:
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
                 return self.__node_info
 
-        # effettuo una ricerc anella lista dei successori
+        # effettuo una ricerca nella lista dei successori
         if self.__successor_node_list.__len__() > 0:
             for i in range(0, self.__successor_node_list.__len__()):
                 if self.__successor_node_list[i].get_node_id() >= key:
@@ -271,10 +262,10 @@ class Node:
 
         # effettuo una ricerca nella finger table
         try:
-            closest_precedessor_node_info = self.closest_preceding_finger(key)
-            successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(closest_precedessor_node_info, key,
+            closest_predecessor_node_info = self.closest_preceding_finger(key)
+            successor_node_info = self.__tcp_requests_handler.sendSuccessorRequest(closest_predecessor_node_info, key,
                                                                                    self.__node_info)
-        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self.repopulate_successor_list(0)
 
         return successor_node_info
@@ -283,7 +274,7 @@ class Node:
     # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
         """
-        Funzione per la ricerca del finger precedente più vicino ad una key
+        Funzione per la ricerca del finger precedente più vicino a una key
 
         :param key: la chiave del nodo o file
         :return il closest preceding finger
@@ -295,18 +286,18 @@ class Node:
                 return self.__finger_table.get_finger(i)
             return self
 
-    def _am_i_responsable_for_the_key(self, precedessor_node_id, key):
+    def _am_i_responsable_for_the_key(self, predecessor_node_id, key):
         """
-        Funzione per verificare se sono responsabile di una determinata key, confrontandomi con l'id del mio predecessore
+        Funzione per verificare se sono responsabile di una determinata key, confrontandomi con l'id del mio predecessor
 
-        :param precedessor_node_id: id del nodo predecessore
+        :param predecessor_node_id: id del nodo predecessore
         :param key: chiave da verificare
         :return: True se sono il presente nodo è responsabile della key, False altrimenti
         """
 
         if key < self.__node_info.get_node_id():
             return False
-        elif self.__node_info.get_node_id() > precedessor_node_id:
+        elif self.__node_info.get_node_id() > predecessor_node_id:
             return False
         else:
             return True
@@ -314,16 +305,16 @@ class Node:
     # ************************** METODI FINGER TABLE *******************************
 
     # ok
-    def notify_leaving_precedessor(self, new_precedessor_node_info):
+    def notify_leaving_predecessor(self, new_predecessor_node_info):
         """
-        Metodo per la gestione dei messaggi notify leaving precedessor.
+        Metodo per la gestione dei messaggi notify leaving predecessor.
         Consente di aggiornare il proprio nodo predecessore con uno nuovo.
 
-        :param new_precedessor_node_info: node info del nuovo nodo predecessore
+        :param new_predecessor_node_info: node info del nuovo nodo predecessore
         """
 
-        if new_precedessor_node_info:
-            self.set_predecessor(new_precedessor_node_info)
+        if new_predecessor_node_info:
+            self.set_predecessor(new_predecessor_node_info)
 
     # ok
     def notify_leaving_successor(self, new_successor_node_info):
@@ -335,7 +326,7 @@ class Node:
         :param new_successor_node_info: node info del nuovo nodo successore
         """
 
-        self.set_successor(new_successor_node_info)
+        self.__successor_node_list[0] = new_successor_node_info
         self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
     # ************************ METODI OPERAZIONI PERIODICHE *****************************
@@ -376,7 +367,7 @@ class Node:
                     # ed ottengo gli eventuali file che ora sono di mia competenza
                     try:
                         new_files_dict = self.__tcp_requests_handler.sendNotify(new_successor, self.__node_info)
-                    except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+                    except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         # il nodo potrebbe aver avuto problemi o essere uscito da chord
                         self.repopulate_successor_list(0)
                     else:
@@ -410,7 +401,7 @@ class Node:
         if self.__predecessor_node:
             try:
                 self.__tcp_requests_handler.sendPing(self.__predecessor_node, self.__node_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+            except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.__predecessor_node = None
 
     # forse ok
@@ -434,7 +425,7 @@ class Node:
                 else:
                     self.__successor_node_list[i + 1] = successor_node_info
 
-        except (TCPRequestTimerExpiredError, TCPRequestSendError) as e:
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
     # ************************** METODI RELATIVE AI FILE *******************************

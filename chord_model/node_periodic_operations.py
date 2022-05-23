@@ -11,7 +11,7 @@ class NodePeriodicOperations(Process):
     def __init__(self, this_node, periodic_operations_timeout=5000):
         """
         Metodo init della classe.
-        Inizializzazione degli attributi interni e chiamata al costrutture del processo
+        Inizializzazione degli attributi interni e chiamata al costruttore del processo
 
         :param this_node: riferimento al proprio nodo
         :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)

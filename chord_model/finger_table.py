@@ -51,7 +51,6 @@ class FingerTable:
         assert 1 <= index <= CONST_M
         self.__table_dict[index] = new_finger
 
-
     # def add_finger(self, new_finger_info):
     #     """
     #     Funzione per l'aggiunta di un nuovo nodo alla finger table.
@@ -90,15 +89,13 @@ class FingerTable:
 
         print(self.__table_dict)
 
-    # TODO funzione di debug
+    # funzione di debug
     def _remove_finger(self, finger_info):
         """
         Funzione di debug per la rimozione di un dnodo alla finger table.
         Nota: subito dopo bisogna invocare add_finger!
         :param finger_info: node_info del finger da rimuovere
         """
-
-        i = self.__my_node_info.get_node_id()
 
         for j in range(1, CONST_M + 1):
             if self.__table_dict[j] is not None:
@@ -117,4 +114,3 @@ class FingerTable:
                 if self.__table_dict[j].get_node_info().equals(node_info):
                     return True
         return False
-

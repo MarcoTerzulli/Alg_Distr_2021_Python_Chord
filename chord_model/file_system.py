@@ -58,7 +58,7 @@ class FileSystem:
 
     def retrieve_files(self, new_node_id):
         """
-        Funzione per trasferire ad un nuovo nodo i file di cui ora è responsabile.
+        Funzione per trasferire a un nuovo nodo i file di cui ora è responsabile.
 
         :param new_node_id: identificatore del nuovo nodo
         :return: il dizionario dei file di cui il nuovo nodo ora è responsabile
@@ -67,7 +67,7 @@ class FileSystem:
         new_file_dict = dict()
 
         for key in self.__file_dict.keys():
-            if key < new_node_id: # TODO da verificare - dovrebbe essere ok
+            if key < new_node_id:  # TODO da verificare - dovrebbe essere ok
                 new_file_dict[key] = self.__file_dict[key]
                 del self.__file_dict[key]
 

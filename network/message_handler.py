@@ -50,7 +50,7 @@ class MessageHandler:
 
         # predecessor request
         elif message.get_type() == MSG_TYPE_PREC_RQST:
-            found_predecessor = self.__my_node.get_precedessor(send)
+            found_predecessor = self.__my_node.get_predecessor(send)
             answer = PredecessorAnswerMessage(dest, send, found_predecessor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
@@ -63,7 +63,7 @@ class MessageHandler:
         # leaving predecessor request
         elif message.get_type() == MSG_TYPE_LEAVE_PREC_RQST:
             new_predecessor_node_info = message.get_new_precedessor_node_info()
-            self.__my_node.notify_leaving_precedessor(new_predecessor_node_info)
+            self.__my_node.notify_leaving_predecessor(new_predecessor_node_info)
 
             files = message.get_files()
 

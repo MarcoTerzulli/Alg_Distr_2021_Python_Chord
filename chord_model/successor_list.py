@@ -68,28 +68,28 @@ class SuccessorList:
 
         return self.__node_list.__len__() == 0
 
-    def append(self, object):
+    def append(self, object_to_be_inserted):
         """
         Metodo per inserire un elemento in fondo alla lista.
 
-        :param object: oggetto da inserire
+        :param object_to_be_inserted: oggetto da inserire
         """
 
         if self.__node_list.__len__() < self.__CONST_MAX_SUCC_NUMBER:
-            self.__node_list.append(object)
+            self.__node_list.append(object_to_be_inserted)
         else:
             raise SuccessorListIsFullError
 
-    def insert(self, index, object):
+    def insert(self, index, object_to_be_inserted):
         """
         Metodo per inserire un elemento in una specifica posizione lista.
 
         :param index: posizione in cui inserire l'elemento
-        :param object: oggetto da inserire
+        :param object_to_be_inserted: oggetto da inserire
         """
 
         if self.__node_list.__len__() < self.__CONST_MAX_SUCC_NUMBER:
-            self.__node_list.insert(index, object)
+            self.__node_list.insert(index, object_to_be_inserted)
         else:
             raise SuccessorListIsFullError
 

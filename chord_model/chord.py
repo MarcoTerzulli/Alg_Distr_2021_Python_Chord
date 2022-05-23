@@ -56,7 +56,7 @@ class Chord:
 
     def node_join(self, port):
         """
-        Creazione di un nuovo nodo ed inserimento dentro chord
+        Creazione di un nuovo nodo e inserimento dentro chord
 
         :port: porta TCP del nuovo nodo
         :return:
@@ -81,7 +81,7 @@ class Chord:
     # TODO
     def node_delete(self, port):
         """
-        Rimozione di un nodo da chord associato ad una determinata porta TCP
+        Rimozione di un nodo da chord associato a una determinata porta TCP
         """
 
         try:
@@ -125,7 +125,7 @@ class Chord:
         :return key: la chiave del file
         """
 
-        file_name = file.get_name()  # TODO da verificare come ottenere il nome. Si passa il path o direttamente il file?
+        file_name = file.get_name()  # TODO verificare come ottenere il nome. Si passa il path o direttamente il file?
         file_key = hash_function(file_name)
 
         found_node = None
