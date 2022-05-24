@@ -8,20 +8,24 @@ class NodeTCPRequestHandler:
     Classe per la gestione delle richieste TCP di un nodo chord
     """
 
-    def __init__(self, my_node, tcp_request_timeout=5000):
+    def __init__(self, my_node, tcp_request_timeout=5000, debug_mode=False):
         """
         Funzione init della classe. Inizializzazione degli attributi.
 
         :param my_node: riferimento al nodo corrispondente
         :param tcp_request_timeout: timeout per le richieste TCP in ms (opzionale)
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__my_node = my_node
-        self.__socket_node = SocketNode(self.__my_node, self, self.__my_node.get_node_info().get_port())
+        self.__socket_node = SocketNode(self.__my_node, self, self.__my_node.get_node_info().get_port(), debug_mode=debug_mode)
         self.__ticket_counter = 0
         self.__waiting_tickets = list()
         self.__received_answers_unprocessed = dict()
         self.__CONST_TCP_REQUEST_TIMEOUT = tcp_request_timeout
+
+        # Modalità di debug
+        self.__debug_mode = debug_mode
 
         self.__socket_node.start()
 

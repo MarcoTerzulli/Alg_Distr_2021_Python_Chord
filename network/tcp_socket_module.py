@@ -11,16 +11,20 @@ class TCPServerModule:
     Modulo di gestione del TCP Socket Server
     """
 
-    def __init__(self, port=8090, request_timeout=0.2):
+    def __init__(self, port=8090, request_timeout=0.2, debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
 
         :param port: porta su cui mettersi in ascolto
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__tcp_server_port = port
         self.__tcp_request_timeout = request_timeout
+
+        # Modalità di debug
+        self.__debug_mode = debug_mode
 
     def tpc_server_connect(self):
         """
@@ -65,10 +69,11 @@ class TCPServerModule:
                 return None, None, None
 
             if len(content) != 0:
-                print(f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
-                #content = content.decode("utf-8")  # non funziona per gli oggetti
-                #print(content)
                 content = pickle.loads(content)
+
+                if self.__debug_mode:
+                    print(
+                        f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
 
                 return client_ip, client_port, content
 
@@ -92,16 +97,20 @@ class TCPClientModule:
     Modulo di gestione del TCP Socket Client
     """
 
-    def __init__(self, ip="localhost", port=8091):
+    def __init__(self, ip="localhost", port=8091, debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
 
         :param port: porta su cui mettersi in ascolto
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__tcp_client = socket.socket()
         self.__tcp_client_ip = ip
         self.__tcp_client_port = port
+
+        # Modalità di debug
+        self.__debug_mode = debug_mode
 
     def tpc_client_connect(self):
         """
@@ -119,7 +128,7 @@ class TCPClientModule:
         """
 
         try:
-            #self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
+            # self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
             message_pickle = pickle.dumps(message)
             self.__tcp_client.send(message_pickle)
         except BrokenPipeError:
@@ -153,7 +162,7 @@ class TCPClientModule:
 
         try:
             self.__tcp_client.connect((ip, port))
-            #self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
+            # self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
             message_pickle = pickle.dumps(message)
             self.__tcp_client.send(message_pickle)
         except BrokenPipeError:

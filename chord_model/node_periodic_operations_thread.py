@@ -9,13 +9,14 @@ class NodePeriodicOperationsThread(Thread):
     Classe per la gestione delle operazioni periodiche di un nodo tramite processi
     """
 
-    def __init__(self, this_node, chord_global_node_dict_reference, periodic_operations_timeout=5000):
+    def __init__(self, this_node, periodic_operations_timeout=5000, debug_mode=False):
         """
         Metodo init della classe.
         Inizializzazione degli attributi interni e chiamata al costruttore del processo
 
         :param this_node: riferimento al proprio nodo
         :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         super().__init__()
@@ -26,6 +27,9 @@ class NodePeriodicOperationsThread(Thread):
         self.__periodic_operations_timeout = periodic_operations_timeout
         self.__last_execution_time = 0
 
+        # Modalità di debug
+        self.__debug_mode = debug_mode
+
     def run(self):
         """
         Process Run. Costituisce il corpo del funzionamento della classe.
@@ -34,6 +38,7 @@ class NodePeriodicOperationsThread(Thread):
 
         while True:
             if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
+
                 self.__last_execution_time = current_millis_time()
 
                 self.__this_node.stabilize()

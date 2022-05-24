@@ -9,11 +9,11 @@ from chord_model.chord import *
 from exceptions.exceptions import *
 import sys
 import platform
-import multiprocessing as mp
 
-from test_process import TestProcess
+# ********+++++******* Definizione Oggetti ********************
 
 global chord
+DEBUG_MODE = False
 
 # ********+++++******* Gestione Funzioni menu ********************
 
@@ -202,7 +202,7 @@ if __name__ == "__main__":
 
     exit_flag = False
     tcp_port_manager = TCPPortManager()
-    chord = Chord()
+    chord = Chord(debug_mode=DEBUG_MODE)
 
     new_node = None
     selected_op = None
@@ -266,5 +266,6 @@ if __name__ == "__main__":
     print("Goodye!")
     sys.exit()
 else:
-    print("DEBUG: Another process is trying to run the main...")
+    if DEBUG_MODE:
+        print("DEBUG: Another process is trying to run the main...")
 

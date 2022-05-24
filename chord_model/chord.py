@@ -8,13 +8,20 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self, max_node_initialization_retries=3):
+    def __init__(self, max_node_initialization_retries=3, debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
+
+        :param max_node_initialization_retries: il massimo numero di tentativi di inizializzazione di un nodo (opzionale)
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__node_dict = dict()
         self.__CONST_MAX_NODE_INITALIZATION_RETRIES = max_node_initialization_retries
+        self.__debug_mode = debug_mode
+
+        if self.__debug_mode:
+            print("\n\nChord Debug Mode: ENABLED\n\n")
 
     def __del__(self):
         """
@@ -46,15 +53,6 @@ class Chord:
             for key, node_id in ordered_dict.items():
                 print(f" * IP an Port: {key} - ID: {node_id}")
 
-    # TODO
-    def message_deliver(self):
-        """
-        Funzione responsabile della consegna di un messaggio al nodo corrispondente
-        TODO: da valutare se ha senso tenerla
-        :return:
-        """
-        pass
-
     # ************************** METODI NODO CHORD *******************************
 
     def node_join(self, port):
@@ -67,7 +65,7 @@ class Chord:
 
         new_node_info = NodeInfo(port=port)
         try:
-            new_node = Node(new_node_info)
+            new_node = Node(new_node_info, debug_mode=self.__debug_mode)
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
@@ -89,7 +87,7 @@ class Chord:
             else:
                 break
 
-        if retries == 5:
+        if retries == self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             self.__node_dict[port].terminate()
             del self.__node_dict[port]
             raise ImpossibleInitializationError

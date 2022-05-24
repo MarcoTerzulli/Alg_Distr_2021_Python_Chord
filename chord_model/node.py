@@ -15,7 +15,7 @@ class Node:
     """
 
     def __init__(self, node_info, file_path="", tcp_request_timeout=5000,
-                 periodic_operations_timeout=5000, max_successor_number=3):
+                 periodic_operations_timeout=5000, max_successor_number=3, debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni.
 
@@ -24,6 +24,7 @@ class Node:
         :param tcp_request_timeout: timeout per le richieste TCP in arrivo in ms (opzionale)
         :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
         :param max_successor_number: massimo numero di successori memorizzati (opzionale)
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         # Informazioni del nodo chord
@@ -40,13 +41,17 @@ class Node:
         self.__file_system = FileSystem(self.__node_info.get_node_id())
 
         # Gestione rete
-        self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout)
+        self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout, debug_mode=debug_mode)
 
         # Processo per gestione delle operazioni periodiche
-        self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout)
+        self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout,
+                                                                               debug_mode=debug_mode)
 
         # Creazione della finger table (vuota)
         self.__finger_table.add_finger(self.__node_info)
+
+        # Modalità di debug
+        self.__debug_mode = debug_mode
 
     # ************************** GETTER E SETTER NODO *******************************
     def get_node_info(self):
@@ -308,7 +313,7 @@ class Node:
             if finger:
                 if self.__node_info.get_node_id() <= finger.get_node_id() <= key:  # TODO da verificare
                     return finger
-            return self
+            return self.__node_info
 
     def _am_i_responsable_for_the_key(self, predecessor_node_id, key):
         """
@@ -408,14 +413,13 @@ class Node:
         Da eseguire periodicamente
         """
 
-        # TODO da mettere nella classe finger table?
         # prendo un finger randomico
         index = random.randint(1, CONST_M)
 
+        if self.__debug_mode:
+            print(
+                f"\nDEBUG FIX FINGERS OF THE NODE WITH IP/PORT {self.__node_info.get_ip()}:{self.__node_info.get_port()}\nOriginal Node ID: {self.__node_info.get_node_id()}\n2 ** {index} - 1: {2 ** (index - 1)}\nComputed Node ID: {self.__node_info.get_node_id() + 2 ** (index - 1)}\n")
 
-        print(f"\nDEBUG FIX FINGERS. ID Originale: {self.__node_info.get_node_id()}" )
-        print(f"DEBUG FIX FINGERS. 2 ** {index} - 1: {2 ** (index - 1)}" )
-        print(f"DEBUG FIX FINGERS. ID Calcolato: {self.__node_info.get_node_id() + 2 ** (index - 1)}" )
         # funzione presa dalle slide
         self.__finger_table.add_finger_by_index(index, self.find_successor(
             self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO da verificare

@@ -10,7 +10,7 @@ class SocketNode(Process):
     Classe per la gestione del server socket di un nodo tramite processi
     """
 
-    def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2):
+    def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2, debug_mode=False):
         """
         Metodo init della classe.
         Inizializzazione degli attributi interni e chiamata al costruttore del processo.
@@ -19,6 +19,7 @@ class SocketNode(Process):
         :param this_msg_handler: riferimento al proprio message handler
         :param port: porta del nodo
         :param tcp_request_timeout: timout per le richieste TCP
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         super().__init__()
@@ -26,9 +27,12 @@ class SocketNode(Process):
         self.__this_node = this_node
         self.__this_msg_handler = this_msg_handler
         self.__port = port
-        self.__tcp_server = TCPServerModule(port=port)
+        self.__tcp_server = TCPServerModule(port=port, debug_mode=debug_mode)
         self.__tcp_server.tpc_server_connect()
         self.__tcp_request_timeout = tcp_request_timeout
+
+        # Modalità di debug
+        self.__debug_mode = debug_mode
 
     def __del__(self):
         """
