@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from multiprocessing import Process
+from threading import Thread
+from time import sleep
 
 from network.tcp_port_manager import *
 from chord_model.chord import *
@@ -7,7 +10,8 @@ from exceptions.exceptions import *
 import sys
 import platform
 import multiprocessing as mp
-from multiprocessing import Manager
+
+from test_process import TestProcess
 
 global chord
 
@@ -163,10 +167,9 @@ def menu_DEBUG_OPERATION_1():
 
 
 def menu_DEBUG_OPERATION_2():
-    print("DEBUG: terminazione nodo di test sulla porta 50000")
+    print("DEBUG: controllo se il server socket sta andando")
 
-    # new_node.terminate()
-    # new_node.join()
+    chord.print_tcp_server_status(49152)
 
 
 # ******************* Main Vero e Proprio ***********************
@@ -176,15 +179,15 @@ if __name__ == "__main__":
     # Impostazione Modaliità pultiprocessing
     print(f"Chord running on {platform.system()} OS: ")
 
-    if platform.system() == "Windows":
-        # Non ho effettuato test tramite spawn
-        # mp_ctx = mp.get_context("spawn")
-        print("ERROR: Windows is not supported!")
-        sys.exit()
-
-    else:  # sistemi unix come linux e macos
-        mp_ctx = mp.get_context("fork")
-        print("Fork method has been set")
+    # if platform.system() == "Windows":
+    #     # Non ho effettuato test tramite spawn
+    #     # mp_ctx = mp.get_context("spawn")
+    #     print("ERROR: Windows is not supported!")
+    #     sys.exit()
+    #
+    # else:  # sistemi unix come linux e macos
+    #     mp_ctx = mp.get_context("fork")
+    #     print("Fork method has been set")
 
     # Verifico che main.py sia stato invocato come main del nostro programma
     # try:
@@ -193,12 +196,19 @@ if __name__ == "__main__":
     #     print("ERROR: please run the application from the main.py file!")
     #     sys.exit()
 
+    # test_process = TestProcess()
+    # test_process.start()
+    # print(f"Debug test process {test_process.is_alive()}")
+
     exit_flag = False
     tcp_port_manager = TCPPortManager()
     chord = Chord()
 
     new_node = None
     selected_op = None
+
+    # sleep(5)
+    # print(f"Debug test process {test_process.is_alive()}")
 
     while not exit_flag:
         # Stampa del menù di selezione
@@ -237,11 +247,12 @@ if __name__ == "__main__":
             menu_file_delete()
 
         elif int(selected_op) == 6:  # chord status
-            print("The Chord Network is going to be printed:\n")
+            print("The Chord Network is going to be printed:")
             chord.print_chord()
 
         elif int(selected_op) == 7:  # TODO node start debug
-            menu_DEBUG_OPERATION_1()
+            # print(f"Debug test process {test_process.is_alive()}")
+            pass
 
         elif int(selected_op) == 8:  # TODO node terminate debug
             menu_DEBUG_OPERATION_2()
@@ -254,3 +265,6 @@ if __name__ == "__main__":
     chord.node_delete_all()
     print("Goodye!")
     sys.exit()
+else:
+    print("DEBUG: Another process is trying to run the main...")
+

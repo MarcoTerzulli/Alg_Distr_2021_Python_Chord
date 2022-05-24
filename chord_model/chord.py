@@ -8,12 +8,13 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self):
+    def __init__(self, max_node_initialization_retries=3):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
         """
 
         self.__node_dict = dict()
+        self.__CONST_MAX_NODE_INITALIZATION_RETRIES = max_node_initialization_retries
 
     def __del__(self):
         """
@@ -29,18 +30,21 @@ class Chord:
         Funzione che permette di stampare la struttura dell'overlay network gestita mediante chord
         """
 
-        # Popolo il dizionario di supporto con gli id dei nodi
-        node_ordered_dict = dict()
-        for key, node in self.__node_dict.items():
-            if node is not None:
-                new_key = str(node.get_node_info().get_ip()) + ":" + str(key)
-                node_ordered_dict[new_key] = node.get_node_info().get_node_id()
+        if self.__node_dict.__len__() == 0:
+            print("The Chord Network is empty.")
+        else:
+            # Popolo il dizionario di supporto con gli id dei nodi
+            node_ordered_dict = dict()
+            for key, node in self.__node_dict.items():
+                if node is not None:
+                    new_key = str(node.get_node_info().get_ip()) + ":" + str(key)
+                    node_ordered_dict[new_key] = node.get_node_info().get_node_id()
 
-        ordered_dict = dict(sorted(node_ordered_dict.items(), key=lambda item: item[1]))
+            ordered_dict = dict(sorted(node_ordered_dict.items(), key=lambda item: item[1]))
 
-        # stampa
-        for key, node_id in ordered_dict.items():
-            print(f" * IP an Port: {key} - ID: {node_id}")
+            # stampa
+            for key, node_id in ordered_dict.items():
+                print(f" * IP an Port: {key} - ID: {node_id}")
 
     # TODO
     def message_deliver(self):
@@ -75,12 +79,13 @@ class Chord:
                 other_node = random.choice(list(self.__node_dict.values()))
 
         retries = 0
-        while retries < 5:
+        while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
                 new_node.initialize(other_node)
             except ImpossibleInitializationError:
                 retries += 1
+                print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
             else:
                 break
 
@@ -186,3 +191,17 @@ class Chord:
 
         found_node.delete_file(key)
         print(f"Successfully deleted the file with key {key}.")
+
+    # ************************** METODI DI DEBUG *******************************
+
+    def print_tcp_server_status(self, node_port):
+        """
+        Metodo di debug per la stampa dello stato del processo del server tcp di un dato nodo
+
+        :param node_port: porta TCP del nodo
+        """
+
+        try:
+            self.__node_dict[node_port].print_tcp_server_status()
+        except KeyError:
+            print("ERROR: no node found on this port")

@@ -54,8 +54,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -63,7 +67,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -92,8 +96,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -101,7 +109,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -132,8 +140,11 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -141,7 +152,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -171,8 +182,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -180,7 +195,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -189,12 +204,6 @@ class NodeTCPRequestHandler:
             raise TCPRequestSendError
 
         return answer.get_successor_node_info()
-
-    # TODO
-    def send_start_request(self, destination_node_info, sender_node_info):
-        pass
-        # serve?
-        # probabilmente da levare
 
     # forse ok
     def send_leaving_predecessor_request(self, destination_node_info, sender_node_info, new_predecessor_node_info,
@@ -218,8 +227,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -227,7 +240,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -255,8 +268,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -264,7 +281,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -295,8 +312,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -304,7 +325,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -333,8 +354,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -342,7 +367,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -372,8 +397,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -381,7 +410,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -409,8 +438,12 @@ class NodeTCPRequestHandler:
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
-        while message_ticket not in self.__received_answers_unprocessed.keys() and sent_time + current_millis_time() <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            pass
+        
+        try:
+            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
+                pass
+        except KeyboardInterrupt:
+            raise TCPRequestSendError
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
@@ -418,7 +451,7 @@ class NodeTCPRequestHandler:
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.pop(message_ticket)
+        self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
         try:
@@ -429,6 +462,7 @@ class NodeTCPRequestHandler:
     # ******************* METODI INTERNI PER GESTIONE MESSAGGI *********************
 
     # TODO da verificare
+    # forse ok
     def add_answer(self, message):
         self.__received_answers_unprocessed[message.get_ticket()] = message
 
@@ -448,4 +482,16 @@ class NodeTCPRequestHandler:
         """
 
         if message:
-            self.__received_answers_unprocessed[message.get_ticket()] = message
+            if message.get_type() == MSG_TYPE_ANSWER:
+                self.__received_answers_unprocessed[message.get_ticket()] = message
+
+    # ************************** METODI DI DEBUG *******************************
+
+    def is_tcp_server_alive(self):
+        """
+        Metodo di debug per verificare che il processo del server tcp sia attivo
+
+        :return: lo stato del processo
+        """
+
+        return self.__socket_node.is_alive()

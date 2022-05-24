@@ -61,6 +61,8 @@ class TCPServerModule:
                 print(f"TCP Server on Port {self.__tcp_server_port} Shutdown")
                 print("Exiting...")
                 sys.exit()
+            except BlockingIOError:
+                return None, None, None
 
             if len(content) != 0:
                 print(f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG

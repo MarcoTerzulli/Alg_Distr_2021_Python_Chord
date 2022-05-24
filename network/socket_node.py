@@ -1,4 +1,5 @@
 from multiprocessing import Process
+from threading import Thread
 
 from exceptions.exceptions import *
 from network.tcp_socket_module import TCPServerModule, TCPClientModule
@@ -34,6 +35,7 @@ class SocketNode(Process):
         Funzione per la terminazione del processo nodo.
         Si occupa anche della chiusura del server TCP.
         """
+
         self.__tcp_server.tcp_server_close()
 
     def run(self):
@@ -43,10 +45,11 @@ class SocketNode(Process):
         delle funzionalità del nodo.
         """
 
-        # Accetta un'eventuale connessione in ingresso e la elabora
-        (client_ip, client_port, message) = self.__tcp_server.tcp_server_accept()
-        # Rimando la gestione del messaggio al layer chord
-        self.__this_msg_handler.tcp_process_message(client_ip, client_port, message)
+        while True:
+            # Accetta un'eventuale connessione in ingresso e la elabora
+            (client_ip, client_port, message) = self.__tcp_server.tcp_server_accept()
+            # Rimando la gestione del messaggio al layer chord
+            self.__this_msg_handler.tcp_process_message(client_ip, client_port, message)
 
     def send_message(self, destination_port, message):
         tcp_client = TCPClientModule(port=destination_port)
@@ -66,4 +69,5 @@ class SocketNode(Process):
         Funzione per la chiusura del server TCP. Da chiamare esclusivamente prima del join
         e la terminazione del processo.
         """
+
         self.__tcp_server.tcp_server_close()

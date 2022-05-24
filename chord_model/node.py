@@ -151,6 +151,12 @@ class Node:
                                                                                          self.__node_info.get_node_id(),
                                                                                          self.__node_info)
 
+            except TCPRequestTimerExpiredError:
+                print("timer")
+                raise ImpossibleInitializationError
+            except TCPRequestSendError:
+                print("tcp request error")
+                raise ImpossibleInitializationError
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 raise ImpossibleInitializationError
 
@@ -405,7 +411,12 @@ class Node:
         # TODO da mettere nella classe finger table?
         # prendo un finger randomico
         index = random.randint(1, CONST_M)
-        # presa dalle slide
+
+
+        print(f"\nDEBUG FIX FINGERS. ID Originale: {self.__node_info.get_node_id()}" )
+        print(f"DEBUG FIX FINGERS. 2 ** {index} - 1: {2 ** (index - 1)}" )
+        print(f"DEBUG FIX FINGERS. ID Calcolato: {self.__node_info.get_node_id() + 2 ** (index - 1)}" )
+        # funzione presa dalle slide
         self.__finger_table.add_finger_by_index(index, self.find_successor(
             self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO da verificare
 
@@ -539,3 +550,10 @@ class Node:
         """
 
         pass
+
+    def print_tcp_server_status(self):
+        """
+        Metodo di debug per la stampa dello stato del processo del server tcp
+        """
+
+        print(f"DEBUG: The TCP Server's Process Status is {self.__tcp_requests_handler.is_tcp_server_alive()}")
