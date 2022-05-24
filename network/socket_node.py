@@ -26,6 +26,7 @@ class SocketNode(Process):
         self.__this_msg_handler = this_msg_handler
         self.__port = port
         self.__tcp_server = TCPServerModule(port=port)
+        self.__tcp_server.tpc_server_connect()
         self.__tcp_request_timeout = tcp_request_timeout
 
     def __del__(self):

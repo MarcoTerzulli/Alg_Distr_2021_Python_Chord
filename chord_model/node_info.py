@@ -86,3 +86,10 @@ class NodeInfo:
         :return: True se le node info sono uguali, False altrimenti
         """
         return self.__node_id == n
+
+    def print(self):
+        """
+        Metodo di debug per la stampa del node info
+        """
+
+        print(f"IP: {self.__ip}, Port: {self.__port}, Node ID: {self.__node_id}")

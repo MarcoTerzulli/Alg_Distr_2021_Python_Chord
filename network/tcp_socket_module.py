@@ -3,6 +3,7 @@ import sys
 from _socket import SHUT_RDWR
 
 from exceptions.exceptions import *
+import pickle
 
 
 class TCPServerModule:
@@ -17,7 +18,7 @@ class TCPServerModule:
         :param port: porta su cui mettersi in ascolto
         """
 
-        self.__tcp_server = socket.socket()
+        self.__tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__tcp_server_port = port
         self.__tcp_request_timeout = request_timeout
 
@@ -55,17 +56,18 @@ class TCPServerModule:
             pass
         else:
             try:
-                content = tcp_socket_client.recv(1024)
+                content = tcp_socket_client.recv(4096)
             except KeyboardInterrupt:
                 print(f"TCP Server on Port {self.__tcp_server_port} Shutdown")
                 print("Exiting...")
                 sys.exit()
 
             if len(content) != 0:
-                print("\nNew Message Received From TCP Socket")
-                print("Client Address: " + client_ip)
-                content = content.decode("utf-8")
-                print(content)
+                #print(f"\nTCP Server on Port {self.__tcp_server_port}: New Message Received From TCP Socket")
+                #print(f"Client IP: {client_ip}, Client Port: {client_port}")
+                #content = content.decode("utf-8")  # non funziona per gli oggetti
+                #print(content)
+                content = pickle.loads(content)
 
                 return client_ip, client_port, content
 
@@ -116,7 +118,9 @@ class TCPClientModule:
         """
 
         try:
-            self.__tcp_client.send(message.encode("utf-8"))
+            #self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
+            message_pickle = pickle.dumps(message)
+            self.__tcp_client.send(message_pickle)
         except BrokenPipeError:
             print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Got an Error")
             raise TCPRequestSendError
@@ -148,7 +152,9 @@ class TCPClientModule:
 
         try:
             self.__tcp_client.connect((ip, port))
-            self.__tcp_client.send(message.encode("utf-8"))
+            #self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
+            message_pickle = pickle.dumps(message)
+            self.__tcp_client.send(message_pickle)
         except BrokenPipeError:
             print(f"ERROR: TCP Request to IP {ip} Got an Error")
             raise TCPRequestSendError

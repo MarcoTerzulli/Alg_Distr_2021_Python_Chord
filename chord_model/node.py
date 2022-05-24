@@ -1,6 +1,7 @@
 import random
 import weakref
 from multiprocessing import Process
+from time import sleep
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
@@ -46,7 +47,6 @@ class Node:
 
         # Processo per gestione delle operazioni periodiche
         self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout)
-        self.__node_periodic_operations_manager.start()
 
         # Creazione della finger table (vuota)
         self.__finger_table.add_finger(self.__node_info)
@@ -134,8 +134,9 @@ class Node:
             self.__finger_table.add_finger_by_index(i, self.__node_info)
 
         # inizializzazione della lista dei successori
-        for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
-            self.__successor_node_list.insert(i, self.__node_info)
+        # TODO forse da rimuovere: non ha senso che il nodo sia successore di sè stesso
+        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
+        #    self.__successor_node_list.insert(i, self.__node_info)
 
     def initialize(self, n_primo=None):
         """
@@ -190,7 +191,8 @@ class Node:
                 except (TCPRequestTimerExpiredError, TCPRequestSendError):
                     self.repopulate_successor_list(i)
 
-            # TODO forse è necessaria una parte per avviare i vari server tcp / thread
+        # TODO forse è necessaria una parte per avviare i vari server tcp / thread
+        self.__node_periodic_operations_manager.start()
 
     def terminate(self):
         """
@@ -209,7 +211,7 @@ class Node:
             if self.__predecessor_node:
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
                 self.__tcp_requests_handler.send_leaving_successor_request(self.__predecessor_node, self.__node_info,
-                                                                             self.__successor_node_list.get_first())
+                                                                           self.__successor_node_list.get_first())
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
@@ -226,7 +228,11 @@ class Node:
 
         assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
 
-        if not self.__successor_node_list.is_empty():
+        # todo da rimuovere - debug
+        #self.__successor_node_list.print()
+
+        # controllo che vi sia almeno un altro nodo nella lista, oltre a quello "rotto"
+        if self.__successor_node_list.__len__() > 1:
 
             # se il nodo non risponde, lo rimuovo e provo a contattare i successori
             self.__successor_node_list.pop(index_of_invalid_node)
@@ -254,7 +260,7 @@ class Node:
 
         successor_node_info = None
 
-        if self.__node_info.equals(key):
+        if self.__node_info.get_node_id() == key:
             return self.__node_info
 
         # controllo se il nodo è responsabile della key
@@ -270,7 +276,7 @@ class Node:
 
         # effettuo una ricerca nella finger table
         try:
-            closest_predecessor_node_info = self.closest_preceding_finger(key).get_node_info()
+            closest_predecessor_node_info = self.closest_preceding_finger(key)
             successor_node_info = self.__tcp_requests_handler.send_successor_request(closest_predecessor_node_info, key,
                                                                                      self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):

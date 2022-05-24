@@ -446,4 +446,5 @@ class NodeTCPRequestHandler:
         :param message: messaggio ricevuto
         """
 
-        self.__received_answers_unprocessed[message.get_ticket()] = message
+        if message:
+            self.__received_answers_unprocessed[message.get_ticket()] = message

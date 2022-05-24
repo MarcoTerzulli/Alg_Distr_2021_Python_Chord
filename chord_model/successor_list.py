@@ -139,3 +139,13 @@ class SuccessorList:
         """
 
         self.__node_list.pop(i)
+
+    def print(self):
+        """
+        Metodo di debug per la stampa a video della lista dei successori.
+        """
+
+        print(
+            f"The successor list contains {self.__node_list.__len__()} elements over a max of {self.__CONST_MAX_SUCC_NUMBER}\n")
+        for node_info in self.__node_list:
+            node_info.print()
