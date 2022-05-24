@@ -15,7 +15,6 @@ class Chord:
 
         self.__node_dict = dict()
 
-
     def __del__(self):
         """
         Rimozione di tutti i nodi presenti nell'applicazione
@@ -31,16 +30,17 @@ class Chord:
         """
 
         # Popolo il dizionario di supporto con gli id dei nodi
-        node_keys_dict = dict()
+        node_ordered_dict = dict()
         for key, node in self.__node_dict.items():
             if node is not None:
-                node_keys_dict[key] = node.get_node_info().get_node_id()
+                new_key = str(node.get_node_info().get_ip()) + ":" + str(key)
+                node_ordered_dict[new_key] = node.get_node_info().get_node_id()
 
-        ordered_dict = dict(sorted(node_keys_dict.items(), key=lambda item: item[1]))
+        ordered_dict = dict(sorted(node_ordered_dict.items(), key=lambda item: item[1]))
 
         # stampa
         for key, node_id in ordered_dict.items():
-            print(f" * Port: {key} - ID: {node_id}")
+            print(f" * IP an Port: {key} - ID: {node_id}")
 
     # TODO
     def message_deliver(self):
@@ -74,8 +74,20 @@ class Chord:
             while other_node is None or other_node == new_node:
                 other_node = random.choice(list(self.__node_dict.values()))
 
-        # inizializzo la finger table e sposto le eventuali chiavi di competenza
-        new_node.initialize(other_node)
+        retries = 0
+        while retries < 5:
+            try:
+                # inizializzo la finger table e sposto le eventuali chiavi di competenza
+                new_node.initialize(other_node)
+            except ImpossibleInitializationError:
+                retries += 1
+            else:
+                break
+
+        if retries == 5:
+            self.__node_dict[port].terminate()
+            del self.__node_dict[port]
+            raise ImpossibleInitializationError
 
     # TODO
     def node_delete(self, port):
@@ -92,9 +104,6 @@ class Chord:
             # comunico al mio predecessore e successore della mia uscita da chord
             node.terminate()
 
-            # chiusura server tcp
-            node.tcp_server_close()
-
             # eliminazione delle entry dal dizionario
             del self.__node_dict[port]
 
@@ -109,10 +118,7 @@ class Chord:
 
         for key, node in self.__node_dict.items():
             if node is not None:
-                node.terminate()  # si potrebbe anche omettere
-
-                node.tcp_server_close()
-                # node.join()  #  ora gestito nel terminate
+                node.terminate()  # si potrebbe anche omettere, lasciando che i nodi si stabilizzino da soli
 
     # ************************** METODI RELATIVE AI FILE *******************************
 

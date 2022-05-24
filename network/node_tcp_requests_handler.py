@@ -31,6 +31,7 @@ class NodeTCPRequestHandler:
         Da chiamare nel momento della terminazione di un nodo.
         """
 
+        self.__socket_node.tcp_server_close()
         self.__socket_node.join()
 
     # ************************ METODI MESSAGGI CHORD *****************************
@@ -57,7 +58,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -95,7 +96,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -135,7 +136,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -174,7 +175,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -221,7 +222,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -258,7 +259,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -298,7 +299,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -336,7 +337,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -375,7 +376,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta
@@ -412,7 +413,7 @@ class NodeTCPRequestHandler:
             pass
 
         # La richiesta è andata in timeout
-        if sent_time + current_millis_time() > self.__CONST_TCP_REQUEST_TIMEOUT:
+        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
         # Processo la risposta

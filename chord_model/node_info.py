@@ -28,7 +28,7 @@ class NodeInfo:
         :return: l'indirizzo ip del nodo
         """
 
-        return self.__port
+        return self.__ip
 
     def _set_ip(self, ip):
         """

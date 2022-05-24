@@ -1,7 +1,4 @@
 import random
-import weakref
-from multiprocessing import Process
-from time import sleep
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
@@ -150,9 +147,10 @@ class Node:
         else:
             # richiesta al nodo successore
             try:
-                successor_node_info = self.__tcp_requests_handler.send_successor_request(n_primo,
+                successor_node_info = self.__tcp_requests_handler.send_successor_request(n_primo.get_node_info(),
                                                                                          self.__node_info.get_node_id(),
                                                                                          self.__node_info)
+
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 raise ImpossibleInitializationError
 
@@ -200,13 +198,18 @@ class Node:
         Comunica al proprio predecessore e successore della propria uscita dalla rete.
         """
 
-        self.__node_periodic_operations_manager.join()
+        try:
+            self.__node_periodic_operations_manager.join()
+        except RuntimeError:
+            # avviene nel caso in cui si termina l'applicazione prima che un thread/ processo venga avviato
+            pass
 
         try:
-            # invio il messaggio al mio successore, comunicandogli il mio predecessore
-            self.__tcp_requests_handler.send_leaving_predecessor_request(self.__successor_node_list.get_first(),
-                                                                         self.__node_info, self.__predecessor_node,
-                                                                         self.__file_system.empty_file_system())
+            if not self.__successor_node_list.is_empty():
+                # invio il messaggio al mio successore, comunicandogli il mio predecessore
+                self.__tcp_requests_handler.send_leaving_predecessor_request(self.__successor_node_list.get_first(),
+                                                                             self.__node_info, self.__predecessor_node,
+                                                                             self.__file_system.empty_file_system())
 
             if self.__predecessor_node:
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
@@ -229,7 +232,7 @@ class Node:
         assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
 
         # todo da rimuovere - debug
-        #self.__successor_node_list.print()
+        # self.__successor_node_list.print()
 
         # controllo che vi sia almeno un altro nodo nella lista, oltre a quello "rotto"
         if self.__successor_node_list.__len__() > 1:

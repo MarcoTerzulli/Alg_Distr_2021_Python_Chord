@@ -63,8 +63,7 @@ class TCPServerModule:
                 sys.exit()
 
             if len(content) != 0:
-                #print(f"\nTCP Server on Port {self.__tcp_server_port}: New Message Received From TCP Socket")
-                #print(f"Client IP: {client_ip}, Client Port: {client_port}")
+                print(f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
                 #content = content.decode("utf-8")  # non funziona per gli oggetti
                 #print(content)
                 content = pickle.loads(content)

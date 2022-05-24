@@ -29,6 +29,10 @@ def menu_node_create_and_join():
             chord.node_join(port)
         except AlreadyUsedPortError:
             print(f"ERROR: the selected port number {port} is already in use. A new port is going to be chosen.")
+        except ImpossibleInitializationError:
+            print(f"ERROR: Impossible initialization of node with port {port}. Please retry")
+            tcp_port_manager.mark_port_as_free(port)
+            break
         else:
             print(f"Successfully created node on port {tcp_port_manager.get_port_type(port)} {port}")
             break  # Se tutto è andato bene, esco dal loop
