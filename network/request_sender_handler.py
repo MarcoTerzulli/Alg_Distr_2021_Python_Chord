@@ -1,7 +1,3 @@
-import asyncio
-from threading import Thread
-from time import sleep
-
 from network.received_messages_handler import ReceivedMessagesHandler
 from network.socket_node import SocketNode
 from network.messages import *
@@ -67,11 +63,6 @@ class RequestSenderHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_notify_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
-
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
@@ -115,11 +106,6 @@ class RequestSenderHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), predecessor_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_predecessor_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
-
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
@@ -162,11 +148,6 @@ class RequestSenderHandler:
                                                                           message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), first_successor_request_message)
         self.__waiting_tickets.append(message_ticket)
-
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_first_successor_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -213,11 +194,6 @@ class RequestSenderHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), successor_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_successor_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
-
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
@@ -241,6 +217,7 @@ class RequestSenderHandler:
         except TCPRequestSendError:
             raise TCPRequestSendError
 
+        # todo debug
         if answer.get_successor_node_info():
             print(
                 f"send_successor_request - get_successor_node_info - {answer.get_successor_node_info().get_port()}")
@@ -263,11 +240,6 @@ class RequestSenderHandler:
                                                                               message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), youre_not_alone_anymore_request_message)
         self.__waiting_tickets.append(message_ticket)
-
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_first_successor_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -312,11 +284,6 @@ class RequestSenderHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_leaving_predecessor_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
-
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
@@ -357,11 +324,6 @@ class RequestSenderHandler:
                                                                  message_ticket, new_successor_node_info)
         self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
         self.__waiting_tickets.append(message_ticket)
-
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_leaving_successor_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -407,11 +369,6 @@ class RequestSenderHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), file_publish_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_publish_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
-
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
@@ -453,11 +410,6 @@ class RequestSenderHandler:
                                                   message_ticket, key)
         self.__socket_node.send_message(destination_node_info.get_port(), file_request_message)
         self.__waiting_tickets.append(message_ticket)
-
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_file_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -502,11 +454,6 @@ class RequestSenderHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), file_delete_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_file_delete_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
-
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
@@ -547,11 +494,6 @@ class RequestSenderHandler:
         ping_request_message = PingRequestMessage(destination_node_info, sender_node_info, message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), ping_request_message)
         self.__waiting_tickets.append(message_ticket)
-
-        # thread di risposta
-        # answer_thread = Thread(
-        #     self._send_ping_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
-        # answer_thread.start()
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -631,191 +573,6 @@ class RequestSenderHandler:
             return True
         else:
             return False
-
-    # ************************** METODI DEI THREAD *******************************
-
-    # def _send_notify_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio notify request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         file_dict = dict()
-    #         answer = NotifyAnswerMessage(sender_node_info, destination_node_info, message_ticket, file_dict)
-    #         self.add_answer(answer)
-    #
-    # def _send_predecessor_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket,
-    #                                         delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio predecessor request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = PredecessorAnswerMessage(sender_node_info, destination_node_info, None, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # def _send_successor_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio successor request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = SuccessorAnswerMessage(sender_node_info, destination_node_info, None, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # def _send_first_successor_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio first successor request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = FirstSuccessorAnswerMessage(sender_node_info, destination_node_info, message_ticket, None)
-    #         self.add_answer(answer)
-    #
-    # def _send_leaving_predecessor_thread_fun(self, sender_node_info, destination_node_info, message_ticket,
-    #                                          delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio leaving predecessor request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = LeavingPredecessorAnswerMessage(sender_node_info, destination_node_info, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # def _send_leaving_successor_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio leaving successor ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = LeavingSuccessorAnswerMessage(sender_node_info, destination_node_info, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # def _send_publish_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio publish request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = FilePublishAnswerMessage(sender_node_info, destination_node_info, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # def _send_file_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio file request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = FileRequestMessage(sender_node_info, destination_node_info, message_ticket, None)
-    #         self.add_answer(answer)
-    #
-    # def _send_file_delete_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket,
-    #                                         delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio file delete request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = FileDeleteAnswerMessage(sender_node_info, destination_node_info, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # def _send_ping_answer_thread_fun(self, sender_node_info, destination_node_info, message_ticket, delay_time=1):
-    #     """
-    #     Metodo del thread per l'invio asincrono della risposta ad un messaggio ping request ricevuto da sè stessi
-    #
-    #     :param sender_node_info: mittente del messaggio
-    #     :param destination_node_info: destinatario del messaggio
-    #     :param message_ticket: ticket number del messaggio
-    #     :param delay_time: tempo di delay prima dell'esecuzione in secondi (opzionale)
-    #     """
-    #
-    #     sleep(delay_time)
-    #
-    #     # Simulo l'invio della risposta a me stesso
-    #     if (message_ticket in self.__waiting_tickets):
-    #         answer = PingAnswerMessage(sender_node_info, destination_node_info, message_ticket)
-    #         self.add_answer(answer)
-    #
-    # async def _sleep(self, sleep_time=1):
-    #     """
-    #     Metodo per lo sleep asincrono
-    #
-    #     :param sleep_time: tempo di sleep in secondi (opzionale)
-    #     """
-    #
-    #     await asyncio.sleep(sleep_time)
 
     # ************************** METODI DI DEBUG *******************************
 
