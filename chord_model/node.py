@@ -129,24 +129,6 @@ class Node():
         return self.__tcp_requests_handler
 
     # ************************** METODI NODO CHORD *******************************
-    # ok
-    def _initialize_no_friends(self):
-        """
-        Metodo per l'inizializzazione della finger table del nodo, privo di amici.
-
-        Nota: metodo interno
-        """
-
-        # inizializzazione della finger table
-        for i in range(1, CONST_M + 1):  # da 1 a m
-            self.__finger_table.add_finger_by_index(i, self.__node_info)
-
-        # inizializzazione della lista dei successori
-        self.__successor_node_list.insert(0, self.__node_info)
-        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
-        #     self.__successor_node_list.insert(i, self.__node_info)
-
-        self.__predecessor_node = self.__node_info
 
     def initialize(self, other_node_info=None):
         """
@@ -165,70 +147,111 @@ class Node():
                                                                                debug_mode=self.__debug_mode)
 
         if not other_node_info:
-            self._initialize_no_friends()
+            self._initialize_with_no_friends()
         else:
-            # richiesta al nodo successore
-            try:
-                successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(other_node_info,
-                                                                                                    self.__node_info.get_node_id(),
-                                                                                                    self.__node_info)
-            # todo debug
-            except TCPRequestTimerExpiredError:
-                print("timer")
-                raise ImpossibleInitializationError
-            except TCPRequestSendError:
-                print("tcp request error")
-                raise ImpossibleInitializationError
-            except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                raise ImpossibleInitializationError
-
-
-            self.__successor_node_list.append(successor_node_info)
-            self.__finger_table.add_finger(successor_node_info)
-            self.__predecessor_node = None
-
-            print(f"Initializing the Node Successor List...")
-            sleep(0.1)
-            # inizializzazione successor list
-            try:
-                for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
-                    last_node_info = self.__successor_node_list.get_last()
-                    successor_node_info = self.__tcp_requests_handler.send_get_first_successor_request(last_node_info,
-                                                                                                       self.__node_info)
-
-                    if self.__node_info.equals(successor_node_info.get_node_id()):
-                        self.__successor_node_list.insert(i, self.__node_info)
-                        while i < self.__CONST_MAX_SUCC_NUMBER:
-                            i += 1
-                        # while i < self.__CONST_MAX_SUCC_NUMBER:
-                        #     self.__successor_node_list.insert(i, self.__node_info)
-                        #     i += 1
-                    else:
-                        self.__successor_node_list.insert(i, successor_node_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
-                    self.__successor_node_list.insert(i, self.__node_info)
-
-            print(f"Initializing the Node Finger Table...")
-            sleep(0.1)
-            # inizializzazione finger table
-            for i in range(1, CONST_M + 1):  # da 1 a M compreso
-                print(f"Initializing the finger number {i} / {CONST_M}")
-
-                computed_key = compute_finger(self.__node_info.get_node_id(), i)
-                try:
-                    finger_node_info = self.__tcp_requests_handler.send_search_key_successor_request(self.__successor_node_list.get_first(),
-                                                                                                     computed_key,
-                                                                                                     self.__node_info)
-
-                    if finger_node_info:
-                        self.__finger_table.add_finger(finger_node_info)
-                except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                    self.repopulate_successor_list(i)
+            self._initialize_with_a_friend(other_node_info)
 
         self.__node_periodic_operations_manager.start()
 
         print(f"Initialization of Node with Port {self.__node_info.get_port()}: Completed")
+
+    # ok
+    def _initialize_with_no_friends(self):
+        """
+        Metodo per l'inizializzazione della finger table del nodo e della lista di successori.
+        Metodo per un nodo privo di "amici".
+
+        Nota: metodo interno
+        """
+
+        # inizializzazione della finger table
+        for i in range(1, CONST_M + 1):  # da 1 a m
+            self.__finger_table.add_finger_by_index(i, self.__node_info)
+
+        # inizializzazione della lista dei successori
+        self.__successor_node_list.insert(0, self.__node_info)
+        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
+        #     self.__successor_node_list.insert(i, self.__node_info)
+
+        self.__predecessor_node = self.__node_info
+
+    def _initialize_with_a_friend(self, other_node_info):
+        """
+        Metodo per l'inizializzazione della finger table del nodo e della lista di successori.
+        Metodo per un nodo che conosce un altro nodo nella rete ("amico").
+
+        Nota: metodo interno
+
+        :param other_node_info: node info del mio "amico"
+        """
+
+        # richiesta al nodo successore
+        try:
+            successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(other_node_info,
+                                                                                                self.__node_info.get_node_id(),
+                                                                                                self.__node_info)
+        # todo debug
+        except TCPRequestTimerExpiredError:
+            print("timer")
+            raise ImpossibleInitializationError
+        except TCPRequestSendError:
+            print("tcp request error")
+            raise ImpossibleInitializationError
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            raise ImpossibleInitializationError
+
+        self.__successor_node_list.append(successor_node_info)
+        self.__finger_table.add_finger(successor_node_info)
+        self.__predecessor_node = None
+
+        print(f"Initializing the Node Successor List...")
+        sleep(0.1)
+        # inizializzazione successor list
+        try:
+            for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
+                last_node_info = self.__successor_node_list.get_last()
+                successor_node_info = self.__tcp_requests_handler.send_get_first_successor_request(last_node_info,
+                                                                                                   self.__node_info)
+
+                if self.__node_info.equals(successor_node_info.get_node_id()):
+                    self.__successor_node_list.insert(i, self.__node_info)
+                    while i < self.__CONST_MAX_SUCC_NUMBER:
+                        i += 1
+                    # while i < self.__CONST_MAX_SUCC_NUMBER:
+                    #     self.__successor_node_list.insert(i, self.__node_info)
+                    #     i += 1
+                else:
+                    self.__successor_node_list.insert(i, successor_node_info)
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
+                self.__successor_node_list.insert(i, self.__node_info)
+
+        print(f"Initializing the Node Finger Table...")
+        sleep(0.1)
+        # inizializzazione finger table
+        for i in range(1, CONST_M + 1):  # da 1 a M compreso
+            print(f"Initializing the finger number {i} / {CONST_M}")
+
+            computed_key = compute_finger(self.__node_info.get_node_id(), i)
+            try:
+                finger_node_info = self.__tcp_requests_handler.send_search_key_successor_request(
+                    self.__successor_node_list.get_first(),
+                    computed_key,
+                    self.__node_info)
+
+                if finger_node_info:
+                    self.__finger_table.add_finger(finger_node_info)
+            except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                self.repopulate_successor_list(i)
+
+        # informo il mio amico che non è più solo nella rete
+        try:
+            self.__tcp_requests_handler.send_youre_not_alone_anymore_request(other_node_info, self.__node_info)
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            raise ImpossibleInitializationError
+
+        if self.__successor_node_list.get_first().get_node_id() != self.__node_info.get_node_id():
+            self.__im_alone = False
 
     def terminate(self):
         """
@@ -244,7 +267,6 @@ class Node():
                 # avviene nel caso in cui si termina l'applicazione prima che un thread/ processo venga avviato
                 pass
         print("join del periodic manager ok")
-
 
         try:
             if not self.__successor_node_list.is_empty():
@@ -320,7 +342,8 @@ class Node():
             return None
 
         # TODO DEBUG
-        print(f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
+        print(
+            f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
         if self.__node_info.get_node_id() > key:
             print("il mio id è superiore")
         else:
@@ -336,7 +359,7 @@ class Node():
         if self.__predecessor_node is not None:
             print("Controllo tra i predecessori")  # TODO DEBUG
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
-                #print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
+                # print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
                 return self.__node_info
 
         # effettuo una ricerca nella lista dei successori
@@ -347,7 +370,7 @@ class Node():
             return successor
         except NoSuccessorFoundError:
             print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
-            pass # nessun successore nella lista è responsabile della key
+            pass  # nessun successore nella lista è responsabile della key
 
         # if self.__successor_node_list.__len__() > 0:
         #     for i in range(0, self.__successor_node_list.__len__()):
@@ -358,12 +381,12 @@ class Node():
         try:
             print("ricerca nella finger table")  # TODO DEBUG
             closest_predecessor_node_info = self.closest_preceding_finger(key)
-            #print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
-            successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(closest_predecessor_node_info, key,
-                                                                                                self.__node_info)
+            # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
+            successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(
+                closest_predecessor_node_info, key,
+                self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self.repopulate_successor_list(0)
-
 
         # se non sono stato in grado di trovare nessun successore nella rete
         # ed il mio id è inferiore a quello dell'altro nodo,
