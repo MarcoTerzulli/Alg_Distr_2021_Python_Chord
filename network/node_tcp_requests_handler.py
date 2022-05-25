@@ -2,7 +2,7 @@ import asyncio
 from threading import Thread
 from time import sleep
 
-from network.message_handler import MessageHandler
+from network.received_messages_handler import ReceivedMessagesHandler
 from network.socket_node import SocketNode
 from network.messages import *
 from utilities.chord_utils import current_millis_time
@@ -28,7 +28,7 @@ class NodeTCPRequestHandler:
         self.__received_answers_unprocessed = dict()
         self.__CONST_TCP_REQUEST_TIMEOUT = tcp_request_timeout
 
-        self.__message_handler = MessageHandler(self.__my_node, None, self)
+        self.__message_handler = ReceivedMessagesHandler(self.__my_node, None, self)
         self.__socket_node = SocketNode(self.__my_node, self.__message_handler,
                                         self.__my_node.get_node_info().get_port(),
                                         debug_mode=debug_mode)
@@ -162,10 +162,6 @@ class NodeTCPRequestHandler:
         self.__socket_node.send_message(destination_node_info.get_port(), successor_request_message)
         self.__waiting_tickets.append(message_ticket)
 
-        sent_time = current_millis_time()
-
-        print(f"{self.__my_node.get_node_info().get_port()} --- Sono in attesa del ticket {message_ticket}")
-
         # thread di risposta
         answer_thread = Thread(
             self._send_successor_answer_thread_fun(destination_node_info, sender_node_info, message_ticket))
@@ -174,41 +170,25 @@ class NodeTCPRequestHandler:
         # Resto in attesa della risposta
         sent_time = current_millis_time()
 
-        if current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
-            print("timeout ok")
-        else:
-            print("timeout già scaduto :(((")
-
         try:
             while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
-                print(f"Sono il nodo {self.__my_node.get_node_info().get_port()} -- in attesa di risposta nel loop")
-
                 pass
         except KeyboardInterrupt:
             raise TCPRequestSendError
 
-        print("fuori dal loop")
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
             raise TCPRequestTimerExpiredError
 
-        print("superato check del timeout")
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
         self.__waiting_tickets.remove(message_ticket)
         del self.__received_answers_unprocessed[message_ticket]
 
-        print("Cintrollo la risposta")
         try:
             answer.check()
         except TCPRequestSendError:
-            print("risposta rotta wtf\n\n")
             raise TCPRequestSendError
-
-        print("risposta ok :))\n\n")
-        print(answer)
-        print(answer.get_successor_node_info())
-        #print(answer.get_successor_node_info().get_node_id())
 
         return answer.get_successor_node_info()
 
@@ -549,13 +529,16 @@ class NodeTCPRequestHandler:
     # TODO da verificare
     # forse ok
     def add_answer(self, message):
-        print(f"Sono il nodo: {self.__my_node.get_node_info().get_port()} -- aggiungo la risposta a quelle da processare -- ticket {message.get_ticket()}\n\n")
 
         if message.get_ticket() not in self.__received_answers_unprocessed:
             self.__received_answers_unprocessed[message.get_ticket()] = message
-
-        else: # todo debug
-            print("Ho già un messaggio con questo ticket -- esco")
+        #
+        #     # todo debug
+        #     print(
+        #         f"Sono il nodo: {self.__my_node.get_node_info().get_port()} -- aggiungo la risposta a quelle da processare -- ticket {message.get_ticket()}\n\n")
+        #
+        # else: # todo debug
+        #     print("Ho già un messaggio con questo ticket -- esco")
 
     def _get_ticket(self):
         self.__ticket_counter += 1

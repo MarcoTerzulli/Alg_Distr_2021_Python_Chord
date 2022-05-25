@@ -76,9 +76,9 @@ class TCPServerModule:
                     return None, None, None
 
                 # TODO DEBUG
-                print(
-                    f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
-                print(content.get_type())
+                # print(
+                #     f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
+                #print(content.get_type())
                 #if content.get_type() == "A":
                     #print(content.get_successor_node_info().get_node_id())
 

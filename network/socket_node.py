@@ -10,7 +10,7 @@ class SocketNode(Thread):
     Classe per la gestione del server socket di un nodo tramite processi
     """
 
-    def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2, debug_mode=False):
+    def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2, send_message_max_retries=5,debug_mode=False):
         """
         Metodo init della classe.
         Inizializzazione degli attributi interni e chiamata al costruttore del processo.
@@ -30,6 +30,7 @@ class SocketNode(Thread):
         self.__tcp_server = TCPServerModule(port=port, request_timeout=1, debug_mode=debug_mode)
         self.__tcp_server.tpc_server_connect()
         self.__tcp_request_timeout = tcp_request_timeout
+        self.__send_message_max_retries = send_message_max_retries
 
         # Modalità di debug
         self.__debug_mode = debug_mode
@@ -62,15 +63,20 @@ class SocketNode(Thread):
         tcp_client = TCPClientModule(port=destination_port)
 
         # Tento di provo a inviare la richiesta finché non riesco
-        while True:
+
+        retries = 0
+        while retries < self.__send_message_max_retries:
             try:
                 tcp_client.tcp_client_connect_and_send_message(port=destination_port, message=message)
             except TCPRequestSendError:
-                print(
-                    f"ERROR: Node with port {self.__port}: message to the node on port {destination_port} not delivered. I\'ll retry soon.")
+                # print(
+                #     f"ERROR: Node with port {self.__port}: message to the node on port {destination_port} not delivered. I\'ll retry soon.")
+                retries += 1
             else:
-                print("messaggio invato, esco")
                 break
+
+        if retries == self.__send_message_max_retries:
+            raise TCPRequestSendError
 
     def tcp_server_close(self):
         """

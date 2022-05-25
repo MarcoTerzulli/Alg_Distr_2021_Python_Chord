@@ -1,7 +1,7 @@
 from network.messages import *
 
 
-class MessageHandler:
+class ReceivedMessagesHandler:
     """
     Classe per la gestione dei messaggi TCP ricevuti.
     """
@@ -61,14 +61,6 @@ class MessageHandler:
         elif message.get_type() == MSG_TYPE_SUCC_RQST:
             found_successor = self.__my_node.find_successor(message.get_key())
             answer = SuccessorAnswerMessage(dest, send, found_successor, ticket)
-
-            print(f"{self.__my_node.get_node_info().get_port()} --- ho la risposta pronta")
-
-            if found_successor:
-                print(f"{found_successor.get_node_id()} \n\n")
-            else:
-                print("Ho ottenuto none\n\n")
-
             self.__my_socket_node.send_message(sender_port, answer)
 
         # leaving predecessor request
@@ -96,7 +88,6 @@ class MessageHandler:
         # First successor request
         elif message.get_type() == MSG_TYPE_FIRST_SUCC_RQST:
             first_successor_node_info = self.__my_node.get_first_successor()
-
             answer = FirstSuccessorAnswerMessage(dest, send, ticket, first_successor_node_info)
             self.__my_socket_node.send_message(sender_port, answer)
 
@@ -132,11 +123,8 @@ class MessageHandler:
             answer = PingAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # TODO
-        # forse è già ok
         # answer
         elif message.get_type() == MSG_TYPE_ANSWER:
-            print(f"{self.__my_node.get_node_info().get_port()} --- Ricevuto ticket {message.get_ticket()}")
             self.__my_tcp_request_handler.add_answer(message)
 
         else:

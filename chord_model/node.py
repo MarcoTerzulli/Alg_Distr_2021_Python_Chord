@@ -1,5 +1,6 @@
 import random
 from multiprocessing import Process
+from time import sleep
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
@@ -83,7 +84,7 @@ class Node():
         if self.__successor_node_list.__len__() == 0:
             raise NoSuccessorFoundError
 
-        return self.__successor_node_list[0]
+        return self.__successor_node_list.get_first()
 
     def get_predecessor(self):
         """
@@ -159,6 +160,8 @@ class Node():
         :param n_primo: nodo "amico" (opzionale)
         """
 
+        print(f"\nInitialization of Node with Port {self.__node_info.get_port()}: Started")
+
         self.__tcp_requests_handler = NodeTCPRequestHandler(self, self.__tcp_request_timeout,
                                                             debug_mode=self.__debug_mode)
 
@@ -174,7 +177,7 @@ class Node():
                 successor_node_info = self.__tcp_requests_handler.send_successor_request(n_primo.get_node_info(),
                                                                                          self.__node_info.get_node_id(),
                                                                                          self.__node_info)
-
+            # todo debug
             except TCPRequestTimerExpiredError:
                 print("timer")
                 raise ImpossibleInitializationError
@@ -184,21 +187,14 @@ class Node():
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 raise ImpossibleInitializationError
 
-            print(f"Sono il nodo {self.__node_info.get_port()} -- il successore è ")
-            if successor_node_info:
-                successor_node_info.print()
-            else:
-                print("noneee\n\n")
 
             self.__successor_node_list.append(successor_node_info)
             self.__finger_table.add_finger(successor_node_info)
             self.__predecessor_node = None
 
-            self.__successor_node_list.print()
-            print(self.__successor_node_list.get_last())
-
+            print(f"Initializing the Node Successor List...")
+            sleep(0.1)
             # inizializzazione successor list
-
             try:
                 for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                     last_node_info = self.__successor_node_list.get_last()
@@ -215,11 +211,15 @@ class Node():
                 for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                     self.__successor_node_list.insert(i, self.__node_info)
 
+            print(f"Initializing the Node Finger Table...")
+            sleep(0.1)
             # inizializzazione finger table
             for i in range(1, CONST_M + 1):  # da 1 a M compreso
+                print(f"Initializing the finger number {i} / {CONST_M}")
+
                 computed_key = compute_finger(self.__node_info.get_node_id(), i)
                 try:
-                    finger_node_info = self.__tcp_requests_handler.send_successor_request(self.__successor_node_list[0],
+                    finger_node_info = self.__tcp_requests_handler.send_successor_request(self.__successor_node_list.get_first(),
                                                                                           computed_key,
                                                                                           self.__node_info)
 
@@ -228,8 +228,9 @@ class Node():
                 except (TCPRequestTimerExpiredError, TCPRequestSendError):
                     self.repopulate_successor_list(i)
 
-        # TODO forse è necessaria una parte per avviare i vari server tcp / thread
         self.__node_periodic_operations_manager.start()
+
+        print(f"Initialization of Node with Port {self.__node_info.get_port()}: Completed")
 
     def terminate(self):
         """
@@ -301,11 +302,11 @@ class Node():
             return None
 
         # TODO DEBUG
-        print(f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
-        if self.__node_info.get_node_id() > key:
-            print("il mio id è superiore")
-        else:
-            print("il mio id è inferiore")
+        # print(f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
+        # if self.__node_info.get_node_id() > key:
+        #     print("il mio id è superiore")
+        # else:
+        #     print("il mio id è inferiore")
 
         successor_node_info = None
 
@@ -314,19 +315,19 @@ class Node():
 
         # controllo se il nodo è responsabile della key
         if self.__predecessor_node is not None:
-            print("Controllo tra i predecessori")  # TODO DEBUG
+            #print("Controllo tra i predecessori")  # TODO DEBUG
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
-                print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
+                #print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
                 return self.__node_info
 
         # effettuo una ricerca nella lista dei successori
         try:
-            print("controllo nella lista dei successorei")  # TODO DEBUG
+            #print("controllo nella lista dei successorei")  # TODO DEBUG
             successor = self.__successor_node_list.get_closest_successor(key)
-            print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
+            #print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
             return successor
         except NoSuccessorFoundError:
-            print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
+            #print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
             pass # nessun successore nella lista è responsabile della key
 
         # if self.__successor_node_list.__len__() > 0:
@@ -336,9 +337,9 @@ class Node():
 
         # effettuo una ricerca nella finger table
         try:
-            print("ricerca nella finger table")  # TODO DEBUG
+            #print("ricerca nella finger table")  # TODO DEBUG
             closest_predecessor_node_info = self.closest_preceding_finger(key)
-            print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
+            #print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
             successor_node_info = self.__tcp_requests_handler.send_successor_request(closest_predecessor_node_info, key,
                                                                                      self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -403,7 +404,7 @@ class Node():
         :param new_successor_node_info: node info del nuovo nodo successore
         """
 
-        self.__successor_node_list[0] = new_successor_node_info
+        self.__successor_node_list.insert(0, new_successor_node_info)
         self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
     # ************************ METODI OPERAZIONI PERIODICHE *****************************
@@ -438,7 +439,7 @@ class Node():
                 # diventerà il mio nuovo successore
                 if potential_successor.get_node_id() < actual_successor.get_node_id():
                     new_successor = potential_successor  # per chiarezza di lettura
-                    self.__successor_node_list[0] = new_successor
+                    self.__successor_node_list.insert(0, new_successor)
 
                     # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
                     # ed ottengo gli eventuali file che ora sono di mia competenza
