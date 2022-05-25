@@ -390,7 +390,7 @@ class Node():
 
 
             print(closest_predecessor_node_info)# TODO DEBUG
-            if closest_predecessor_node_info:
+            # if closest_predecessor_node_info:
                 # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
 
 
