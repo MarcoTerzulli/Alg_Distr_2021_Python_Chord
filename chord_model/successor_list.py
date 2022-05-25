@@ -35,7 +35,7 @@ class SuccessorList:
         :return: il primo elemento della lista. None se vuota
         """
 
-        if self.__node_list.__len__() > 1:
+        if self.__node_list.__len__() >= 1:
             return self.__node_list[0]
         return None
 
@@ -162,7 +162,8 @@ class SuccessorList:
         node_id_ordered_list = sorted(node_id_ordered_list)
 
         for this_node_id in node_id_ordered_list:
-            if this_node_id > key: # ho trovato il più piccolo nodo successore
+            # todo da verificare il >= -- dovrebbe essere ok
+            if this_node_id >= key: # ho trovato il più piccolo nodo successore
 
                 # ottengo il node info di quel nodo
                 for this_node in self.__node_list:

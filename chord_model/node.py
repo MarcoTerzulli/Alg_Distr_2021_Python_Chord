@@ -1,5 +1,4 @@
 import random
-from multiprocessing import Process
 from time import sleep
 
 from chord_model.file_system import FileSystem
@@ -76,8 +75,11 @@ class Node():
         :return self.__successor_node: node info del proprio successore
         """
 
+        print(f"Sono il nodo {self.__node_info.get_node_id()} - sono nel metodo get_first_successor")
         if self.__successor_node_list.__len__() == 0:
             raise NoSuccessorFoundError
+
+        self.__successor_node_list.get_first().print()
 
         return self.__successor_node_list.get_first()
 
@@ -205,15 +207,17 @@ class Node():
         self.__predecessor_node = None
 
         print(f"Initializing the Node Successor List...")
+        self.__successor_node_list.print()
         sleep(0.1)
         # inizializzazione successor list
         try:
             for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                 print(i)
                 last_node_info = self.__successor_node_list.get_last()
+                last_node_info.print()
                 successor_node_info = self.__tcp_requests_handler.send_get_first_successor_request(last_node_info,
                                                                                                    self.__node_info)
-
+                successor_node_info.print()
                 if self.__node_info.equals(successor_node_info.get_node_id()):
                     # self.__successor_node_list.insert(i, self.__node_info)
                     # while i < self.__CONST_MAX_SUCC_NUMBER:
@@ -243,7 +247,7 @@ class Node():
                 if finger_node_info:
                     self.__finger_table.add_finger(finger_node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                self.repopulate_successor_list(i)
+                self.repopulate_successor_list(0)
 
         # informo il mio amico che non è più solo nella rete
         try:
@@ -342,35 +346,35 @@ class Node():
         if not key:
             return None
 
-        # TODO DEBUG
-        print(
-            f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
-        if self.__node_info.get_node_id() > key:
-            print("il mio id è superiore")
-        else:
-            print("il mio id è inferiore")
+        # # TODO DEBUG
+        # print(
+        #     f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
+        # if self.__node_info.get_node_id() > key:
+        #     print("il mio id è superiore")
+        # else:
+        #     print("il mio id è inferiore")
 
         successor_node_info = None
 
         if self.__node_info.get_node_id() == key:
-            print("scherzavo, sono io")
+            # print("scherzavo, sono io")  # TODO DEBUG
             return self.__node_info
 
         # controllo se il nodo è responsabile della key
         if self.__predecessor_node is not None:
-            print("Controllo tra i predecessori")  # TODO DEBUG
+            # print("Controllo tra i predecessori")  # TODO DEBUG
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
                 # print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
                 return self.__node_info
 
         # effettuo una ricerca nella lista dei successori
         try:
-            print("controllo nella lista dei successorei")  # TODO DEBUG
+            # print("controllo nella lista dei successorei")  # TODO DEBUG
             successor = self.__successor_node_list.get_closest_successor(key)
-            print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
+            # print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
             return successor
         except NoSuccessorFoundError:
-            print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
+            # print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
             pass  # nessun successore nella lista è responsabile della key
 
         # if self.__successor_node_list.__len__() > 0:
@@ -380,14 +384,22 @@ class Node():
 
         # effettuo una ricerca nella finger table
         try:
-            print("ricerca nella finger table")  # TODO DEBUG
+            # print("ricerca nella finger table")  # TODO DEBUG
+
             closest_predecessor_node_info = self.closest_preceding_finger(key)
-            # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
+
+
+            print(closest_predecessor_node_info)# TODO DEBUG
+            if closest_predecessor_node_info:
+                # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
+
+
             successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(
                 closest_predecessor_node_info, key,
                 self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self.repopulate_successor_list(0)
+            # print("ripopolo la lista successori (0)")
 
         # se non sono stato in grado di trovare nessun successore nella rete
         # ed il mio id è inferiore a quello dell'altro nodo,

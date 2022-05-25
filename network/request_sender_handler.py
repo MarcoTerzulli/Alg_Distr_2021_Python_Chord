@@ -527,7 +527,7 @@ class RequestSenderHandler:
         if message.get_ticket() not in self.__received_answers_unprocessed:
             self.__received_answers_unprocessed[message.get_ticket()] = message
 
-            print("Primo messaggio ricevuto")
+            # print("Primo messaggio ricevuto")
 
             # # todo debug
             # print(
