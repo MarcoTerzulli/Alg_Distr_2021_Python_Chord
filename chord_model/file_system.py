@@ -50,11 +50,14 @@ class FileSystem:
 
         new_file_dict = dict()
 
-        for key in self.__file_dict.keys():
-            new_file_dict[key] = self.__file_dict[key]
-        self.__file_dict = None
+        try:
+            for key in self.__file_dict.keys():
+                new_file_dict[key] = self.__file_dict[key]
+            self.__file_dict = None
 
-        return new_file_dict
+            return new_file_dict
+        except AttributeError:
+            return None
 
     def retrieve_files(self, new_node_id):
         """

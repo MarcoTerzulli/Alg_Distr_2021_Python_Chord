@@ -80,7 +80,7 @@ class Chord:
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
-                new_node.initialize(other_node)
+                new_node.initialize(other_node.get_node_info())
             except ImpossibleInitializationError:
                 retries += 1
                 print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE

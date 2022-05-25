@@ -50,6 +50,9 @@ def menu_node_delete():
         chord.node_delete_all()
         print("Goodye!")
         sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
 
     try:
         chord.node_delete(selected_port)
@@ -76,6 +79,9 @@ def menu_file_insert():
         chord.node_delete_all()
         print("Goodye!")
         sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
 
     try:
         chord.file_publish(selected_port, file_data)
@@ -99,6 +105,9 @@ def menu_file_search():
         chord.node_delete_all()
         print("Goodye!")
         sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
 
     try:
         file = chord.file_lookup(selected_port, file_key)
@@ -127,6 +136,9 @@ def menu_file_delete():
         chord.node_delete_all()
         print("Goodye!")
         sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
 
     try:
         chord.file_delete(selected_port, file_key)
@@ -141,6 +153,9 @@ def menu_print_node_status():
         chord.node_delete_all()
         print("Goodye!")
         sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
 
     try:
         chord.print_node_status(selected_port)

@@ -60,13 +60,12 @@ class Message:
 
 # *********** CHORD *********
 MSG_TYPE_NOTIFY = "C1"  # Notify
-MSG_TYPE_PREC_RQST = "C2"  # Predecessor Request
-MSG_TYPE_SUCC_RQST = "C3"  # Successor Request
-MSG_TYPE_FIND_PREC_RQST = "C4"  # Find Predecessor Request
-MSG_TYPE_FIND_SUCC_RQST = "C5"  # Find Successor Request
-MSG_TYPE_LEAVE_PREC_RQST = "C6"  # Leaving Predecessor Request
-MSG_TYPE_LEAVE_SUCC_RQST = "C7"  # Leaving Successor Request
-MSG_TYPE_FIRST_SUCC_RQST = "C8"  # First Successor Request
+MSG_TYPE_GET_PREC_RQST = "C2"  # get Predecessor Request
+MSG_TYPE_GET_FIRST_SUCC_RQST = "C3"  # Get First Successor Request
+MSG_TYPE_SEARCH_KEY_SUCC_RQST = "C4"  # search key Successor Request
+MSG_TYPE_LEAVE_PREC_RQST = "C5"  # Leaving Predecessor Request
+MSG_TYPE_LEAVE_SUCC_RQST = "C6"  # Leaving Successor Request
+MSG_TYPE_YOURE_NOT_ALONE_RQST = "C7"  # You're Not Alone Request
 
 # *********** FILE *********
 MSG_TYPE_FILE_PBLSH_RQST = "F1"  # Publish Request
@@ -125,9 +124,9 @@ class NotifyRequestMessage(Message):
         super().__init__(MSG_TYPE_NOTIFY, destination_node_info, sender_node_info, ticket, True)
 
 
-class PredecessorAnswerMessage(Message):
+class GetPredecessorAnswerMessage(Message):
     """
-    Classe per la gestione delle risposte dei messaggi di tipo precedessor request
+    Classe per la gestione delle risposte dei messaggi di tipo get precedessor request
     """
 
     def __init__(self, destination_node_info, sender_node_info, predecessor_node_info, ticket):
@@ -151,9 +150,9 @@ class PredecessorAnswerMessage(Message):
         return self.__predecessor_node_info
 
 
-class PredecessorRequestMessage(Message):
+class GetPredecessorRequestMessage(Message):
     """
-    Classe per la gestione delle richieste dei messaggi di tipo predecessor request
+    Classe per la gestione delle richieste dei messaggi di tipo get predecessor request
     """
 
     def __init__(self, destination_node_info, sender_node_info, ticket):
@@ -165,12 +164,12 @@ class PredecessorRequestMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_PREC_RQST, destination_node_info, sender_node_info, ticket, True)
+        super().__init__(MSG_TYPE_GET_PREC_RQST, destination_node_info, sender_node_info, ticket, True)
 
 
-class SuccessorAnswerMessage(Message):
+class SearchKeySuccessorAnswerMessage(Message):
     """
-    Classe per la gestione delle risposte dei messaggi di tipo successor request
+    Classe per la gestione delle risposte dei messaggi di tipo search key successor request
     """
 
     def __init__(self, destination_node_info, sender_node_info, successor_node_info, ticket):
@@ -194,9 +193,52 @@ class SuccessorAnswerMessage(Message):
         return self.__successor_node_info
 
 
-class SuccessorRequestMessage(Message):
+class GetFirstSuccessorAnswerMessage(Message):
     """
-    Classe per la gestione delle richieste dei messaggi di tipo successor request
+    Classe per la gestione delle risposte dei messaggi di tipo get first successor request
+    """
+
+    def __init__(self, destination_node_info, sender_node_info, ticket, successor_node_info):
+        """
+        Inizializzazione degli attributi interni della classe.
+
+        :param destination_node_info: node_info del nodo destinatario
+        :param sender_node_info: node_info del nodo mittente
+        :param ticket: identificatore della richiesta
+        :param successor_node_info: node info del nodo successore
+        """
+
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
+        self.__successor_node_info = successor_node_info
+
+    def get_successor_node_info(self):
+        """
+        Metodo getter per il node info del primo nodo successore contenuto nel messaggio
+        """
+
+        return self.__successor_node_info
+
+
+class GetFirstSuccessorRequestMessage(Message):
+    """
+    Classe per la gestione delle richieste dei messaggi di tipo get first successor request
+    """
+
+    def __init__(self, destination_node_info, sender_node_info, ticket):
+        """
+        Inizializzazione degli attributi interni della classe.
+
+        :param destination_node_info: node_info del nodo destinatario
+        :param sender_node_info: node_info del nodo mittente
+        :param ticket: identificatore della richiesta
+        """
+
+        super().__init__(MSG_TYPE_GET_FIRST_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
+
+
+class SearchKeySuccessorRequestMessage(Message):
+    """
+    Classe per la gestione delle richieste dei messaggi di tipo search key successor request
     """
 
     def __init__(self, destination_node_info, key, sender_node_info, ticket):
@@ -209,7 +251,7 @@ class SuccessorRequestMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
+        super().__init__(MSG_TYPE_SEARCH_KEY_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
         self.__key = key
 
     def get_key(self):
@@ -317,35 +359,9 @@ class LeavingSuccessorRequestMessage(Message):
         return self.__new_successor_node_info
 
 
-class FirstSuccessorAnswerMessage(Message):
+class YoureNotAloneAnswerMessage(Message):
     """
-    Classe per la gestione delle risposte dei messaggi di tipo first successor request
-    """
-
-    def __init__(self, destination_node_info, sender_node_info, ticket, successor_node_info):
-        """
-        Inizializzazione degli attributi interni della classe.
-
-        :param destination_node_info: node_info del nodo destinatario
-        :param sender_node_info: node_info del nodo mittente
-        :param ticket: identificatore della richiesta
-        :param successor_node_info: node info del nodo successore
-        """
-
-        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
-        self.__successor_node_info = successor_node_info
-
-    def get_successor_node_info(self):
-        """
-        Metodo getter per il node info del primo nodo successore contenuto nel messaggio
-        """
-
-        return self.__successor_node_info
-
-
-class FirstSuccessorRequestMessage(Message):
-    """
-    Classe per la gestione delle richieste dei messaggi di tipo first successor request
+    Classe per la gestione delle risposte dei messaggi di tipo you're not alone request
     """
 
     def __init__(self, destination_node_info, sender_node_info, ticket):
@@ -357,7 +373,24 @@ class FirstSuccessorRequestMessage(Message):
         :param ticket: identificatore della richiesta
         """
 
-        super().__init__(MSG_TYPE_FIRST_SUCC_RQST, destination_node_info, sender_node_info, ticket, True)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
+
+
+class YoureNotAloneRequestMessage(Message):
+    """
+    Classe per la gestione delle richieste dei messaggi di tipo you're not alone request
+    """
+
+    def __init__(self, destination_node_info, sender_node_info, ticket):
+        """
+        Inizializzazione degli attributi interni della classe.
+
+        :param destination_node_info: node_info del nodo destinatario
+        :param sender_node_info: node_info del nodo mittente
+        :param ticket: identificatore della richiesta
+        """
+
+        super().__init__(MSG_TYPE_YOURE_NOT_ALONE_RQST, destination_node_info, sender_node_info, ticket, True)
 
 
 # *********+ File Messages

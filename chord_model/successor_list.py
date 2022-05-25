@@ -93,6 +93,12 @@ class SuccessorList:
         else:
             raise SuccessorListIsFullError
 
+    def replace(self, object_to_be_replaced, new_object):
+        if object_to_be_replaced:
+            for i in range(0, self.__node_list.__len__()):
+                if self.__node_list[i] == object_to_be_replaced:
+                    self.__node_list[i] = new_object
+
     def __len__(self):
         """
         Overload del metodo __len__ della lista

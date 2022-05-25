@@ -51,16 +51,23 @@ class ReceivedMessagesHandler:
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # predecessor request
-        elif message.get_type() == MSG_TYPE_PREC_RQST:
+        # get predecessor request
+        elif message.get_type() == MSG_TYPE_GET_PREC_RQST:
             found_predecessor = self.__my_node.get_predecessor(send)
-            answer = PredecessorAnswerMessage(dest, send, found_predecessor, ticket)
+            answer = GetPredecessorAnswerMessage(dest, send, found_predecessor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # Find successor request
-        elif message.get_type() == MSG_TYPE_SUCC_RQST:
-            found_successor = self.__my_node.find_successor(message.get_key())
-            answer = SuccessorAnswerMessage(dest, send, found_successor, ticket)
+        # get First successor request
+        elif message.get_type() == MSG_TYPE_GET_FIRST_SUCC_RQST:
+            first_successor_node_info = self.__my_node.get_first_successor()
+            answer = GetFirstSuccessorAnswerMessage(dest, send, ticket, first_successor_node_info)
+            self.__my_socket_node.send_message(sender_port, answer)
+
+        # Find key successor request
+        elif message.get_type() == MSG_TYPE_SEARCH_KEY_SUCC_RQST:
+            found_successor = self.__my_node.find_key_successor(message.get_key())
+            print(f"\n\nfound successor : {found_successor.get_port()}")
+            answer = SearchKeySuccessorAnswerMessage(dest, send, found_successor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
         # leaving predecessor request
@@ -85,10 +92,11 @@ class ReceivedMessagesHandler:
             answer = LeavingSuccessorAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # First successor request
-        elif message.get_type() == MSG_TYPE_FIRST_SUCC_RQST:
-            first_successor_node_info = self.__my_node.get_first_successor()
-            answer = FirstSuccessorAnswerMessage(dest, send, ticket, first_successor_node_info)
+        # TODO da verificare
+        # you're not alone request
+        elif message.get_type() == MSG_TYPE_YOURE_NOT_ALONE_RQST:
+            self.__my_node.im_not_alone_anymore(message.get_sender_node_info())
+            answer = YoureNotAloneAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
         # file publish request
