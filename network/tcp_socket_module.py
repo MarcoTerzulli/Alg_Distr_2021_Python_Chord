@@ -60,7 +60,7 @@ class TCPServerModule:
             pass
         else:
             try:
-                content = tcp_socket_client.recv(4096)
+                content = tcp_socket_client.recv(1024)
             except KeyboardInterrupt:
                 print(f"TCP Server on Port {self.__tcp_server_port} Shutdown")
                 print("Exiting...")
@@ -69,15 +69,28 @@ class TCPServerModule:
                 return None, None, None
 
             if len(content) != 0:
-                content = pickle.loads(content)
+                try:
+                    content = pickle.loads(content)
+                except pickle.UnpicklingError:
+                    print(content)  # TODO DEBUG
+                    return None, None, None
+
+                # TODO DEBUG
+                print(
+                    f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
+                print(content.get_type())
+                #if content.get_type() == "A":
+                    #print(content.get_successor_node_info().get_node_id())
 
                 if self.__debug_mode:
                     print(
                         f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
 
-                return client_ip, client_port, content
+            else:
+                content = None
 
             tcp_socket_client.close()
+            return client_ip, client_port, content
 
         return None, None, None
 

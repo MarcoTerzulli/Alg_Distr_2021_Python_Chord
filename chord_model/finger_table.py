@@ -87,7 +87,12 @@ class FingerTable:
         Funzione per la stampa a video della finger table
         """
 
-        print(self.__table_dict)
+        for key in self.__table_dict.keys():
+            if self.__table_dict[key] is not None:
+                print(f"Entry {key}: ")
+                self.__table_dict[key].print()
+            else:
+                print(f"Entry {key}: Empty ")
 
     # funzione di debug
     def _remove_finger(self, finger_info):

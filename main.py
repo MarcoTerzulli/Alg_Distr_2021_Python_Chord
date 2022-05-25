@@ -133,43 +133,46 @@ def menu_file_delete():
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
 
+def menu_print_node_status():
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+
+    try:
+        chord.print_node_status(selected_port)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+    else:
+        # libero la porta tcp
+        tcp_port_manager.mark_port_as_free(selected_port)
+
+
 
 def menu_DEBUG_OPERATION_1():
-    print("DEBUG: creazione nodo di test sulla porta 50000")
+    print("DEBUG: ricezione messaggi")
 
-    port = None
+    tcp_server = TCPServerModule(49152)
+    tcp_server.tpc_server_connect()
 
     while True:
-        # Ottengo una nuova porta TCP
-        try:
-            port = tcp_port_manager.get_free_port()
-        except NoAvailableTCPPortsError:  # Errore porte finite
-            print("ERROR: No available TCP ports. Node creation is not possible.")
-            break  # esco dal loop
-
-        tcp_port_manager.mark_port_as_used(port)
-
-        # Gestione richiesta nuova porta in caso in cui quella scelta sia stata occupata nel mentre da altri processi
-        try:
-            check_if_port_is_available(port)
-            new_node = Node(NodeInfo(port=port))
-        except AlreadyUsedPortError:
-            print("ERROR: the selected port is already in use. A new port is going to be chosen.")
-        else:
-            print(f"Successfully created node on port {tcp_port_manager.get_port_type(port)} {port}")
-            break  # Se tutto è andato bene, esco dal loop
-
-    # new_node.start()
-    # new_node.tcp_server_close()
-    # new_node.join()
-
-    tcp_port_manager.mark_port_as_free(port)
+        # Accetta un'eventuale connessione in ingresso e la elabora
+        (client_ip, client_port, message) = tcp_server.tcp_server_accept()
 
 
 def menu_DEBUG_OPERATION_2():
     print("DEBUG: controllo se il server socket sta andando")
 
     chord.print_tcp_server_status(49152)
+
+
+def menu_DEBUG_OPERATION_3():
+    chord.print_node_status(49152)
+
+
 
 
 # ******************* Main Vero e Proprio ***********************
@@ -214,7 +217,7 @@ if __name__ == "__main__":
         # Stampa del menù di selezione
         try:
             selected_op = input(
-                f"\nSelect an Operation:\n [1] Creation and Join of a new node\n [2] Terminate a node\n [3] Insert a file\n [4] Search a file\n [5] Delete a file\n [6] Print Chord network status\n [0] Exit from the Application\n")[
+                f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")[
                 0]
         except KeyboardInterrupt:
             # terminazione e join nodi chord per uscita pulita
@@ -250,12 +253,18 @@ if __name__ == "__main__":
             print("The Chord Network is going to be printed:")
             chord.print_chord()
 
-        elif int(selected_op) == 7:  # TODO node start debug
-            # print(f"Debug test process {test_process.is_alive()}")
+        elif int(selected_op) == 7:  # node status
+            menu_print_node_status()
+
+        elif int(selected_op) == 8:  # TODO node start debug
+            menu_DEBUG_OPERATION_1()
             pass
 
-        elif int(selected_op) == 8:  # TODO node terminate debug
+        elif int(selected_op) == 9:  # TODO node terminate debug
             menu_DEBUG_OPERATION_2()
+
+        elif int(selected_op) == 10:  # TODO node terminate debug
+            menu_DEBUG_OPERATION_3()
 
         elif int(selected_op) == 0:  # exit
             exit_flag = True

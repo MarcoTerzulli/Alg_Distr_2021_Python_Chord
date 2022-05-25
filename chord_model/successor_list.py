@@ -1,4 +1,4 @@
-from exceptions.exceptions import SuccessorListIsFullError
+from exceptions.exceptions import SuccessorListIsFullError, NoSuccessorFoundError
 
 
 class SuccessorList:
@@ -46,7 +46,7 @@ class SuccessorList:
         :return: l'ultimo elemento della lista. None se vuota
         """
 
-        if self.__node_list.__len__() > 1:
+        if self.__node_list.__len__() >= 1:
             return self.__node_list[self.__node_list.__len__() - 1]
         return None
 
@@ -140,12 +140,42 @@ class SuccessorList:
 
         self.__node_list.pop(i)
 
+    def get_closest_successor(self, key):
+        """
+        Metodo per ottenere il più piccolo nodo, se esiste, tra i successori della chiave data
+
+        :param key: chiave del nodo di cui si sta cercando il successore
+        :return: il più piccolo dei successori del dato nodo
+        """
+
+        node_id_ordered_list = list()
+        for this_node in self.__node_list:
+            if this_node is not None:
+                node_id_ordered_list.append(this_node.get_node_id())
+
+        node_id_ordered_list = sorted(node_id_ordered_list)
+
+        for this_node_id in node_id_ordered_list:
+            if this_node_id > key: # ho trovato il più piccolo nodo successore
+
+                # ottengo il node info di quel nodo
+                for this_node in self.__node_list:
+                    if this_node is not None:
+                        if this_node.get_node_id() == this_node_id:
+                            return this_node
+
+        raise NoSuccessorFoundError
+
+
+
+
     def print(self):
         """
         Metodo di debug per la stampa a video della lista dei successori.
         """
 
         print(
-            f"The successor list contains {self.__node_list.__len__()} elements over a max of {self.__CONST_MAX_SUCC_NUMBER}\n")
+            f"The successor list contains {self.__node_list.__len__()} elements over a max of {self.__CONST_MAX_SUCC_NUMBER}")
         for node_info in self.__node_list:
             node_info.print()
+

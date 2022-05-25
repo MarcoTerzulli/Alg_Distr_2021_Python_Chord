@@ -1,4 +1,5 @@
 import random
+from multiprocessing import Process
 
 from chord_model.file_system import FileSystem
 from chord_model.finger_table import *
@@ -9,7 +10,7 @@ from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSucce
 from network.node_tcp_requests_handler import NodeTCPRequestHandler
 
 
-class Node:
+class Node():
     """
     Classe che rappresenta un nodo all'interno del protocollo Chord
     """
@@ -40,12 +41,21 @@ class Node:
         # File system
         self.__file_system = FileSystem(self.__node_info.get_node_id())
 
-        # Gestione rete
-        self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout, debug_mode=debug_mode)
+        # # Gestione rete
+        # self.__tcp_requests_handler = NodeTCPRequestHandler(self, tcp_request_timeout, debug_mode=debug_mode)
+        #
+        # # Processo per gestione delle operazioni periodiche
+        # self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout,
+        #                                                                        debug_mode=debug_mode)
+
+        self.__tcp_requests_handler = None
 
         # Processo per gestione delle operazioni periodiche
-        self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, periodic_operations_timeout,
-                                                                               debug_mode=debug_mode)
+        self.__node_periodic_operations_manager = None
+
+        # attributi di rete
+        self.__periodic_operations_timeout = periodic_operations_timeout
+        self.__tcp_request_timeout = tcp_request_timeout
 
         # Creazione della finger table (vuota)
         self.__finger_table.add_finger(self.__node_info)
@@ -137,8 +147,10 @@ class Node:
 
         # inizializzazione della lista dei successori
         # TODO forse da rimuovere: non ha senso che il nodo sia successore di sè stesso
-        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
-        #    self.__successor_node_list.insert(i, self.__node_info)
+        for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
+            self.__successor_node_list.insert(i, self.__node_info)
+
+        self.__predecessor_node = self.__node_info
 
     def initialize(self, n_primo=None):
         """
@@ -146,6 +158,13 @@ class Node:
 
         :param n_primo: nodo "amico" (opzionale)
         """
+
+        self.__tcp_requests_handler = NodeTCPRequestHandler(self, self.__tcp_request_timeout,
+                                                            debug_mode=self.__debug_mode)
+
+        # Processo per gestione delle operazioni periodiche
+        self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, self.__periodic_operations_timeout,
+                                                                               debug_mode=self.__debug_mode)
 
         if not n_primo:
             self._initialize_no_friends()
@@ -165,9 +184,18 @@ class Node:
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 raise ImpossibleInitializationError
 
+            print(f"Sono il nodo {self.__node_info.get_port()} -- il successore è ")
+            if successor_node_info:
+                successor_node_info.print()
+            else:
+                print("noneee\n\n")
+
             self.__successor_node_list.append(successor_node_info)
             self.__finger_table.add_finger(successor_node_info)
             self.__predecessor_node = None
+
+            self.__successor_node_list.print()
+            print(self.__successor_node_list.get_last())
 
             # inizializzazione successor list
 
@@ -272,6 +300,13 @@ class Node:
         if not key:
             return None
 
+        # TODO DEBUG
+        print(f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
+        if self.__node_info.get_node_id() > key:
+            print("il mio id è superiore")
+        else:
+            print("il mio id è inferiore")
+
         successor_node_info = None
 
         if self.__node_info.get_node_id() == key:
@@ -279,18 +314,31 @@ class Node:
 
         # controllo se il nodo è responsabile della key
         if self.__predecessor_node is not None:
+            print("Controllo tra i predecessori")  # TODO DEBUG
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
+                print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
                 return self.__node_info
 
         # effettuo una ricerca nella lista dei successori
-        if self.__successor_node_list.__len__() > 0:
-            for i in range(0, self.__successor_node_list.__len__()):
-                if self.__successor_node_list[i].get_node_id() >= key:
-                    return self.__successor_node_list[i]
+        try:
+            print("controllo nella lista dei successorei")  # TODO DEBUG
+            successor = self.__successor_node_list.get_closest_successor(key)
+            print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
+            return successor
+        except NoSuccessorFoundError:
+            print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
+            pass # nessun successore nella lista è responsabile della key
+
+        # if self.__successor_node_list.__len__() > 0:
+        #     for i in range(0, self.__successor_node_list.__len__()):
+        #         if self.__successor_node_list[i].get_node_id() >= key:
+        #             return self.__successor_node_list[i]
 
         # effettuo una ricerca nella finger table
         try:
+            print("ricerca nella finger table")  # TODO DEBUG
             closest_predecessor_node_info = self.closest_preceding_finger(key)
+            print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
             successor_node_info = self.__tcp_requests_handler.send_successor_request(closest_predecessor_node_info, key,
                                                                                      self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -547,13 +595,37 @@ class Node:
         except FileKeyError:
             pass
 
+    # # ************************** METODI DI RETE *******************************
+    #
+    # def process_message_request(self, message):
+    #     """
+    #     Metodo per processare le richieste ricevute da altri nodi.
+    #     Questo metodo ha la semplice funzione di inoltrare la gestione della richiesta al message handler
+    #     """
+    #
+    #     if message:
+    #         self.__m
+
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):
         """
         Metodo di debug per la stampa dello stato del nodo corrente
         """
 
-        pass
+        print(
+            f"Node IP: {self.__node_info.get_ip()}\nNode Port: {self.__node_info.get_port()}\nNode ID: {self.__node_info.get_node_id()}\n")
+
+        if self.__predecessor_node is None:
+            print("Predecessor Node: No Predecessor")
+        else:
+            print(
+                f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
+
+        print("\nNode Successor List:")
+        self.__successor_node_list.print()
+
+        print("\nNode Finger Table:")
+        self.__finger_table.print()
 
     def print_tcp_server_status(self):
         """

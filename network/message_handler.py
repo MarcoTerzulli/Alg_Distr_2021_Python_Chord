@@ -19,6 +19,15 @@ class MessageHandler:
         self.__my_socket_node = my_socket_node
         self.__my_tcp_request_handler = my_tcp_request_handler
 
+    def add_socket_node(self, my_socket_node):
+        """
+        Metodo per l'inizializzazione del riferimento al proprio socket node
+
+        :param my_socket_node
+        """
+
+        self.__my_socket_node = my_socket_node
+
     def process_message(self, message):
         """
         Metodo per il processing vero e proprio dei messaggi TCP ricevuti.
@@ -52,6 +61,14 @@ class MessageHandler:
         elif message.get_type() == MSG_TYPE_SUCC_RQST:
             found_successor = self.__my_node.find_successor(message.get_key())
             answer = SuccessorAnswerMessage(dest, send, found_successor, ticket)
+
+            print(f"{self.__my_node.get_node_info().get_port()} --- ho la risposta pronta")
+
+            if found_successor:
+                print(f"{found_successor.get_node_id()} \n\n")
+            else:
+                print("Ho ottenuto none\n\n")
+
             self.__my_socket_node.send_message(sender_port, answer)
 
         # leaving predecessor request
@@ -77,7 +94,7 @@ class MessageHandler:
             self.__my_socket_node.send_message(sender_port, answer)
 
         # First successor request
-        elif message.get_type == MSG_TYPE_FIRST_SUCC_RQST:
+        elif message.get_type() == MSG_TYPE_FIRST_SUCC_RQST:
             first_successor_node_info = self.__my_node.get_first_successor()
 
             answer = FirstSuccessorAnswerMessage(dest, send, ticket, first_successor_node_info)
@@ -119,6 +136,7 @@ class MessageHandler:
         # forse è già ok
         # answer
         elif message.get_type() == MSG_TYPE_ANSWER:
+            print(f"{self.__my_node.get_node_info().get_port()} --- Ricevuto ticket {message.get_ticket()}")
             self.__my_tcp_request_handler.add_answer(message)
 
         else:

@@ -41,7 +41,7 @@ class NodePeriodicOperationsThread(Thread):
 
                 self.__last_execution_time = current_millis_time()
 
-                self.__this_node.stabilize()
-                self.__this_node.fix_finger()
-                self.__this_node.check_predecessor()
-                self.__this_node.fix_successor_list()
+                # self.__this_node.stabilize()
+                # self.__this_node.fix_finger()
+                # self.__this_node.check_predecessor()
+                # self.__this_node.fix_successor_list()

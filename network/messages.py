@@ -335,7 +335,7 @@ class FirstSuccessorAnswerMessage(Message):
         super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
         self.__successor_node_info = successor_node_info
 
-    def get_successor(self):
+    def get_successor_node_info(self):
         """
         Metodo getter per il node info del primo nodo successore contenuto nel messaggio
         """
