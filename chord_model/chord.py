@@ -74,13 +74,13 @@ class Chord:
         other_node = None
         if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
             while other_node is None or other_node == new_node:
-                other_node = random.choice(list(self.__node_dict.values()))
+                other_node = random.choice(list(self.__node_dict.values())).get_node_info()
 
         retries = 0
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
-                new_node.initialize(other_node.get_node_info())
+                new_node.initialize(other_node)
             except ImpossibleInitializationError:
                 retries += 1
                 print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE

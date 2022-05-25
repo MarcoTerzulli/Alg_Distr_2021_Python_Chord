@@ -169,9 +169,9 @@ class Node():
             self.__finger_table.add_finger_by_index(i, self.__node_info)
 
         # inizializzazione della lista dei successori
-        self.__successor_node_list.insert(0, self.__node_info)
-        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
-        #     self.__successor_node_list.insert(i, self.__node_info)
+        # self.__successor_node_list.insert(0, self.__node_info)
+        for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
+            self.__successor_node_list.insert(i, self.__node_info)
 
         self.__predecessor_node = self.__node_info
 
@@ -209,17 +209,18 @@ class Node():
         # inizializzazione successor list
         try:
             for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
+                print(i)
                 last_node_info = self.__successor_node_list.get_last()
                 successor_node_info = self.__tcp_requests_handler.send_get_first_successor_request(last_node_info,
                                                                                                    self.__node_info)
 
                 if self.__node_info.equals(successor_node_info.get_node_id()):
-                    self.__successor_node_list.insert(i, self.__node_info)
-                    while i < self.__CONST_MAX_SUCC_NUMBER:
-                        i += 1
+                    # self.__successor_node_list.insert(i, self.__node_info)
                     # while i < self.__CONST_MAX_SUCC_NUMBER:
-                    #     self.__successor_node_list.insert(i, self.__node_info)
                     #     i += 1
+                    while i < self.__CONST_MAX_SUCC_NUMBER:
+                        self.__successor_node_list.insert(i, self.__node_info)
+                        i += 1
                 else:
                     self.__successor_node_list.insert(i, successor_node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -297,8 +298,8 @@ class Node():
 
         if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
             self.__im_alone = False
-            self.__successor_node_list.insert(0, other_node_info)
-            self.__finger_table.add_finger_by_index(0, other_node_info)
+            self.__successor_node_list[0] = other_node_info
+            self.__finger_table.add_finger_by_index(1, other_node_info)
 
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):
