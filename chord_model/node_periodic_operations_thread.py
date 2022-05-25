@@ -1,3 +1,4 @@
+import threading
 from multiprocessing import Process
 from threading import Thread
 
@@ -20,6 +21,7 @@ class NodePeriodicOperationsThread(Thread):
         """
 
         super().__init__()
+        self._stop_event = threading.Event()
 
         self.__this_node = this_node
 
@@ -36,7 +38,7 @@ class NodePeriodicOperationsThread(Thread):
         Gestisce la chiamata periodica ai metodi del nodo
         """
 
-        while True:
+        while not self._stop_event.is_set():
             if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
 
                 self.__last_execution_time = current_millis_time()
@@ -45,3 +47,17 @@ class NodePeriodicOperationsThread(Thread):
                 # self.__this_node.fix_finger()
                 # self.__this_node.check_predecessor()
                 # self.__this_node.fix_successor_list()
+
+    def stop(self):
+        """
+        Override del metodo stop della classe Thread
+        """
+
+        self._stop_event.set()
+
+    def stopped(self):
+        """
+        Override del metodo stopped della classe Thread
+        """
+
+        return self._stop_event.is_set()

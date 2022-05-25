@@ -239,19 +239,24 @@ class Node():
         """
 
         try:
+            self.__node_periodic_operations_manager.stop()
             self.__node_periodic_operations_manager.join()
         except RuntimeError:
             # avviene nel caso in cui si termina l'applicazione prima che un thread/ processo venga avviato
             pass
+        print("join del periodic manager ok")
+
 
         try:
             if not self.__successor_node_list.is_empty():
+                print("messaggio al mio successore")
                 # invio il messaggio al mio successore, comunicandogli il mio predecessore
                 self.__tcp_requests_handler.send_leaving_predecessor_request(self.__successor_node_list.get_first(),
                                                                              self.__node_info, self.__predecessor_node,
                                                                              self.__file_system.empty_file_system())
 
             if self.__predecessor_node:
+                print("messaggio al mio predecessore")
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
                 self.__tcp_requests_handler.send_leaving_successor_request(self.__predecessor_node, self.__node_info,
                                                                            self.__successor_node_list.get_first())

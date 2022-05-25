@@ -88,7 +88,7 @@ class SuccessorList:
         :param object_to_be_inserted: oggetto da inserire
         """
 
-        if self.__node_list.__len__() < self.__CONST_MAX_SUCC_NUMBER:
+        if self.__node_list.__len__() < self.__CONST_MAX_SUCC_NUMBER or 0 <= index <= self.__CONST_MAX_SUCC_NUMBER:
             self.__node_list.insert(index, object_to_be_inserted)
         else:
             raise SuccessorListIsFullError

@@ -65,7 +65,7 @@ class ReceivedMessagesHandler:
 
         # leaving predecessor request
         elif message.get_type() == MSG_TYPE_LEAVE_PREC_RQST:
-            new_predecessor_node_info = message.get_new_precedessor_node_info()
+            new_predecessor_node_info = message.get_new_predecessor_node_info()
             self.__my_node.notify_leaving_predecessor(new_predecessor_node_info)
 
             files = message.get_files()

@@ -45,6 +45,7 @@ class NodeTCPRequestHandler:
         """
 
         self.__socket_node.tcp_server_close()
+        self.__socket_node.stop()
         self.__socket_node.join()
 
     # ************************ METODI MESSAGGI CHORD *****************************

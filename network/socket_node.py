@@ -1,3 +1,4 @@
+import threading
 from multiprocessing import Process
 from threading import Thread
 
@@ -23,6 +24,7 @@ class SocketNode(Thread):
         """
 
         super().__init__()
+        self._stop_event = threading.Event()
 
         self.__this_node = this_node
         self.__this_msg_handler = this_msg_handler
@@ -42,6 +44,7 @@ class SocketNode(Thread):
         """
 
         self.__tcp_server.tcp_server_close()
+        self._stop_event.set()
 
     def run(self):
         """
@@ -50,7 +53,7 @@ class SocketNode(Thread):
         delle funzionalità del nodo.
         """
 
-        while True:
+        while not self._stop_event.is_set():
             # Accetta un'eventuale connessione in ingresso e la elabora
             (client_ip, client_port, message) = self.__tcp_server.tcp_server_accept()
             # Rimando la gestione del messaggio al layer chord
@@ -85,3 +88,17 @@ class SocketNode(Thread):
         """
 
         self.__tcp_server.tcp_server_close()
+
+    def stop(self):
+        """
+        Override del metodo stop della classe Thread
+        """
+
+        self._stop_event.set()
+
+    def stopped(self):
+        """
+        Override del metodo stopped della classe Thread
+        """
+
+        return self._stop_event.is_set()

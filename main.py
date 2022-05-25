@@ -217,8 +217,11 @@ if __name__ == "__main__":
         # Stampa del menù di selezione
         try:
             selected_op = input(
-                f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")[
-                0]
+                f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")
+            if int(selected_op) not in range (0, 9):
+                raise ValueError
+            else:
+                selected_op = selected_op[0]
         except KeyboardInterrupt:
             # terminazione e join nodi chord per uscita pulita
             chord.node_delete_all()
