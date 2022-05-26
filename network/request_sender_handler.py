@@ -264,6 +264,8 @@ class RequestSenderHandler:
         except TCPRequestSendError:
             raise TCPRequestSendError
 
+        return answer.destination_node_was_alone()
+
     # forse ok
     def send_leaving_predecessor_request(self, destination_node_info, sender_node_info, new_predecessor_node_info,
                                          files):

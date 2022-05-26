@@ -12,6 +12,7 @@ def hash_function(input_string):
     :return: valore hashato della stringa fornita
     """
 
+    # conversione in base 10 da esadecimale
     return int(hashlib.sha1(input_string.encode("utf-8")).hexdigest(), 16)
 
 
@@ -30,4 +31,19 @@ def compute_finger(node_id, index):
     """
 
     return (node_id + 2 ** (index - 1)) % (2 ** CONST_M)
+
+# def compute_finger(node_id, index):
+#     """
+#     Funzione che computa il finger con la potenza, modulo 2^m
+#     :return: il finger computato
+#     """
+#
+#     # conversion of the id to base 10
+#     base_10_node_id = int(node_id, 10)
+#
+#     # computing the finger
+#     base_10_computed_finger = (base_10_node_id + 2 ** (index - 1)) % (2 ** CONST_M)
+#
+#     # conversion to base 16 and return
+#     return int(base_10_computed_finger, 16)
 

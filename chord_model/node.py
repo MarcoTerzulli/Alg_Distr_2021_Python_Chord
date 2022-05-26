@@ -40,13 +40,13 @@ class Node():
         self.__im_alone = True
 
         # Creazione della finger table (vuota)
-        self.__finger_table.add_finger(self.__node_info)
+        #self.__finger_table.add_finger(self.__node_info)
 
         # File system
         self.__file_system = FileSystem(self.__node_info.get_node_id())
 
         # Gestione rete
-        self.__tcp_requests_handler = None
+        self.__tcp_request_sender_handler = None
 
         # attributi di rete
         self.__periodic_operations_timeout = periodic_operations_timeout
@@ -128,7 +128,16 @@ class Node():
         :return self.__tcp_requests_handler: il proprio tcp_requests_handler
         """
 
-        return self.__tcp_requests_handler
+        return self.__tcp_request_sender_handler
+
+    def get_alone_status(self):
+        """
+        Metodo per conoscere lo stato di "solitudine" del nodo.
+
+        :return: True se il nodo crede di essere solo nella rete. False altrimenti
+        """
+
+        return self.__im_alone
 
     # ************************** METODI NODO CHORD *******************************
 
@@ -141,8 +150,8 @@ class Node():
 
         print(f"\nInitialization of Node with Port {self.__node_info.get_port()}: Started")
 
-        self.__tcp_requests_handler = RequestSenderHandler(self, self.__tcp_request_timeout,
-                                                           debug_mode=self.__debug_mode)
+        self.__tcp_request_sender_handler = RequestSenderHandler(self, self.__tcp_request_timeout,
+                                                                 debug_mode=self.__debug_mode)
 
         # Processo per gestione delle operazioni periodiche
         self.__node_periodic_operations_manager = NodePeriodicOperationsThread(self, self.__periodic_operations_timeout,
@@ -155,7 +164,7 @@ class Node():
 
         self.__node_periodic_operations_manager.start()
 
-        print(f"Initialization of Node with Port {self.__node_info.get_port()}: Completed")
+        print(f"Initialization of Node with Port {self.__node_info.get_port()}: Completed\nHere's the new Node's ID: {self.__node_info.get_node_id()}")
 
     # ok
     def _initialize_with_no_friends(self):
@@ -167,8 +176,9 @@ class Node():
         """
 
         # inizializzazione della finger table
-        for i in range(1, CONST_M + 1):  # da 1 a m
-            self.__finger_table.add_finger_by_index(i, self.__node_info)
+        # for i in range(1, CONST_M + 1):  # da 1 a m
+        #     self.__finger_table.add_finger_by_index(i, self.__node_info)
+        # non ha senso... dovrebbe essere vuota
 
         # inizializzazione della lista dei successori
         # self.__successor_node_list.insert(0, self.__node_info)
@@ -189,9 +199,9 @@ class Node():
 
         # richiesta al nodo successore
         try:
-            successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(other_node_info,
-                                                                                                self.__node_info.get_node_id(),
-                                                                                                self.__node_info)
+            successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(other_node_info,
+                                                                                                      self.__node_info.get_node_id(),
+                                                                                                      self.__node_info)
         # todo debug
         except TCPRequestTimerExpiredError:
             print("timer")
@@ -215,8 +225,8 @@ class Node():
                 print(i)
                 last_node_info = self.__successor_node_list.get_last()
                 last_node_info.print()
-                successor_node_info = self.__tcp_requests_handler.send_get_first_successor_request(last_node_info,
-                                                                                                   self.__node_info)
+                successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(last_node_info,
+                                                                                                         self.__node_info)
                 successor_node_info.print()
                 if self.__node_info.equals(successor_node_info.get_node_id()):
                     # self.__successor_node_list.insert(i, self.__node_info)
@@ -235,11 +245,12 @@ class Node():
         sleep(0.1)
         # inizializzazione finger table
         for i in range(1, CONST_M + 1):  # da 1 a M compreso
+            print("\n\n") # TODO DEBUG
             print(f"Initializing the finger number {i} / {CONST_M}")
 
             computed_key = compute_finger(self.__node_info.get_node_id(), i)
             try:
-                finger_node_info = self.__tcp_requests_handler.send_search_key_successor_request(
+                finger_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
                     self.__successor_node_list.get_first(),
                     computed_key,
                     self.__node_info)
@@ -251,12 +262,18 @@ class Node():
 
         # informo il mio amico che non è più solo nella rete
         try:
-            self.__tcp_requests_handler.send_youre_not_alone_anymore_request(other_node_info, self.__node_info)
+            #print(f"\n\nSono {self.__node_info.get_port()}: sto per mandare not alone a {other_node_info.get_port()}") # todo debug
+            other_node_was_alone = self.__tcp_request_sender_handler.send_youre_not_alone_anymore_request(other_node_info, self.__node_info)
+            self.__im_alone = False
+
+            if other_node_was_alone:
+                #print("Anche l'altro nodo era solo") # todo debug
+                self.im_not_alone_anymore(other_node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             raise ImpossibleInitializationError
 
-        if self.__successor_node_list.get_first().get_node_id() != self.__node_info.get_node_id():
-            self.__im_alone = False
+        # if self.__successor_node_list.get_first().get_node_id() != self.__node_info.get_node_id():
+        #     self.__im_alone = False
 
     def terminate(self):
         """
@@ -277,19 +294,22 @@ class Node():
             if not self.__successor_node_list.is_empty():
                 print("messaggio al mio successore")
                 # invio il messaggio al mio successore, comunicandogli il mio predecessore
-                self.__tcp_requests_handler.send_leaving_predecessor_request(self.__successor_node_list.get_first(),
-                                                                             self.__node_info, self.__predecessor_node,
-                                                                             self.__file_system.empty_file_system())
+                self.__tcp_request_sender_handler.send_leaving_predecessor_request(self.__successor_node_list.get_first(),
+                                                                                   self.__node_info, self.__predecessor_node,
+                                                                                   self.__file_system.empty_file_system())
 
             if self.__predecessor_node:
                 print("messaggio al mio predecessore")
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
-                self.__tcp_requests_handler.send_leaving_successor_request(self.__predecessor_node, self.__node_info,
-                                                                           self.__successor_node_list.get_first())
+                self.__tcp_request_sender_handler.send_leaving_successor_request(self.__predecessor_node, self.__node_info,
+                                                                                 self.__successor_node_list.get_first())
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
-        self.__tcp_requests_handler.socket_node_join()
+        try:
+            self.__tcp_request_sender_handler.socket_node_join()
+        except AttributeError:
+            pass
 
     # forse ok
     def im_not_alone_anymore(self, other_node_info):
@@ -300,10 +320,19 @@ class Node():
         :param other_node_info: node info dell'altro nodo
         """
 
+        # print(f"\n\nSono dentro im not alone anymore {self.__node_info.get_port()}")  # todo debug
+        # print(f"l'alro node info {other_node_info.get_port()}")
+
         if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
             self.__im_alone = False
+            self.__predecessor_node = other_node_info
             self.__successor_node_list[0] = other_node_info
-            self.__finger_table.add_finger_by_index(1, other_node_info)
+            self.__successor_node_list.replace_all(other_node_info)
+
+            if self.__node_info.get_node_id() <= other_node_info.get_node_id():
+                self.__finger_table.add_finger_by_index(1, other_node_info)
+
+            # print(f"ora non sono più solo {self.__node_info.get_port()}")  # todo debug
 
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):
@@ -328,7 +357,7 @@ class Node():
 
             # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
             try:
-                new_successor_info = self.__tcp_requests_handler.send_get_first_successor_request(
+                new_successor_info = self.__tcp_request_sender_handler.send_get_first_successor_request(
                     self.__successor_node_list.get_last(), self.__node_info)
                 self.__successor_node_list.append(new_successor_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -346,18 +375,22 @@ class Node():
         if not key:
             return None
 
+        # flag_im_the_possible_successor = False
+        # if self.__node_info.get_node_id() >= key:
+        #     flag_im_the_possible_successor = True
+
         # # TODO DEBUG
-        # print(
-        #     f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
-        # if self.__node_info.get_node_id() > key:
-        #     print("il mio id è superiore")
-        # else:
-        #     print("il mio id è inferiore")
+        print(
+            f"Find Successor del nodo {self.__node_info.get_port()}\nMio ID: {self.__node_info.get_node_id()}\nId del secondo nodo: {key}")
+        if self.__node_info.get_node_id() > key:
+            print("il mio id è superiore")
+        elif self.__node_info.get_node_id() < key:
+            print("il mio id è inferiore")
+        else:
+            print("sono io")
 
-        successor_node_info = None
-
+        # controllo se mi è arrivato il mio stesso id
         if self.__node_info.get_node_id() == key:
-            # print("scherzavo, sono io")  # TODO DEBUG
             return self.__node_info
 
         # controllo se il nodo è responsabile della key
@@ -369,12 +402,12 @@ class Node():
 
         # effettuo una ricerca nella lista dei successori
         try:
-            # print("controllo nella lista dei successorei")  # TODO DEBUG
-            successor = self.__successor_node_list.get_closest_successor(key)
-            # print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
+            print("controllo nella lista dei successorei")  # TODO DEBUG
+            successor = self.__successor_node_list.get_closest_successor(key) # il successore è il primo con id >= key
+            print(f"Ho trovato il successore: {successor.get_node_id()}")  # TODO DEBUG
             return successor
         except NoSuccessorFoundError:
-            # print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
+            print("il controllo nella lista dei successorei non ha dato risultati")  # TODO DEBUG
             pass  # nessun successore nella lista è responsabile della key
 
         # if self.__successor_node_list.__len__() > 0:
@@ -383,30 +416,36 @@ class Node():
         #             return self.__successor_node_list[i]
 
         # effettuo una ricerca nella finger table
+        successor_node_info = None
         try:
-            # print("ricerca nella finger table")  # TODO DEBUG
+            print("ricerca nella finger table")  # TODO DEBUG
 
             closest_predecessor_node_info = self.closest_preceding_finger(key)
 
+            if closest_predecessor_node_info:
+                # se il closest predecessor sono io, vuol dire che nella rete non c'è nessun successore
+                if closest_predecessor_node_info.get_node_id() == self.__node_info.get_node_id():
+                    print(f"Il closest preciding finger sono io -- nella rete non c'è successore.. ritorno None")
+                    pass
+                else:
+                    # print(closest_predecessor_node_info)# TODO DEBUG
+                    if closest_predecessor_node_info: # TODO DEBUG
+                        print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
 
-            print(closest_predecessor_node_info)# TODO DEBUG
-            # if closest_predecessor_node_info:
-                # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
 
-
-            successor_node_info = self.__tcp_requests_handler.send_search_key_successor_request(
-                closest_predecessor_node_info, key,
-                self.__node_info)
+                    successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
+                        closest_predecessor_node_info, key,
+                        self.__node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self.repopulate_successor_list(0)
-            # print("ripopolo la lista successori (0)")
+            print("ripopolo la lista successori (0)")
 
         # se non sono stato in grado di trovare nessun successore nella rete
         # ed il mio id è inferiore a quello dell'altro nodo,
         # allora è probabile che siamo gli unici due nodi della rete.
-        # Il successore dell'altro nodo sono io, e diventerà a sua volta il mio successore
-        if self.__node_info.get_node_id() < key and not successor_node_info:
-            successor_node_info = self.__node_info
+        # Il successore dell'altro nodo sono io, e lui diventerà a sua volta il mio successore
+        if self.__node_info.get_node_id() >= key and not successor_node_info:
+            return self.__node_info
 
         return successor_node_info
 
@@ -436,12 +475,23 @@ class Node():
         :return: True se sono il presente nodo è responsabile della key, False altrimenti
         """
 
-        if key < self.__node_info.get_node_id():
-            return False
-        elif self.__node_info.get_node_id() > predecessor_node_id:
+        if key > self.__node_info.get_node_id():
             return False
         else:
-            return True
+            # siamo nel caso node_id >= key: il nodo è il possibile responsabile.
+
+            # controllo se il mio predecessore è il responsabile
+            if predecessor_node_id >= key:
+                return False
+            else:
+                return True
+
+        # if key < self.__node_info.get_node_id():
+        #     return False
+        # elif self.__node_info.get_node_id() > predecessor_node_id:
+        #     return False
+        # else:
+        #     return True
 
     # ************************** METODI FINGER TABLE *******************************
 
@@ -489,8 +539,8 @@ class Node():
 
             try:
                 # chiedo al mio successore chi è il suo predecessore
-                potential_successor = self.__tcp_requests_handler.send_get_predecessor_request(actual_successor,
-                                                                                               self.__node_info)
+                potential_successor = self.__tcp_request_sender_handler.send_get_predecessor_request(actual_successor,
+                                                                                                     self.__node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.repopulate_successor_list(0)
             except NoPrecedessorFoundError:
@@ -509,7 +559,7 @@ class Node():
                     # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
                     # ed ottengo gli eventuali file che ora sono di mia competenza
                     try:
-                        new_files_dict = self.__tcp_requests_handler.send_notify(new_successor, self.__node_info)
+                        new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor, self.__node_info)
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         # il nodo potrebbe aver avuto problemi o essere uscito da chord
                         self.repopulate_successor_list(0)
@@ -547,7 +597,7 @@ class Node():
 
         if self.__predecessor_node:
             try:
-                self.__tcp_requests_handler.send_ping(self.__predecessor_node, self.__node_info)
+                self.__tcp_request_sender_handler.send_ping(self.__predecessor_node, self.__node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.__predecessor_node = None
 
@@ -562,8 +612,8 @@ class Node():
         try:
             for i in range(0, self.__successor_node_list.__len__()):
                 last_known_node = self.__successor_node_list[i]
-                successor_node_info = self.__tcp_requests_handler.send_get_first_successor_request(last_known_node,
-                                                                                                   self.__node_info)
+                successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(last_known_node,
+                                                                                                         self.__node_info)
 
                 if successor_node_info.get_node_id() == self.__node_info.get_node_id():
                     while i < self.__successor_node_list.__len__() - 1:
@@ -588,7 +638,7 @@ class Node():
         # Inserimento nella rete
         successor = self.find_key_successor(key)
         if not self.__node_info.equals(successor.get_node_info):
-            self.__tcp_requests_handler.send_publish_request(successor.get_node_info(), self.__node_info, key, file)
+            self.__tcp_request_sender_handler.send_publish_request(successor.get_node_info(), self.__node_info, key, file)
 
     def put_file_here(self, key, file):
         """
@@ -615,7 +665,7 @@ class Node():
         if self.__node_info.equals(successor.get_node_info):
             file = self.get_my_file(key)
         else:
-            file = self.__tcp_requests_handler.send_file_request(successor.get_node_info(), self.__node_info, key)
+            file = self.__tcp_request_sender_handler.send_file_request(successor.get_node_info(), self.__node_info, key)
 
         return file
 
@@ -646,7 +696,7 @@ class Node():
         if self.__node_info.equals(successor.get_node_info):
             self.delete_my_file(key)
         else:
-            self.__tcp_requests_handler.send_delete_file_request(successor.get_node_info(), self.__node_info, key)
+            self.__tcp_request_sender_handler.send_delete_file_request(successor.get_node_info(), self.__node_info, key)
 
     def delete_my_file(self, key):
         """
@@ -698,4 +748,4 @@ class Node():
         Metodo di debug per la stampa dello stato del processo del server tcp
         """
 
-        print(f"DEBUG: The TCP Server's Process Status is {self.__tcp_requests_handler.is_tcp_server_alive()}")
+        print(f"DEBUG: The TCP Server's Process Status is {self.__tcp_request_sender_handler.is_tcp_server_alive()}")

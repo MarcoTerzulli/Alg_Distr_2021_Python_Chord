@@ -66,7 +66,7 @@ class ReceivedMessagesHandler:
         # Find key successor request
         elif message.get_type() == MSG_TYPE_SEARCH_KEY_SUCC_RQST:
             found_successor = self.__my_node.find_key_successor(message.get_key())
-            print(f"\n\nfound successor : {found_successor.get_port()}")
+            #print(f"\n\nfound successor : {found_successor.get_port()}")
             answer = SearchKeySuccessorAnswerMessage(dest, send, found_successor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
@@ -95,8 +95,10 @@ class ReceivedMessagesHandler:
         # TODO da verificare
         # you're not alone request
         elif message.get_type() == MSG_TYPE_YOURE_NOT_ALONE_RQST:
+            i_was_alone = self.__my_node.get_alone_status()
+
             self.__my_node.im_not_alone_anymore(message.get_sender_node_info())
-            answer = YoureNotAloneAnswerMessage(dest, send, ticket)
+            answer = YoureNotAloneAnswerMessage(dest, send, ticket, i_was_alone)
             self.__my_socket_node.send_message(sender_port, answer)
 
         # file publish request

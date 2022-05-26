@@ -146,6 +146,16 @@ class SuccessorList:
 
         self.__node_list.pop(i)
 
+    def replace_all(self, object_to_be_inserted):
+        """
+        Metodo per sostituire tutti gli elementi della successor list.
+
+        :param object_to_be_inserted: oggetto da inserire
+        """
+
+        for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
+            self.__node_list[i] = object_to_be_inserted
+
     def get_closest_successor(self, key):
         """
         Metodo per ottenere il più piccolo nodo, se esiste, tra i successori della chiave data
@@ -172,7 +182,6 @@ class SuccessorList:
                             return this_node
 
         raise NoSuccessorFoundError
-
 
 
 

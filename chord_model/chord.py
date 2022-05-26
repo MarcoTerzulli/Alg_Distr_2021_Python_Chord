@@ -69,12 +69,18 @@ class Chord:
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
-        self.__node_dict[port] = new_node
+        # self.__node_dict[port] = new_node
+        #
+        # other_node = None
+        # if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
+        #     while other_node is None or other_node == new_node:
+        #         other_node = random.choice(list(self.__node_dict.values())).get_node_info()
 
         other_node = None
-        if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
-            while other_node is None or other_node == new_node:
-                other_node = random.choice(list(self.__node_dict.values())).get_node_info()
+        if self.__node_dict.__len__() >= 1:  # prendo un nodo randomicamente
+            other_node = random.choice(list(self.__node_dict.values())).get_node_info()
+
+        self.__node_dict[port] = new_node
 
         retries = 0
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
@@ -83,7 +89,8 @@ class Chord:
                 new_node.initialize(other_node)
             except ImpossibleInitializationError:
                 retries += 1
-                print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
+                if self.__debug_mode:
+                    print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
             else:
                 break
 

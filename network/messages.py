@@ -364,16 +364,28 @@ class YoureNotAloneAnswerMessage(Message):
     Classe per la gestione delle risposte dei messaggi di tipo you're not alone request
     """
 
-    def __init__(self, destination_node_info, sender_node_info, ticket):
+    def __init__(self, destination_node_info, sender_node_info, ticket, destination_node_was_alone):
         """
         Inizializzazione degli attributi interni della classe.
 
         :param destination_node_info: node_info del nodo destinatario
         :param sender_node_info: node_info del nodo mittente
         :param ticket: identificatore della richiesta
+        :param destination_node_was_alone: flag che indica lo stato di "solitudine" precedente del nodo destinatario
         """
 
         super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
+        self.__destination_node_was_alone = destination_node_was_alone
+
+    def destination_node_was_alone(self):
+        """
+        Metodo getter per lo stato di "solitudine" precedente del nodo destinatario
+
+        :return destination_node_was_alone
+        """
+
+        return self.__destination_node_was_alone
+
 
 
 class YoureNotAloneRequestMessage(Message):
