@@ -45,14 +45,14 @@ class Chord:
             # ci è stata assegnata una porta già usata
             raise AlreadyUsedPortError
 
-        # todo debug
-        print(f"Porta scelta {port}")
-
-        # todo debug
-        print("\n\nStampo il sommario dei nodi chord prima della creazione del nodo")
-        for key in self.__node_dict.keys():
-            self.__node_dict[key].print_status_summary()
-        print("\n")
+        # # todo debug
+        # print(f"Porta scelta {port}")
+        #
+        # # todo debug
+        # print("\n\nStampo il sommario dei nodi chord prima della creazione del nodo")
+        # for key in self.__node_dict.keys():
+        #     self.__node_dict[key].print_status_summary()
+        # print("\n")
 
         new_node_info = NodeInfo(port=port)
         try:
@@ -67,11 +67,11 @@ class Chord:
         #     while other_node is None or other_node == new_node:
         #         other_node = random.choice(list(self.__node_dict.values())).get_node_info()
 
-        # todo debug
-        print("\n\nStampo il sommario dei nodi chord dopo la creazione del nodo (non inizializzato)")
-        for key in self.__node_dict.keys():
-            self.__node_dict[key].print_status_summary()
-        print("\n")
+        # # todo debug
+        # print("\n\nStampo il sommario dei nodi chord dopo la creazione del nodo (non inizializzato)")
+        # for key in self.__node_dict.keys():
+        #     self.__node_dict[key].print_status_summary()
+        # print("\n")
 
         other_node = None
         if self.__node_dict.__len__() >= 1:  # prendo un nodo randomicamente
@@ -80,9 +80,9 @@ class Chord:
 
         self.__node_dict[port] = new_node
 
-        if other_node:  # todo debug
-            print("\n\n Vediamo l'altro nodo da usare...")  # todo debug
-            self.__node_dict[other_node.get_port()].print_status_summary()  # todo debug
+        # if other_node:  # todo debug
+        #     print("\n\n Vediamo l'altro nodo da usare...")  # todo debug
+        #     self.__node_dict[other_node.get_port()].print_status_summary()  # todo debug
 
         retries = 0
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:

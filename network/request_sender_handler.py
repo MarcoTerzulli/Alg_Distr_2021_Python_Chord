@@ -217,10 +217,10 @@ class RequestSenderHandler:
         except TCPRequestSendError:
             raise TCPRequestSendError
 
-        # todo debug
-        if answer.get_successor_node_info():
-            print(
-                f"send_successor_request - get_successor_node_info - {answer.get_successor_node_info().get_port()}")
+        # TODO debug
+        # if answer.get_successor_node_info():
+        #     print(
+        #         f"send_successor_request - get_successor_node_info - {answer.get_successor_node_info().get_port()}")
 
         return answer.get_successor_node_info()
 

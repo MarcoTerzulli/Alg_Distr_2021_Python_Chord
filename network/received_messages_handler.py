@@ -45,8 +45,8 @@ class ReceivedMessagesHandler:
         sender_port = message.get_sender_node_info().get_port()
         ticket = message.get_ticket()
 
-        # todo debug
-        print(f"Nodo {self.__my_node.get_node_info().get_port()} -- ho ricevuto un messaggio di tipo {message.get_type()} dal nodo {sender_port}")
+        # # todo debug
+        # print(f"Nodo {self.__my_node.get_node_info().get_port()} -- ho ricevuto un messaggio di tipo {message.get_type()} dal nodo {sender_port}")
 
         # notify
         if message.get_type() == MSG_TYPE_NOTIFY:
