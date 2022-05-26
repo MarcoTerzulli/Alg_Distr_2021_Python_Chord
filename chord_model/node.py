@@ -59,11 +59,6 @@ class Node():
         # Modalità di debug
         self.__debug_mode = debug_mode
 
-        # backups
-        self.__predecessor_node_backup = None
-        self.__successor_node_list_backup = SuccessorList(self.__node_info)
-        self.__finger_table_backup = FingerTable(self.__node_info)
-
     # ************************** GETTER E SETTER NODO *******************************
     def get_node_info(self):
         """
@@ -167,8 +162,6 @@ class Node():
             self._initialize_with_no_friends()
         else:
             self._initialize_with_a_friend(other_node_info)
-
-        self._update_backups() # todo test
 
         self.__node_periodic_operations_manager.start()
 
@@ -344,7 +337,6 @@ class Node():
 
             print(f"{self.__node_info.get_port()}: ora non sono più solo ")  # todo debug
 
-            self._update_backups()  # todo test
 
         print(f"{self.__node_info.get_port()}: osto uscendo da im not alone anymore ")  # todo debug
         self.__successor_node_list.print()  # todo debug
@@ -378,7 +370,6 @@ class Node():
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
-            self._update_backups() # todo test
 
     # forse ok
     def find_key_successor(self, key):
@@ -540,21 +531,7 @@ class Node():
         # else:
         #     return True
 
-    def _update_backups(self):
-        """
-        Metodo per l'aggiornamento dei backup del predecessor node e della successor list
-
-        Nota: metodo interno
-        """
-
-        self.__predecessor_node_backup = copy.deepcopy(self.__predecessor_node)
-        self.__successor_node_list_backup = copy.deepcopy(self.__successor_node_list)
-        self.__finger_table_backup = copy.deepcopy(self.__finger_table)
-
-
-        print(f"\n\n{self.__node_info.get_port()}: backup successor list") # todo debug
-        self.__successor_node_list_backup.print() # todo debug
-
+   
     # ************************** METODI FINGER TABLE *******************************
 
     # ok
@@ -568,7 +545,6 @@ class Node():
 
         if new_predecessor_node_info:
             self.set_predecessor(new_predecessor_node_info)
-            self._update_backups()  # todo test
 
     # ok
     def notify_leaving_successor(self, new_successor_node_info):
@@ -585,7 +561,6 @@ class Node():
         # self.__successor_node_list.insert(0, new_successor_node_info)
         self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
-        self._update_backups()  # todo test
 
     # ************************ METODI OPERAZIONI PERIODICHE *****************************
 
@@ -633,7 +608,6 @@ class Node():
                             for key in new_files_dict.keys():
                                 self.__file_system.put_file(key, new_files_dict[key])
 
-            self._update_backups()  # todo test
 
     # TODO
     # ok
@@ -655,7 +629,6 @@ class Node():
         self.__finger_table.add_finger_by_index(index, self.find_key_successor(
             self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO da verificare
 
-        self._update_backups()  # todo test
 
     # forse ok
     def check_predecessor(self):
@@ -670,7 +643,6 @@ class Node():
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.__predecessor_node = None
 
-            self._update_backups()  # todo test
 
     # forse ok
     # TODO da verificare
@@ -696,18 +668,6 @@ class Node():
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
-        self._update_backups()  # todo test
-
-    def recover_backups(self):
-        """
-        Metodo per il ripristino dei backup del predecessor node e della successor list
-
-        Nota: metodo interno
-        """
-
-        self.__predecessor_node = copy.deepcopy(self.__predecessor_node_backup)
-        self.__successor_node_list = copy.deepcopy(self.__successor_node_list_backup)
-        self.__finger_table = copy.deepcopy(self.__finger_table_backup)
 
     # ************************** METODI RELATIVE AI FILE *******************************
 
@@ -828,8 +788,8 @@ class Node():
         self.__finger_table.print()
 
 
-        print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
-        self.__successor_node_list_backup.print() # todo debug
+        # print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
+        # self.__successor_node_list_backup.print() # todo debug
 
     def print_status_summary(self):
         """
@@ -848,8 +808,8 @@ class Node():
         print("\nNode Successor List:")
         self.__successor_node_list.print()
 
-        print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
-        self.__successor_node_list_backup.print() # todo debug
+        # print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
+        # self.__successor_node_list_backup.print() # todo debug
 
 
     def print_tcp_server_status(self):

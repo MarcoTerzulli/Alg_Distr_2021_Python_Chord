@@ -30,28 +30,6 @@ class Chord:
 
         self.node_delete_all()
 
-    # ************************** METODI INTERNI CHORD *******************************
-
-    def print_chord(self):
-        """
-        Funzione che permette di stampare la struttura dell'overlay network gestita mediante chord
-        """
-
-        if self.__node_dict.__len__() == 0:
-            print("The Chord Network is empty.")
-        else:
-            # Popolo il dizionario di supporto con gli id dei nodi
-            node_ordered_dict = dict()
-            for key, node in self.__node_dict.items():
-                if node is not None:
-                    new_key = str(node.get_node_info().get_ip()) + ":" + str(key)
-                    node_ordered_dict[new_key] = node.get_node_info().get_node_id()
-
-            ordered_dict = dict(sorted(node_ordered_dict.items(), key=lambda item: item[1]))
-
-            # stampa
-            for key, node_id in ordered_dict.items():
-                print(f" * IP an Port: {key} - ID: {node_id}")
 
     # ************************** METODI NODO CHORD *******************************
 
@@ -224,6 +202,29 @@ class Chord:
         found_node.delete_file(key)
         print(f"Successfully deleted the file with key {key}.")
 
+    # ************************** METODI INTERNI CHORD *******************************
+
+    def print_chord(self):
+        """
+        Funzione che permette di stampare la struttura dell'overlay network gestita mediante chord
+        """
+
+        if self.__node_dict.__len__() == 0:
+            print("The Chord Network is empty.")
+        else:
+            # Popolo il dizionario di supporto con gli id dei nodi
+            node_ordered_dict = dict()
+            for key, node in self.__node_dict.items():
+                if node is not None:
+                    new_key = str(node.get_node_info().get_ip()) + ":" + str(key)
+                    node_ordered_dict[new_key] = node.get_node_info().get_node_id()
+
+            ordered_dict = dict(sorted(node_ordered_dict.items(), key=lambda item: item[1]))
+
+            # stampa
+            for key, node_id in ordered_dict.items():
+                print(f" * IP an Port: {key} - ID: {node_id}")
+
     def _double_check_if_port_is_free(self, port):
         """
         Metodo per verificare che la porta che ci è stata assegnata è realmente libera.
@@ -264,5 +265,17 @@ class Chord:
 
         try:
             self.__node_dict[node_port].print_status()
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
+    def print_node_status_summary(self, node_port):
+        """
+        Metodo di debug per la stampa dello stato (ridotto) di un dato nodo
+
+        :param node_port: porta TCP del nodo
+        """
+
+        try:
+            self.__node_dict[node_port].print_status_summary()
         except KeyError:
             raise NoNodeFoundOnPortError

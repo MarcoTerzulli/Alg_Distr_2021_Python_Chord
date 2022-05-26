@@ -185,7 +185,24 @@ def menu_DEBUG_OPERATION_2():
 
 
 def menu_DEBUG_OPERATION_3():
-    chord.print_node_status(49152)
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
+
+    try:
+        chord.print_node_status_summary(selected_port)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+    else:
+        # libero la porta tcp
+        tcp_port_manager.mark_port_as_free(selected_port)
 
 
 

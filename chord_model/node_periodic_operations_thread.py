@@ -39,8 +39,8 @@ class NodePeriodicOperationsThread(Thread):
         Gestisce la chiamata periodica ai metodi del nodo
         """
 
-        sleep(0.1)
-        self.__this_node.recover_backups()
+        # sleep(0.1)
+        # self.__this_node.recover_backups()
 
         while not self._stop_event.is_set():
             if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
