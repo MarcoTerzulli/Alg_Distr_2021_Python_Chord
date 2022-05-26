@@ -161,7 +161,6 @@ def menu_print_node_status():
         chord.print_node_status(selected_port)
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
-    else:
         # libero la porta tcp
         tcp_port_manager.mark_port_as_free(selected_port)
 
@@ -200,7 +199,6 @@ def menu_DEBUG_OPERATION_3():
         chord.print_node_status_summary(selected_port)
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
-    else:
         # libero la porta tcp
         tcp_port_manager.mark_port_as_free(selected_port)
 
@@ -250,7 +248,7 @@ if __name__ == "__main__":
         try:
             selected_op = input(
                 f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")
-            if int(selected_op) not in range (0, 9):
+            if int(selected_op) not in range (0, 10):
                 raise ValueError
             else:
                 selected_op = selected_op[0]
