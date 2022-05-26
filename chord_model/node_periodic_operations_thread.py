@@ -1,6 +1,7 @@
 import threading
 from multiprocessing import Process
 from threading import Thread
+from time import sleep
 
 from utilities.chord_utils import current_millis_time
 
@@ -37,6 +38,9 @@ class NodePeriodicOperationsThread(Thread):
         Process Run. Costituisce il corpo del funzionamento della classe.
         Gestisce la chiamata periodica ai metodi del nodo
         """
+
+        sleep(0.1)
+        self.__this_node.recover_backups()
 
         while not self._stop_event.is_set():
             if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:

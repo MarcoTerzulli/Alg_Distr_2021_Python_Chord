@@ -166,7 +166,7 @@ class SuccessorList:
 
         # creo una copia della lista,
         # se non ci fosse una copia vera e propria della lista, la distruzione della lista ordinata (all'uscita della
-        # funzione) porterebbe alla distruzione anche a self.__node_list. Questo perchè python copia i riferimenti!
+        # funzione) potrebbe portare alla distruzione anche a self.__node_list. Questo perchè python copia i riferimenti!
         support_list = list(self.__node_list)
 
         node_id_ordered_list = list()

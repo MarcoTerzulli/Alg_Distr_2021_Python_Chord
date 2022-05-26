@@ -63,6 +63,19 @@ class Chord:
         :return:
         """
 
+        if not self._double_check_if_port_is_free(port):
+            # ci è stata assegnata una porta già usata
+            raise AlreadyUsedPortError
+
+        # todo debug
+        print(f"Porta scelta {port}")
+
+        # todo debug
+        print("\n\nStampo il sommario dei nodi chord prima della creazione del nodo")
+        for key in self.__node_dict.keys():
+            self.__node_dict[key].print_status_summary()
+        print("\n")
+
         new_node_info = NodeInfo(port=port)
         try:
             new_node = Node(new_node_info, debug_mode=self.__debug_mode)
@@ -76,21 +89,35 @@ class Chord:
         #     while other_node is None or other_node == new_node:
         #         other_node = random.choice(list(self.__node_dict.values())).get_node_info()
 
+        # todo debug
+        print("\n\nStampo il sommario dei nodi chord dopo la creazione del nodo (non inizializzato)")
+        for key in self.__node_dict.keys():
+            self.__node_dict[key].print_status_summary()
+        print("\n")
+
         other_node = None
         if self.__node_dict.__len__() >= 1:  # prendo un nodo randomicamente
-            other_node = random.choice(list(self.__node_dict.values())).get_node_info()
+            other_node = copy.deepcopy(random.choice(list(self.__node_dict.values())).get_node_info()) # todo test
+            #other_node = random.choice(list(self.__node_dict.values())).get_node_info()
 
         self.__node_dict[port] = new_node
+
+        if other_node:  # todo debug
+            print("\n\n Vediamo l'altro nodo da usare...")  # todo debug
+            self.__node_dict[other_node.get_port()].print_status_summary()  # todo debug
 
         retries = 0
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
                 new_node.initialize(other_node)
+
+                if other_node:  # todo debug
+                    print("\n\n Vediamo l'altro nodo usato...") # todo debug
+                    self.__node_dict[other_node.get_port()].print_status_summary() # todo debug
             except ImpossibleInitializationError:
                 retries += 1
-                if self.__debug_mode:
-                    print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
+                print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
             else:
                 break
 
@@ -196,6 +223,23 @@ class Chord:
 
         found_node.delete_file(key)
         print(f"Successfully deleted the file with key {key}.")
+
+    def _double_check_if_port_is_free(self, port):
+        """
+        Metodo per verificare che la porta che ci è stata assegnata è realmente libera.
+        Nota: metodo interno
+
+        :param port: porta da verificare
+        :return: True se non ci sono nodi con quella porta, False altrimenti
+        """
+
+        if not port:
+            return True
+
+        for node_port in self.__node_dict:
+            if node_port == port:
+                return False
+        return True
 
     # ************************** METODI DI DEBUG *******************************
 

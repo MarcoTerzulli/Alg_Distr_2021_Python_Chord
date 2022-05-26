@@ -45,6 +45,9 @@ class ReceivedMessagesHandler:
         sender_port = message.get_sender_node_info().get_port()
         ticket = message.get_ticket()
 
+        # todo debug
+        print(f"Nodo {self.__my_node.get_node_info().get_port()} -- ho ricevuto un messaggio di tipo {message.get_type()} dal nodo {sender_port}")
+
         # notify
         if message.get_type() == MSG_TYPE_NOTIFY:
             file_dict = self.__my_node.get_fyle_system().retrieve_files(message.get_sender_node_info().get_node_id())
@@ -53,7 +56,7 @@ class ReceivedMessagesHandler:
 
         # get predecessor request
         elif message.get_type() == MSG_TYPE_GET_PREC_RQST:
-            found_predecessor = self.__my_node.get_predecessor(send)
+            found_predecessor = self.__my_node.get_predecessor()
             answer = GetPredecessorAnswerMessage(dest, send, found_predecessor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
