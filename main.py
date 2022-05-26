@@ -14,11 +14,14 @@ import platform
 
 global chord
 DEBUG_MODE = False
+MAX_INITALIZATION_RETRIES = 10
 
 # ********+++++******* Gestione Funzioni menu ********************
 
 def menu_node_create_and_join():
-    while True:
+
+    retries = 0
+    while True and retries < MAX_INITALIZATION_RETRIES:
         # Ottengo una nuova porta TCP
         try:
             port = int(tcp_port_manager.get_free_port())
@@ -33,9 +36,11 @@ def menu_node_create_and_join():
             chord.node_join(port)
         except AlreadyUsedPortError:
             print(f"ERROR: the selected port number {port} is already in use. A new port is going to be chosen.")
+            retries += 1
         except ImpossibleInitializationError:
             print(f"ERROR: Impossible initialization of node with port {port}. Please retry")
             tcp_port_manager.mark_port_as_free(port)
+            retries += 1
             break
         else:
             print(f"Successfully created node on port {tcp_port_manager.get_port_type(port)} {port}")
@@ -248,7 +253,7 @@ if __name__ == "__main__":
         try:
             selected_op = input(
                 f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")
-            if int(selected_op) not in range (0, 10):
+            if int(selected_op) not in range (0, 10): # fino a 9
                 raise ValueError
             else:
                 selected_op = selected_op[0]
@@ -294,9 +299,6 @@ if __name__ == "__main__":
             pass
 
         elif int(selected_op) == 9:  # TODO node terminate debug
-            menu_DEBUG_OPERATION_2()
-
-        elif int(selected_op) == 10:  # TODO node terminate debug
             menu_DEBUG_OPERATION_3()
 
         elif int(selected_op) == 0:  # exit

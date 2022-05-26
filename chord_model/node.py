@@ -250,7 +250,7 @@ class Node():
         # inizializzazione finger table
         for i in range(1, CONST_M + 1):  # da 1 a M compreso
             # print("\n\n")  # TODO DEBUG
-            print(f"Initializing the finger number {i} / {CONST_M}")
+            #print(f"Initializing the finger number {i} / {CONST_M}")
 
             computed_key = compute_finger(self.__node_info.get_node_id(), i)
             try:
@@ -264,6 +264,9 @@ class Node():
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.repopulate_successor_list(0)
 
+            if i % 10 == 0:
+                print(f"Inizialized {i} Fingers out of {CONST_M}")
+
         # informo il mio amico che non è più solo nella rete
         try:
             # print(f"\n\nSono {self.__node_info.get_port()}: sto per mandare not alone a {other_node_info.get_port()}") # todo debug
@@ -271,7 +274,7 @@ class Node():
                 other_node_info, self.__node_info)
 
             if other_node_was_alone:
-                print(f"sono {self.__node_info.get_port()} Anche l'altro nodo era solo")  # todo debug
+                # print(f"sono {self.__node_info.get_port()} Anche l'altro nodo era solo")  # todo debug
                 self.im_not_alone_anymore(other_node_info)
             self.__im_alone = False
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
@@ -327,7 +330,7 @@ class Node():
         :param other_node_info: node info dell'altro nodo
         """
 
-        print(f"\n\nSono {self.__node_info.get_port()} e sono dentro im not alone anymore")  # todo debug
+        # print(f"\n\nSono {self.__node_info.get_port()} e sono dentro im not alone anymore")  # todo debug
         # print(f"l'alro node info {other_node_info.get_port()}")  # todo debu
 
         if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
@@ -339,11 +342,11 @@ class Node():
             if self.__node_info.get_node_id() <= other_node_info.get_node_id():
                 self.__finger_table.add_finger_by_index(1, other_node_info)
 
-            print(f"{self.__node_info.get_port()}: ora non sono più solo ")  # todo debug
+            # print(f"{self.__node_info.get_port()}: ora non sono più solo ")  # todo debug
 
-        print(f"{self.__node_info.get_port()}: osto uscendo da im not alone anymore \n\n")  # todo debug
-        self.__successor_node_list.print()  # todo debug
-        print(f"Il mio predecessore è {self.__predecessor_node.get_port()}")
+        # print(f"{self.__node_info.get_port()}: osto uscendo da im not alone anymore \n\n")  # todo debug
+        # self.__successor_node_list.print()  # todo debug
+        # print(f"Il mio predecessore è {self.__predecessor_node.get_port()}")
 
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):
@@ -775,8 +778,10 @@ class Node():
         if self.__predecessor_node is None:
             print("Predecessor Node: No Predecessor")
         else:
-            print(
-                f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
+            print("Predecessor Node: ")
+            self.__predecessor_node.print()
+            # print(
+            #     f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
 
         print("\nNode Successor List:")
         self.__successor_node_list.print()
@@ -798,8 +803,10 @@ class Node():
         if self.__predecessor_node is None:
             print("Predecessor Node: No Predecessor")
         else:
-            print(
-                f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
+            print("Predecessor Node: ")
+            self.__predecessor_node.print()
+            # print(
+            #     f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
 
         print("\nNode Successor List:")
         self.__successor_node_list.print()

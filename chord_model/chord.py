@@ -90,9 +90,9 @@ class Chord:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
                 new_node.initialize(other_node)
 
-                if other_node:  # todo debug
-                    print("\n\n Vediamo l'altro nodo usato...") # todo debug
-                    self.__node_dict[other_node.get_port()].print_status_summary() # todo debug
+                # if other_node:  # todo debug
+                #     print("\n\n Vediamo l'altro nodo usato...") # todo debug
+                #     self.__node_dict[other_node.get_port()].print_status_summary() # todo debug
             except ImpossibleInitializationError:
                 retries += 1
                 print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
