@@ -92,7 +92,6 @@ class ReceivedMessagesHandler:
             answer = LeavingSuccessorAnswerMessage(dest, send, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
-        # TODO da verificare
         # you're not alone request
         elif message.get_type() == MSG_TYPE_YOURE_NOT_ALONE_RQST:
             i_was_alone = self.__my_node.get_alone_status()

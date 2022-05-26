@@ -164,15 +164,19 @@ class SuccessorList:
         :return: il più piccolo dei successori del dato nodo
         """
 
+        # creo una copia della lista,
+        # se non ci fosse una copia vera e propria della lista, la distruzione della lista ordinata (all'uscita della
+        # funzione) porterebbe alla distruzione anche a self.__node_list. Questo perchè python copia i riferimenti!
+        support_list = list(self.__node_list)
+
         node_id_ordered_list = list()
-        for this_node in self.__node_list:
+        for this_node in support_list:
             if this_node is not None:
                 node_id_ordered_list.append(this_node.get_node_id())
 
         node_id_ordered_list = sorted(node_id_ordered_list)
 
         for this_node_id in node_id_ordered_list:
-            # todo da verificare il >= -- dovrebbe essere ok
             if this_node_id >= key: # ho trovato il più piccolo nodo successore
 
                 # ottengo il node info di quel nodo

@@ -222,9 +222,11 @@ class Node():
         # inizializzazione successor list
         try:
             for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
-                print(i)
-                last_node_info = self.__successor_node_list.get_last()
-                last_node_info.print()
+                print("\n\n") # TODO DEBUG
+                print(i) # TODO DEBUG
+                last_node_info = self.__successor_node_list.get_last() # TODO DEBUG
+                last_node_info.print() # TODO DEBUG
+
                 successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(last_node_info,
                                                                                                          self.__node_info)
                 successor_node_info.print()
@@ -267,7 +269,7 @@ class Node():
             self.__im_alone = False
 
             if other_node_was_alone:
-                #print("Anche l'altro nodo era solo") # todo debug
+                print(f"sono {self.__node_info.get_node_id()} Anche l'altro nodo era solo") # todo debug
                 self.im_not_alone_anymore(other_node_info)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             raise ImpossibleInitializationError
@@ -320,19 +322,19 @@ class Node():
         :param other_node_info: node info dell'altro nodo
         """
 
-        # print(f"\n\nSono dentro im not alone anymore {self.__node_info.get_port()}")  # todo debug
-        # print(f"l'alro node info {other_node_info.get_port()}")
+        print(f"\n\nSono {self.__node_info.get_port()} e sono dentro im not alone anymore")  # todo debug
+        # print(f"l'alro node info {other_node_info.get_port()}")  # todo debu
 
         if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
             self.__im_alone = False
             self.__predecessor_node = other_node_info
-            self.__successor_node_list[0] = other_node_info
+            #self.__successor_node_list[0] = other_node_info
             self.__successor_node_list.replace_all(other_node_info)
 
             if self.__node_info.get_node_id() <= other_node_info.get_node_id():
                 self.__finger_table.add_finger_by_index(1, other_node_info)
 
-            # print(f"ora non sono più solo {self.__node_info.get_port()}")  # todo debug
+            print(f"{self.__node_info.get_port()}: ora non sono più solo ")  # todo debug
 
     # forse ok
     def repopulate_successor_list(self, index_of_invalid_node):
@@ -395,9 +397,9 @@ class Node():
 
         # controllo se il nodo è responsabile della key
         if self.__predecessor_node is not None:
-            # print("Controllo tra i predecessori")  # TODO DEBUG
+            print("Controllo tra i predecessori")  # TODO DEBUG
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
-                # print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
+                print("ho controllato tra i predecessori: sono io il responsabile")  # TODO DEBUG
                 return self.__node_info
 
         # effettuo una ricerca nella lista dei successori
