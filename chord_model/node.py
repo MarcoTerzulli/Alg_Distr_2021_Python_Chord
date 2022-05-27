@@ -489,9 +489,10 @@ class Node():
         :param index_of_invalid_node: posizione del nodo problematico
         """
 
-        print(f"\n\nRepopulate successor list del nodo {self.__node_info.get_port()} -- nodo invalido {index_of_invalid_node}") # todo debug
-        print("Ecco la mia lista di successori") # todo debug
-        self.__successor_node_list.print() # todo debug
+        print(
+            f"\n\nRepopulate successor list del nodo {self.__node_info.get_port()} -- nodo invalido {index_of_invalid_node}")  # todo debug
+        print("Ecco la mia lista di successori")  # todo debug
+        self.__successor_node_list.print()  # todo debug
 
         assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
 
@@ -507,7 +508,6 @@ class Node():
                 # se qualcosa è andato storto, potrebbe non esserci
                 # todo da verificare
                 break
-
 
             # todo debug
             print(f"Sto guardando il possibile successore con indice {index_of_possible_working_successor_node}")
@@ -530,7 +530,8 @@ class Node():
                 # problematico) è rotto. Il suo nuovo predecessore è il mio successore precedente a quello rotto
 
                 possible_working_predecessor_node_info = self.__successor_node_list.get(index_of_invalid_node - 1)
-                possible_working_successor_node_info = self.__successor_node_list.get(index_of_possible_working_successor_node)
+                possible_working_successor_node_info = self.__successor_node_list.get(
+                    index_of_possible_working_successor_node)
 
                 try:
                     self.__tcp_request_sender_handler.send_leaving_predecessor_request(
@@ -691,59 +692,147 @@ class Node():
         """
 
         if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
-            print(f"\n\n{self.__node_info.get_port()} dentro stabilize. La mia lista di successori:") # todo debug
-            self.__successor_node_list.print() # todo debug
+            print(f"\n\n{self.__node_info.get_port()} dentro stabilize. La mia lista di successori:")  # todo debug
+            self.__successor_node_list.print()  # todo debug
 
-        actual_successor = self.__successor_node_list.get_first()
+        potential_successor = self.__successor_node_list.get_first()
 
         if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
-            print(f"{self.__node_info.get_port()} dentro stabilize. Il mio successore attuale è {actual_successor.get_port()}\n")# todo debug
+            print(
+                f"{self.__node_info.get_port()} dentro stabilize. Il mio successore attuale è {potential_successor.get_port()}\n")  # todo debug
 
         try:
             # chiedo al mio successore chi è il suo predecessore
-            potential_successor = self.__tcp_request_sender_handler.send_get_predecessor_request(actual_successor,
+            potential_successor = self.__tcp_request_sender_handler.send_get_predecessor_request(potential_successor,
                                                                                                  self.__node_info)
+
+            # se il nuovo successore individuato è più grande di me ma inferiore al mio vecchiio successore,
+            # diventerà il mio nuovo successore
+            if self.__node_info.get_node_id() < potential_successor.get_node_id() < self.__successor_node_list.get_first().get_node_id():
+                self.__successor_node_list.insert(0, potential_successor)
+
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self._repopulate_successor_list(0)
         except NoPrecedessorFoundError:
-            pass  # non devo fare altro
+            return  # non devo fare altro
+
+        # verifico se il predecessore del mio successore sono io
+        # if potential_successor.get_node_id() == self.__node_info.get_node_id():
+        #     return  # è tutto ok. non devo fare altro
+
+        new_successor = potential_successor  # per chiarezza di lettura
+
+        # # se il potenziale successore individuato ha un id inferiore rispetto al mio successore attuale,
+        # # diventerà il mio nuovo successore
+        # if self.__node_info.get_node_id() < new_successor.get_node_id() < self.__successor_node_list.get_first():
+
+        if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
+            print(
+                f"{self.__node_info.get_port()} in stabilize: Il mio nuovo successore è {new_successor.get_port()}")  # todo debug
+            self.__successor_node_list.print()  # todo debug
+
+            # if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
+            #     print(
+            #         f"{self.__node_info.get_port()} in stabilize: verifico Il mio nuovo successore nella lista {self.__successor_node_list.get_first().get_port()}")  # todo debug
+
+        # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
+        # ed ottengo gli eventuali file che ora sono di mia competenza
+        try:
+            print(
+                f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto provando a mandare il notify a {new_successor.get_port()}")  # todo debug
+
+            new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor, self.__node_info)
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            # il nodo potrebbe aver avuto problemi o essere uscito da chord
+            print(
+                f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto attivando il repopulate successor")  # todo debug
+            self._repopulate_successor_list(0)
         else:
-            # verifico se il predecessore del mio successore sono io
-            if potential_successor.get_node_id() == self.__node_info.get_node_id():
-                return  # è tutto ok. non devo fare altro
+            if new_files_dict is not None and new_files_dict.__len__() > 0:
+                for key in new_files_dict.keys():
+                    self.__file_system.put_file(key, new_files_dict[key])
 
-            # se il potenziale successore individuato ha un id inferiore rispetto al mio successore attuale,
-            # diventerà il mio nuovo successore
-            if self.__node_info.get_node_id() < potential_successor.get_node_id() < actual_successor.get_node_id():
-                new_successor = potential_successor  # per chiarezza di lettura
+        print("\n\n")  # todo debug
 
-                if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
-                    print(f"{self.__node_info.get_port()} in stabilize: Il mio nuovo successore è {new_successor.get_port()}") # todo debug
+    # # todo da verificare
+    # # forse ok
+    # def stabilize(self):
+    #     """
+    #     Funzione per la stabilizzazione di chord.
+    #     Da eseguire periodicamente.
+    #     """
+    #
+    #     if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
+    #         print(f"\n\n{self.__node_info.get_port()} dentro stabilize. La mia lista di successori:") # todo debug
+    #         self.__successor_node_list.print() # todo debug
+    #
+    #     actual_successor = self.__successor_node_list.get_first()
+    #
+    #     if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
+    #         print(f"{self.__node_info.get_port()} dentro stabilize. Il mio successore attuale è {actual_successor.get_port()}\n")# todo debug
+    #
+    #     try:
+    #         # chiedo al mio successore chi è il suo predecessore
+    #         potential_successor = self.__tcp_request_sender_handler.send_get_predecessor_request(actual_successor,
+    #                                                                                              self.__node_info)
+    #     except (TCPRequestTimerExpiredError, TCPRequestSendError):
+    #         self._repopulate_successor_list(0)
+    #     except NoPrecedessorFoundError:
+    #         pass  # non devo fare altro
+    #     else:
+    #         # verifico se il predecessore del mio successore sono io
+    #         if potential_successor.get_node_id() == self.__node_info.get_node_id():
+    #             return  # è tutto ok. non devo fare altro
+    #
+    #         # se il potenziale successore individuato ha un id inferiore rispetto al mio successore attuale,
+    #         # diventerà il mio nuovo successore
+    #         if self.__node_info.get_node_id() < potential_successor.get_node_id() < actual_successor.get_node_id():
+    #             new_successor = potential_successor  # per chiarezza di lettura
+    #
+    #             if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
+    #                 print(f"{self.__node_info.get_port()} in stabilize: Il mio nuovo successore è {new_successor.get_port()}") # todo debug
+    #
+    #             self.__successor_node_list.insert(0, new_successor)
+    #
+    #             if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
+    #                 print(f"{self.__node_info.get_port()} in stabilize: verifico Il mio nuovo successore nella lista {self.__successor_node_list.get_first().get_port()}") # todo debug
+    #                 self.__successor_node_list.print()  # todo debug
+    #
+    #
+    #             # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
+    #             # ed ottengo gli eventuali file che ora sono di mia competenza
+    #             try:
+    #                 print(
+    #                     f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto provando a mandare il notify a {new_successor.get_port()}") # todo debug
+    #
+    #                 new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor, self.__node_info)
+    #             except (TCPRequestTimerExpiredError, TCPRequestSendError):
+    #                 # il nodo potrebbe aver avuto problemi o essere uscito da chord
+    #                 print(f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto attivando il repopulate successor") # todo debug
+    #                 self._repopulate_successor_list(0)
+    #             else:
+    #                 if new_files_dict is not None and new_files_dict.__len__() > 0:
+    #                     for key in new_files_dict.keys():
+    #                         self.__file_system.put_file(key, new_files_dict[key])
+    #
+    #     print("\n\n") # todo debug
 
-                self.__successor_node_list.insert(0, new_successor)
+    def notify(self, potential_new_predecessor_node_info):
+        """
+        Metodo invocato alla ricezione di un messaggio notify da parte di un altro nodo
+        che crede di essere il mio predecessore.
+        Controllo ed aggiorno il mio predecessore.
 
-                if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
-                    print(f"{self.__node_info.get_port()} in stabilize: verifico Il mio nuovo successore nella lista {self.__successor_node_list.get_first().get_port()}") # todo debug
-                    self.__successor_node_list.print()  # todo debug
+        :param potential_new_predecessor_node_info: node info del potenziale nuovo predecessore
+        """
 
+        if not potential_new_predecessor_node_info or self.__node_info.get_node_id() == potential_new_predecessor_node_info.get_node_id():
+            return
 
-                # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
-                # ed ottengo gli eventuali file che ora sono di mia competenza
-                try:
-                    print(
-                        f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto provando a mandare il notify a {new_successor.get_port()}") # todo debug
-
-                    new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor, self.__node_info)
-                except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                    # il nodo potrebbe aver avuto problemi o essere uscito da chord
-                    print(f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto attivando il repopulate successor") # todo debug
-                    self._repopulate_successor_list(0)
-                else:
-                    if new_files_dict is not None and new_files_dict.__len__() > 0:
-                        for key in new_files_dict.keys():
-                            self.__file_system.put_file(key, new_files_dict[key])
-
-        print("\n\n") # todo debug
+        if not self.__predecessor_node:
+            self.__predecessor_node = potential_new_predecessor_node_info
+        elif self.__predecessor_node.get_node_id() < potential_new_predecessor_node_info.get_node_id():
+            self.__predecessor_node = potential_new_predecessor_node_info
 
     # TODO
     # ok
