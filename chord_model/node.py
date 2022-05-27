@@ -250,7 +250,7 @@ class Node():
         # inizializzazione finger table
         for i in range(1, CONST_M + 1):  # da 1 a M compreso
             # print("\n\n")  # TODO DEBUG
-            #print(f"Initializing the finger number {i} / {CONST_M}")
+            # print(f"Initializing the finger number {i} / {CONST_M}")
 
             computed_key = compute_finger(self.__node_info.get_node_id(), i)
             try:
@@ -262,7 +262,7 @@ class Node():
                 if finger_node_info:
                     self.__finger_table.add_finger(finger_node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                self.repopulate_successor_list(0)
+                self._repopulate_successor_list(0)
 
             if i % 10 == 0:
                 print(f"Inizialized {i} Fingers out of {CONST_M}")
@@ -320,62 +320,6 @@ class Node():
             self.__tcp_request_sender_handler.socket_node_join()
         except AttributeError:
             pass
-
-    # forse ok
-    def im_not_alone_anymore(self, other_node_info):
-        """
-        Metodo per informare il nodo che non è più solo all'interno di Chord.
-        Aggiorna la lista dei successori e la finger table con il nuovo nodo scoperto.
-
-        :param other_node_info: node info dell'altro nodo
-        """
-
-        # print(f"\n\nSono {self.__node_info.get_port()} e sono dentro im not alone anymore")  # todo debug
-        # print(f"l'alro node info {other_node_info.get_port()}")  # todo debu
-
-        if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
-            self.__im_alone = False
-            self.__predecessor_node = copy.deepcopy(other_node_info)
-            # self.__successor_node_list[0] = other_node_info
-            self.__successor_node_list.replace_all(other_node_info)
-
-            if self.__node_info.get_node_id() <= other_node_info.get_node_id():
-                self.__finger_table.add_finger_by_index(1, other_node_info)
-
-            # print(f"{self.__node_info.get_port()}: ora non sono più solo ")  # todo debug
-
-        # print(f"{self.__node_info.get_port()}: osto uscendo da im not alone anymore \n\n")  # todo debug
-        # self.__successor_node_list.print()  # todo debug
-        # print(f"Il mio predecessore è {self.__predecessor_node.get_port()}")
-
-    # forse ok
-    def repopulate_successor_list(self, index_of_invalid_node):
-        """
-        Metodo per ripopolare la lista dei successori se un nodo non risponde.
-        Invio della notifica agli altri nodi
-
-        :param index_of_invalid_node: posizione del nodo problematico
-        """
-
-        assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
-
-        # todo da rimuovere - debug
-        # self.__successor_node_list.print()
-
-        # controllo che vi sia almeno un altro nodo nella lista, oltre a quello "rotto"
-        if self.__successor_node_list.__len__() > 1:
-
-            # se il nodo non risponde, lo rimuovo e provo a contattare i successori
-            self.__successor_node_list.pop(index_of_invalid_node)
-            # ora in i c'è il nodo successivo
-
-            # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
-            try:
-                new_successor_info = self.__tcp_request_sender_handler.send_get_first_successor_request(
-                    self.__successor_node_list.get_last(), self.__node_info)
-                self.__successor_node_list.append(new_successor_info)
-            except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                self.repopulate_successor_list(self.__successor_node_list.__len__() - 1)
 
     # forse ok
     def find_key_successor(self, key):
@@ -464,10 +408,10 @@ class Node():
                 else:
                     # print(closest_predecessor_node_info)# TODO DEBUG
                     # if closest_predecessor_node_info:  # TODO DEBUG
-                        # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
+                    # print(f"closest precedessor port {closest_predecessor_node_info.get_port()}")  # TODO DEBUG
 
-                        # print(f"\n{self.__node_info.get_port()}: - stampa della mia successor list")  # todo debug
-                        # self.__successor_node_list.print()  # todo debug
+                    # print(f"\n{self.__node_info.get_port()}: - stampa della mia successor list")  # todo debug
+                    # self.__successor_node_list.print()  # todo debug
 
                     successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
                         closest_predecessor_node_info, key,
@@ -476,7 +420,7 @@ class Node():
                     # print(f"\n{self.__node_info.get_port()}: - stampa della mia successor list")  # todo debug
                     # self.__successor_node_list.print()  # todo debug
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
-            self.repopulate_successor_list(0)
+            self._repopulate_successor_list(0)
             print("ripopolo la lista successori (0)")
 
             print(f"\n{self.__node_info.get_port()}: - stampa della mia successor list")  # todo debug
@@ -491,7 +435,6 @@ class Node():
 
         return successor_node_info
 
-    # TODO da verificare
     # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
         """
@@ -504,10 +447,11 @@ class Node():
         for i in range(CONST_M, 0, -1):  # da m a 1
             finger = self.__finger_table.get_finger(i)
             if finger:
-                if self.__node_info.get_node_id() <= finger.get_node_id() <= key:  # TODO da verificare
+                if self.__node_info.get_node_id() <= finger.get_node_id() <= key:
                     return finger
             return self.__node_info
 
+    # sembra ok
     def _am_i_responsable_for_the_key(self, predecessor_node_id, key):
         """
         Funzione per verificare se sono responsabile di una determinata key, confrontandomi con l'id del mio predecessor
@@ -534,6 +478,143 @@ class Node():
         #     return False
         # else:
         #     return True
+
+    # forse ok
+    def _repopulate_successor_list(self, index_of_invalid_node):
+        """
+        Metodo per ripopolare la lista dei successori se un nodo non risponde.
+        Invio della notifica agli altri nodi
+        Nota: metodo interno
+
+        :param index_of_invalid_node: posizione del nodo problematico
+        """
+
+        assert 0 <= index_of_invalid_node < self.__CONST_MAX_SUCC_NUMBER
+
+        index_of_possible_working_successor_node = index_of_invalid_node + 1
+
+        found_a_working_successor = False
+
+        while not found_a_working_successor and index_of_possible_working_successor_node < self.__CONST_MAX_SUCC_NUMBER:
+
+            try:
+                possible_working_successor_node_info = self.__successor_node_list[
+                    index_of_possible_working_successor_node]
+            except IndexError:
+                # se qualcosa è andato storto, potrebbe non esserci
+                # todo da verificare
+                break
+
+            if index_of_invalid_node == 0:
+                # avverto il mio secondo successore che il suo predecessore (ovvero il mio primo successore) è rotto
+                # il suo nuovo predecessore sono io.
+                # non devo contattare alcun predecessore visto che il predecessore sono io in questo caso
+                try:
+                    self.__tcp_request_sender_handler.send_leaving_predecessor_request(
+                        possible_working_successor_node_info, self.__node_info, self.__node_info, dict())
+                except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                    index_of_possible_working_successor_node += 1  # si controlla il successivo
+                else:
+                    found_a_working_successor = True
+
+            else:
+                # avverto il mio secondo (o terzo ecc) successore che il suo predecessore (ovvero il mio successore
+                # problematico) è rotto. Il suo nuovo predecessore è il mio successore precedente a quello rotto
+
+                possible_working_predecessor_node_info = possible_working_successor_node_info = \
+                    self.__successor_node_list[
+                        index_of_invalid_node - 1]
+                try:
+                    self.__tcp_request_sender_handler.send_leaving_predecessor_request(
+                        possible_working_successor_node_info, self.__node_info, possible_working_predecessor_node_info,
+                        dict())
+                except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                    index_of_possible_working_successor_node += 1  # si controlla il successivo
+
+        if index_of_invalid_node == 0:
+            if index_of_possible_working_successor_node == self.__CONST_MAX_SUCC_NUMBER:
+                # caso in cui non ho trovato nessun successore operativo
+
+                # utilizzo il mio primo finger funzionante
+                first_working_finger_node_info = self._get_the_first_working_finger(0)
+                self.__successor_node_list.insert(0, first_working_finger_node_info)
+            else:
+                index_of_working_successor_node = index_of_possible_working_successor_node  # per chiarezza
+                self.__successor_node_list.insert(0,
+                                                  self.__successor_node_list[index_of_working_successor_node])
+        else:
+            if index_of_possible_working_successor_node < self.__CONST_MAX_SUCC_NUMBER:
+                # devo avvertire il nodo predecessore funzionante che il suo successore è rotto.
+                # gli comunico anche il nuovo successore
+
+                index_of_working_predecessor_node = index_of_invalid_node - 1
+                index_of_working_successor_node = index_of_possible_working_successor_node  # per chiarezza
+
+                found = False
+                while not found and index_of_working_predecessor_node >= 0:
+                    try:
+                        self.__tcp_request_sender_handler.send_leaving_successor_request(
+                            self.__successor_node_list[index_of_working_predecessor_node], self.__node_info,
+                            self.__successor_node_list[index_of_working_successor_node],
+                            dict())
+                    except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                        index_of_working_predecessor_node -= 1  # si controlla il precedente
+                    else:
+                        found = True
+
+                self.__successor_node_list.insert(index_of_invalid_node,
+                                                  self.__successor_node_list[index_of_working_successor_node])
+            else:
+                # caso in cui non ho trovato nessun successore operativo
+
+                # utilizzo il mio primo finger funzionante
+                first_working_finger_node_info = self._get_the_first_working_finger(index_of_invalid_node)
+                self.__successor_node_list.insert(index_of_invalid_node, first_working_finger_node_info)
+
+        # todo da rimuovere - debug
+        # self.__successor_node_list.print()
+
+        # # controllo che vi sia almeno un altro nodo nella lista, oltre a quello "rotto"
+        # if self.__successor_node_list.__len__() > 1:
+        #
+        #     # se il nodo non risponde, lo rimuovo e provo a contattare i successori
+        #     self.__successor_node_list.pop(index_of_invalid_node)
+        #     # ora in i c'è il nodo successivo
+        #
+        #     # provo a contattare i successori a ritroso, per ottenere un nuovo ultimo successore
+        #     try:
+        #         new_successor_info = self.__tcp_request_sender_handler.send_get_first_successor_request(
+        #             self.__successor_node_list.get_last(), self.__node_info)
+        #         self.__successor_node_list.append(new_successor_info)
+        #     except (TCPRequestTimerExpiredError, TCPRequestSendError):
+        #         self._repopulate_successor_list(self.__successor_node_list.__len__() - 1)
+
+    # forse ok
+    def im_not_alone_anymore(self, other_node_info):
+        """
+        Metodo per informare il nodo che non è più solo all'interno di Chord.
+        Aggiorna la lista dei successori e la finger table con il nuovo nodo scoperto.
+
+        :param other_node_info: node info dell'altro nodo
+        """
+
+        # print(f"\n\nSono {self.__node_info.get_port()} e sono dentro im not alone anymore")  # todo debug
+        # print(f"l'alro node info {other_node_info.get_port()}")  # todo debu
+
+        if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
+            self.__im_alone = False
+            self.__predecessor_node = copy.deepcopy(other_node_info)
+            # self.__successor_node_list[0] = other_node_info
+            self.__successor_node_list.replace_all(other_node_info)
+
+            if self.__node_info.get_node_id() <= other_node_info.get_node_id():
+                self.__finger_table.add_finger_by_index(1, other_node_info)
+
+            # print(f"{self.__node_info.get_port()}: ora non sono più solo ")  # todo debug
+
+        # print(f"{self.__node_info.get_port()}: osto uscendo da im not alone anymore \n\n")  # todo debug
+        # self.__successor_node_list.print()  # todo debug
+        # print(f"Il mio predecessore è {self.__predecessor_node.get_port()}")
 
     # ************************** METODI FINGER TABLE *******************************
 
@@ -564,6 +645,33 @@ class Node():
         # self.__successor_node_list.insert(0, new_successor_node_info)
         self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
+    # ok
+    def _get_the_first_working_finger(self, start_index):
+        """
+        Metodo chiamato quando nessun nodo nella lista dei successori risponde.
+        Il metodo restituisce il primo nodo nella finger table operativo
+        Nota: metodo interno
+
+        :param start_index: posizione da cui iniziare la ricerca
+        :return: il primo finger operativo; il nodo stesso, se nessuno risponde (significa che è l'unico nodo in chord)
+        """
+
+        assert 1 <= start_index <= CONST_M
+
+        for i in range(start_index, CONST_M + 1):  # da start a M incluso
+            finger_node_info = self.__finger_table.get_finger(i)
+
+            if finger_node_info:
+                try:
+                    self.__tcp_request_sender_handler.send_ping(finger_node_info, self.__node_info)
+                    # se non ho ottenuto eccezioni, significa che il finger è ok. Lo restituisco
+                    return finger_node_info
+                except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                    pass  # si prova il successivo
+
+        # nessuno ha risposto. sono solo in chord
+        return self.__node_info
+
     # ************************ METODI OPERAZIONI PERIODICHE *****************************
 
     # todo da verificare
@@ -575,7 +683,7 @@ class Node():
         """
 
         if self.__successor_node_list.is_empty():
-            self.repopulate_successor_list(0)
+            self._repopulate_successor_list(0)
         else:
             actual_successor = self.__successor_node_list.get_first()
 
@@ -584,15 +692,15 @@ class Node():
                 potential_successor = self.__tcp_request_sender_handler.send_get_predecessor_request(actual_successor,
                                                                                                      self.__node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                self.repopulate_successor_list(0)
+                self._repopulate_successor_list(0)
             except NoPrecedessorFoundError:
                 pass  # non devo fare altro
             else:
                 # verifico se il predecessore del mio successore sono io
                 if potential_successor.get_node_id() == self.__node_info.get_node_id():
-                    return  # non devo fare altro
+                    return  # è tutto ok. non devo fare altro
 
-                # se il potenziale successore individuato ha un id del mio successore attuale,
+                # se il potenziale successore individuato ha un id inferiore rispetto al mio successore attuale,
                 # diventerà il mio nuovo successore
                 if potential_successor.get_node_id() < actual_successor.get_node_id():
                     new_successor = potential_successor  # per chiarezza di lettura
@@ -604,7 +712,7 @@ class Node():
                         new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor, self.__node_info)
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         # il nodo potrebbe aver avuto problemi o essere uscito da chord
-                        self.repopulate_successor_list(0)
+                        self._repopulate_successor_list(0)
                     else:
                         if new_files_dict is not None and new_files_dict.__len__() > 0:
                             for key in new_files_dict.keys():
@@ -652,18 +760,21 @@ class Node():
         """
 
         try:
-            for i in range(0, self.__successor_node_list.__len__()):
+            # ne si guarda uno in meno perchè nell'else si sostituisce quello avanti
+            # da verificare
+            for i in range(0, self.__successor_node_list.__len__() - 1):
                 last_known_node = self.__successor_node_list[i]
-                successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(
-                    last_known_node,
-                    self.__node_info)
+                if last_known_node:  # la lista dei successori potrebbe essere vuota (non dovrebbe accadere)
+                    successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(
+                        last_known_node,
+                        self.__node_info)
 
-                if successor_node_info.get_node_id() == self.__node_info.get_node_id():
-                    while i < self.__successor_node_list.__len__() - 1:
-                        self.__successor_node_list[i + 1] = self.__node_info
-                        i += 1
-                else:
-                    self.__successor_node_list[i + 1] = successor_node_info
+                    if successor_node_info.get_node_id() == self.__node_info.get_node_id():
+                        while i < self.__successor_node_list.__len__() - 1:
+                            self.__successor_node_list[i + 1] = self.__node_info
+                            i += 1
+                    else:
+                        self.__successor_node_list[i + 1] = successor_node_info
 
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass

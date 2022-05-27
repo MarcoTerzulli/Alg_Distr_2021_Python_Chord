@@ -43,10 +43,13 @@ class NodePeriodicOperationsThread(Thread):
             if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
                 self.__last_execution_time = current_millis_time()
 
-                # self.__this_node.stabilize()
+                if self.__debug_mode:
+                    print(f"Running the Periodic Operations of the Node with Port {self.__this_node.get_node_info().get_port()}...")
+
+                self.__this_node.stabilize()
                 # self.__this_node.fix_finger()
-                # self.__this_node.check_predecessor()
-                # self.__this_node.fix_successor_list()
+                self.__this_node.check_predecessor()
+                self.__this_node.fix_successor_list()
 
     def stop(self):
         """

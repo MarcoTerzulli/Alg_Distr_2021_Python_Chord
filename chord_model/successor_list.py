@@ -50,6 +50,15 @@ class SuccessorList:
             return self.__node_list[self.__node_list.__len__() - 1]
         return None
 
+    def get_max_successor_number(self):
+        """
+        Metodo getter per sapere qual è il massimo numero di successori che la lista può contenere
+
+        :return: il massimo numero di successori che la lista può contenere
+        """
+
+        return self.__CONST_MAX_SUCC_NUMBER
+
     def is_full(self):
         """
         Metodo per verificare se la lista è piena
@@ -94,6 +103,13 @@ class SuccessorList:
             raise SuccessorListIsFullError
 
     def replace(self, object_to_be_replaced, new_object):
+        """
+        Metodo per sostituire un oggetto presente nella lista con un altro.
+
+        :param object_to_be_replaced: oggetto della lista da sostituire
+        :param new_object: oggetto da inserire al posto dell'oggetto sostituito
+        """
+
         if object_to_be_replaced:
             for i in range(0, self.__node_list.__len__()):
                 if self.__node_list[i] == object_to_be_replaced:

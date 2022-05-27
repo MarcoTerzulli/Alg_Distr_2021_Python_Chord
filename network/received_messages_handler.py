@@ -50,7 +50,10 @@ class ReceivedMessagesHandler:
 
         # notify
         if message.get_type() == MSG_TYPE_NOTIFY:
-            file_dict = self.__my_node.get_fyle_system().retrieve_files(message.get_sender_node_info().get_node_id())
+            # todo -- ora lui è il mio predecessore!
+            self.__my_node.set_predecessor(message.get_sender_node_info())
+
+            file_dict = self.__my_node.get_file_system().retrieve_files(message.get_sender_node_info().get_node_id())
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
             self.__my_socket_node.send_message(sender_port, answer)
 
