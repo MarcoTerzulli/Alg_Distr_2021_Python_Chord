@@ -717,8 +717,8 @@ class Node():
             return  # non devo fare altro
 
         # verifico se il predecessore del mio successore sono io
-        # if potential_successor.get_node_id() == self.__node_info.get_node_id():
-        #     return  # è tutto ok. non devo fare altro
+        if potential_successor.get_node_id() == self.__node_info.get_node_id():
+            return  # è tutto ok. non devo fare altro
 
         new_successor = potential_successor  # per chiarezza di lettura
 
