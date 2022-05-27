@@ -697,6 +697,27 @@ class Node:
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
+    def check_if_im_alone(self):
+        """
+        Metodo per verificare lo stato di "solitudine" di un nodo. Controlla i propri successori e predecessore.
+        Da eseguire periodicamente.
+        """
+
+        im_alone = True
+
+        if self.__predecessor_node:
+            # se il mio predecessore sono io, è probabile che sia solo
+            if self.__predecessor_node.get_node_id() != self.__node_info.get_node_id():
+                im_alone = False
+
+        # controllo se nella lista dei successori c'è qualche nodo diverso da me
+        for i in range(0, self.__successor_node_list.get_len()):
+            if self.__successor_node_list.get(i):
+                if self.__successor_node_list.get(i).get_node_id() != self.__node_info.get_node_id():
+                    im_alone = False
+
+        self.__im_alone = im_alone
+
     # ************************** METODI RELATIVE AI FILE *******************************
 
     def put_file(self, key, file):
@@ -784,16 +805,6 @@ class Node:
         except FileKeyError:
             pass
 
-    # # ************************** METODI DI RETE *******************************
-    #
-    # def process_message_request(self, message):
-    #     """
-    #     Metodo per processare le richieste ricevute da altri nodi.
-    #     Questo metodo ha la semplice funzione di inoltrare la gestione della richiesta al message handler
-    #     """
-    #
-    #     if message:
-    #         self.__m
 
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):
@@ -839,6 +850,8 @@ class Node:
 
         print("\nNode Successor List:")
         self.__successor_node_list.print()
+
+        print(f"\nI'm Alone: {self.__im_alone}")
 
         # print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
         # self.__successor_node_list_backup.print() # todo debug

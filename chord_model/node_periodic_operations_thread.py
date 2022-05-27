@@ -50,6 +50,7 @@ class NodePeriodicOperationsThread(Thread):
                 # self.__this_node.fix_finger()
                 self.__this_node.check_predecessor()
                 self.__this_node.fix_successor_list()
+                self.__this_node.check_if_im_alone()
 
     def stop(self):
         """

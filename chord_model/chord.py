@@ -75,27 +75,17 @@ class Chord:
 
         other_node = None
         if self.__node_dict.__len__() >= 1:  # prendo un nodo randomicamente
-            other_node = copy.deepcopy(random.choice(list(self.__node_dict.values())).get_node_info()) # todo test
-            #other_node = random.choice(list(self.__node_dict.values())).get_node_info()
+            other_node = copy.deepcopy(random.choice(list(self.__node_dict.values())).get_node_info())
 
         self.__node_dict[port] = new_node
-
-        # if other_node:  # todo debug
-        #     print("\n\n Vediamo l'altro nodo da usare...")  # todo debug
-        #     self.__node_dict[other_node.get_port()].print_status_summary()  # todo debug
 
         retries = 0
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
                 new_node.initialize(other_node)
-
-                # if other_node:  # todo debug
-                #     print("\n\n Vediamo l'altro nodo usato...") # todo debug
-                #     self.__node_dict[other_node.get_port()].print_status_summary() # todo debug
             except ImpossibleInitializationError:
                 retries += 1
-                print("DEBUG: impossible initialization")  # TODO DA RIMUOVERE
             else:
                 break
 
@@ -148,15 +138,11 @@ class Chord:
         """
 
         file_name = file
-        #file_name = file.get_name()  # TODO verificare come ottenere il nome. Si passa il path o direttamente il file?
         file_key = hash_function(file_name)
 
-        found_node = None
-        for node in self.__node_dict:
-            if node.get_node_info().get_port() == port:
-                found_node = node
-
-        if not found_node:
+        try:
+            found_node = self._find_node_in_dict(port)
+        except NoNodeFoundOnPortError:
             raise NoNodeFoundOnPortError
 
         found_node.put_file(file_key, file)
@@ -173,12 +159,9 @@ class Chord:
         :return file: il file richiesto, se presente
         """
 
-        found_node = None
-        for node in self.__node_dict:
-            if node.get_node_info().get_port() == port:
-                found_node = node
-
-        if not found_node:
+        try:
+            found_node = self._find_node_in_dict(port)
+        except NoNodeFoundOnPortError:
             raise NoNodeFoundOnPortError
 
         return found_node.get_file(key)
@@ -191,16 +174,34 @@ class Chord:
         :param port: porta del nodo chiamante
         """
 
-        found_node = None
-        for node in self.__node_dict:
-            if node.get_node_info().get_port() == port:
-                found_node = node
-
-        if not found_node:
+        try:
+            found_node = self._find_node_in_dict(port)
+        except NoNodeFoundOnPortError:
             raise NoNodeFoundOnPortError
 
         found_node.delete_file(key)
         print(f"Successfully deleted the file with key {key}.")
+
+    def _find_node_in_dict(self, port):
+        """
+        Metodo per la ricerca di un nodo all'interno del dizionario di nodi, data la sua porta
+        Nota: metodo interno
+
+        :param port: porta TCP del nodo
+        :return: il nodo cercato, se presente
+        """
+
+        found_node = None
+        for node in self.__node_dict:
+            try:
+                if node.get_node_info().get_port() == port:
+                    found_node = node
+            except AttributeError:
+                pass
+        if not found_node:
+            raise NoNodeFoundOnPortError
+
+        return found_node
 
     # ************************** METODI INTERNI CHORD *******************************
 
