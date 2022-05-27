@@ -12,9 +12,10 @@ import platform
 
 # ********+++++******* Definizione Oggetti ********************
 
-global chord
+# global chord
 DEBUG_MODE = False
 MAX_INITALIZATION_RETRIES = 10
+chord = Chord(debug_mode=DEBUG_MODE)
 
 # ********+++++******* Gestione Funzioni menu ********************
 
@@ -240,7 +241,7 @@ if __name__ == "__main__":
 
     exit_flag = False
     tcp_port_manager = TCPPortManager()
-    chord = Chord(debug_mode=DEBUG_MODE)
+    # chord = Chord(debug_mode=DEBUG_MODE)
 
     new_node = None
     selected_op = None

@@ -98,7 +98,10 @@ class SuccessorList:
         """
 
         if self.__node_list.__len__() < self.__CONST_MAX_SUCC_NUMBER or 0 <= index <= self.__CONST_MAX_SUCC_NUMBER:
-            self.__node_list.insert(index, object_to_be_inserted)
+            try:
+                self.__node_list[index] = object_to_be_inserted
+            except IndexError:
+                self.__node_list.insert(index, object_to_be_inserted)
         else:
             raise SuccessorListIsFullError
 
@@ -152,6 +155,18 @@ class SuccessorList:
         """
 
         self.__node_list.__delitem__(i)
+
+    def get(self, i):
+        """
+        Metodo getter per un elemento della lista
+
+        :param i: indice dell'elemento selezionato
+        :return: l'elemento selezionato
+        """
+
+        assert 0 <= i < self.__node_list.__len__()
+
+        return self.__node_list[i]
 
     def pop(self, i):
         """
