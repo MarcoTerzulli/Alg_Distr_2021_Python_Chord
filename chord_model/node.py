@@ -11,7 +11,7 @@ from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSucce
 from network.request_sender_handler import RequestSenderHandler
 
 
-class Node():
+class Node:
     """
     Classe che rappresenta un nodo all'interno del protocollo Chord
     """
@@ -76,7 +76,7 @@ class Node():
         :return self.__successor_node: node info del proprio successore
         """
 
-        if self.__successor_node_list.__len__() == 0:
+        if self.__successor_node_list.get_len() == 0:
             raise NoSuccessorFoundError
 
         # self.__successor_node_list.get_first().print() # TODO DEBUG
@@ -550,7 +550,7 @@ class Node():
             else:
                 index_of_working_successor_node = index_of_possible_working_successor_node  # per chiarezza
                 self.__successor_node_list.insert(0,
-                                                  self.__successor_node_list[index_of_working_successor_node])
+                                                  self.__successor_node_list.get(index_of_working_successor_node))
         else:
             if index_of_possible_working_successor_node < self.__CONST_MAX_SUCC_NUMBER:
                 # devo avvertire il nodo predecessore funzionante che il suo successore è rotto.
@@ -563,8 +563,8 @@ class Node():
                 while not found and index_of_working_predecessor_node >= 0:
                     try:
                         self.__tcp_request_sender_handler.send_leaving_successor_request(
-                            self.__successor_node_list[index_of_working_predecessor_node], self.__node_info,
-                            self.__successor_node_list[index_of_working_successor_node],
+                            self.__successor_node_list.get(index_of_working_predecessor_node), self.__node_info,
+                            self.__successor_node_list.get(index_of_working_successor_node),
                             dict())
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         index_of_working_predecessor_node -= 1  # si controlla il precedente
@@ -572,7 +572,7 @@ class Node():
                         found = True
 
                 self.__successor_node_list.insert(index_of_invalid_node,
-                                                  self.__successor_node_list[index_of_working_successor_node])
+                                                  self.__successor_node_list.get(index_of_working_successor_node))
             else:
                 # caso in cui non ho trovato nessun successore operativo
 
@@ -788,22 +788,28 @@ class Node():
         Da eseguire periodicamente.
         """
 
+        print(f"\n\n{self.__node_info.get_port()} dentro fix successor")
+
         try:
             # ne si guarda uno in meno perchè nell'else si sostituisce quello avanti
             # da verificare
-            for i in range(0, self.__successor_node_list.__len__() - 1):
-                last_known_node = self.__successor_node_list[i]
-                if last_known_node:  # la lista dei successori potrebbe essere vuota (non dovrebbe accadere)
+            for i in range(0, self.__successor_node_list.get_len() - 1):
+                last_known_node_info = self.__successor_node_list.get(i)
+
+                if last_known_node_info:  # la lista dei successori potrebbe essere vuota (non dovrebbe accadere)
+
+                    print(f"Il mio primo successore è {last_known_node_info.get_port()}")
                     successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(
-                        last_known_node,
+                        last_known_node_info,
                         self.__node_info)
+                    print(f"Il mio prossimo successore è {successor_node_info.get_port()}")
 
                     if successor_node_info.get_node_id() == self.__node_info.get_node_id():
-                        while i < self.__successor_node_list.__len__() - 1:
-                            self.__successor_node_list[i + 1] = self.__node_info
+                        while i < self.__successor_node_list.get_len() - 1:
+                            self.__successor_node_list.insert(i + 1, self.__node_info)
                             i += 1
                     else:
-                        self.__successor_node_list[i + 1] = successor_node_info
+                        self.__successor_node_list.insert(i + 1, successor_node_info)
 
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
