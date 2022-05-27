@@ -709,12 +709,12 @@ class Node():
             pass  # non devo fare altro
         else:
             # verifico se il predecessore del mio successore sono io
-            if potential_successor.get_node_id() <= self.__node_info.get_node_id():
+            if potential_successor.get_node_id() == self.__node_info.get_node_id():
                 return  # è tutto ok. non devo fare altro
 
             # se il potenziale successore individuato ha un id inferiore rispetto al mio successore attuale,
             # diventerà il mio nuovo successore
-            if potential_successor.get_node_id() < actual_successor.get_node_id():
+            if self.__node_info.get_node_id() < potential_successor.get_node_id() < actual_successor.get_node_id():
                 new_successor = potential_successor  # per chiarezza di lettura
 
                 if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
@@ -724,6 +724,7 @@ class Node():
 
                 if self.__node_info.get_port() != 49152 and self.__node_info.get_port() != 49153:
                     print(f"{self.__node_info.get_port()} in stabilize: verifico Il mio nuovo successore nella lista {self.__successor_node_list.get_first().get_port()}") # todo debug
+                    self.__successor_node_list.print()  # todo debug
 
 
                 # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore

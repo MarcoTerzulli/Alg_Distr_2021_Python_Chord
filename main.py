@@ -296,10 +296,12 @@ if __name__ == "__main__":
             menu_print_node_status()
 
         elif int(selected_op) == 8:  # TODO node start debug
+            print("WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
             menu_DEBUG_OPERATION_1()
             pass
 
         elif int(selected_op) == 9:  # TODO node terminate debug
+            print("WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
             menu_DEBUG_OPERATION_3()
 
         elif int(selected_op) == 0:  # exit
