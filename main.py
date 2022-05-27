@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from multiprocessing import Process
-from threading import Thread
-from time import sleep
+
 
 from network.tcp_port_manager import *
 from chord_model.chord import *
@@ -17,10 +15,10 @@ DEBUG_MODE = False
 MAX_INITALIZATION_RETRIES = 10
 chord = Chord(debug_mode=DEBUG_MODE)
 
+
 # ********+++++******* Gestione Funzioni menu ********************
 
 def menu_node_create_and_join():
-
     retries = 0
     while True and retries < MAX_INITALIZATION_RETRIES:
         # Ottengo una nuova porta TCP
@@ -157,6 +155,7 @@ def menu_file_delete():
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
 
+
 def menu_print_node_status():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
@@ -178,7 +177,6 @@ def menu_print_node_status():
             tcp_port_manager.mark_port_as_free(selected_port)
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
-
 
 
 def menu_DEBUG_OPERATION_1():
@@ -219,8 +217,6 @@ def menu_DEBUG_OPERATION_3():
             tcp_port_manager.mark_port_as_free(selected_port)
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
-
-
 
 
 # ******************* Main Vero e Proprio ***********************
@@ -266,7 +262,7 @@ if __name__ == "__main__":
         try:
             selected_op = input(
                 f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")
-            if int(selected_op) not in range (0, 10): # fino a 9
+            if int(selected_op) not in range(0, 10):  # fino a 9
                 raise ValueError
             else:
                 selected_op = selected_op[0]
@@ -308,12 +304,14 @@ if __name__ == "__main__":
             menu_print_node_status()
 
         elif int(selected_op) == 8:  # TODO node start debug
-            print("WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
+            print(
+                "WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
             menu_DEBUG_OPERATION_1()
             pass
 
         elif int(selected_op) == 9:  # TODO node terminate debug
-            print("WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
+            print(
+                "WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
             menu_DEBUG_OPERATION_3()
 
         elif int(selected_op) == 0:  # exit
@@ -327,4 +325,3 @@ if __name__ == "__main__":
 else:
     if DEBUG_MODE:
         print("DEBUG: Another process is trying to run the main...")
-

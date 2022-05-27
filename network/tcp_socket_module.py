@@ -75,13 +75,6 @@ class TCPServerModule:
                     print(content)  # TODO DEBUG
                     return None, None, None
 
-                # TODO DEBUG
-                # print(
-                #     f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
-                #print(content.get_type())
-                #if content.get_type() == "A":
-                    #print(content.get_successor_node_info().get_node_id())
-
                 if self.__debug_mode:
                     print(
                         f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
@@ -145,13 +138,16 @@ class TCPClientModule:
             message_pickle = pickle.dumps(message)
             self.__tcp_client.send(message_pickle)
         except BrokenPipeError:
-            print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Got an Error")
+            if self.__debug_mode:
+                print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Got an Error")
             raise TCPRequestSendError
         except ConnectionRefusedError:
-            print(f"ERROR: Connection refused from TCP Server on IP {self.__tcp_client_ip}")
+            if self.__debug_mode:
+                print(f"ERROR: Connection refused from TCP Server on IP {self.__tcp_client_ip}")
             raise TCPRequestSendError
         except TimeoutError:
-            print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Timed Out")
+            if self.__debug_mode:
+                print(f"ERROR: TCP Request to IP {self.__tcp_client_ip} Timed Out")
             raise TCPRequestSendError
         except KeyboardInterrupt:
             print(f"TCP Client on Port {self.__tcp_client_port} Shutdown")
@@ -179,13 +175,16 @@ class TCPClientModule:
             message_pickle = pickle.dumps(message)
             self.__tcp_client.send(message_pickle)
         except BrokenPipeError:
-            print(f"ERROR: TCP Request to IP {ip} Got an Error")
+            if self.__debug_mode:
+                print(f"ERROR: TCP Request to IP {ip} Got an Error")
             raise TCPRequestSendError
         except ConnectionRefusedError:
-            print(f"ERROR: Connection refused from TCP Server on IP {ip}")
+            if self.__debug_mode:
+                print(f"ERROR: Connection refused from TCP Server on IP {ip}")
             raise TCPRequestSendError
         except TimeoutError:
-            print(f"ERROR: TCP Request to IP {ip} Timed Out")
+            if self.__debug_mode:
+                print(f"ERROR: TCP Request to IP {ip} Timed Out")
             raise TCPRequestSendError
         except KeyboardInterrupt:
             print(f"TCP Client on Port {self.__tcp_client_port} Shutdown")

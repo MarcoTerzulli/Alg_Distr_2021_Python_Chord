@@ -30,7 +30,6 @@ class Chord:
 
         self.node_delete_all()
 
-
     # ************************** METODI NODO CHORD *******************************
 
     def node_join(self, port):
