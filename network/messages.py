@@ -96,7 +96,7 @@ class NotifyAnswerMessage(Message):
         :param files: Eventuali file da trasferire
         """
 
-        super().__init__(MSG_TYPE_NOTIFY, destination_node_info, sender_node_info, ticket, False)
+        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
         self.__file_dict = files
 
     def get_files(self):

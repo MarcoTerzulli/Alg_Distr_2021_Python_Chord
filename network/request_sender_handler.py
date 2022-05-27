@@ -74,10 +74,7 @@ class RequestSenderHandler:
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
-            print(f"{self.__my_node.get_node_info().get_port()} -  notify in timeout...") # todo debug
             raise TCPRequestTimerExpiredError
-
-        print(f"{self.__my_node.get_node_info().get_port()} - ho ricevuto risposta al notify") # todo debug
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]

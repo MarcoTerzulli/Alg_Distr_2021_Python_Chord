@@ -30,7 +30,10 @@ def menu_node_create_and_join():
             print("ERROR: No available TCP ports. Node creation is not possible.")
             break  # esco dal loop
 
-        tcp_port_manager.mark_port_as_used(port)
+        try:
+            tcp_port_manager.mark_port_as_used(port)
+        except InvalidTCPPortError:
+            pass
 
         # Gestione richiesta nuova porta in caso in cui quella scelta sia stata occupata nel mentre da altri processi
         try:
@@ -66,7 +69,10 @@ def menu_node_delete():
         print("ERROR: No node found on this TCP port!")
     else:
         # libero la porta tcp
-        tcp_port_manager.mark_port_as_free(selected_port)
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
 
 
 def menu_file_insert():
@@ -168,7 +174,10 @@ def menu_print_node_status():
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
         # libero la porta tcp
-        tcp_port_manager.mark_port_as_free(selected_port)
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
 
 
 
@@ -206,7 +215,10 @@ def menu_DEBUG_OPERATION_3():
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
         # libero la porta tcp
-        tcp_port_manager.mark_port_as_free(selected_port)
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
 
 
 

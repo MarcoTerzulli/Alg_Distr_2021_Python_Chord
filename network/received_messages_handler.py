@@ -51,6 +51,7 @@ class ReceivedMessagesHandler:
         # notify
         if message.get_type() == MSG_TYPE_NOTIFY:
             self.__my_node.notify(message.get_sender_node_info())
+
             file_dict = self.__my_node.get_file_system().retrieve_files(message.get_sender_node_info().get_node_id())
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
             self.__my_socket_node.send_message(sender_port, answer)
@@ -70,7 +71,6 @@ class ReceivedMessagesHandler:
         # Find key successor request
         elif message.get_type() == MSG_TYPE_SEARCH_KEY_SUCC_RQST:
             found_successor = self.__my_node.find_key_successor(message.get_key())
-            #print(f"\n\nfound successor : {found_successor.get_port()}")
             answer = SearchKeySuccessorAnswerMessage(dest, send, found_successor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 
