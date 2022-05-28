@@ -284,7 +284,7 @@ def debug_menu(DEBUG_MODE):
 
     while not debug_menu_exit_flag:
         print(
-            "WARNING: You're in the Hidden Debug Menu. The use of the debugging commands could make the application stop working properly. Use these commands at your own risk!")
+            "WARNING: You're in the Hidden Debug Menu.\nThe use of the debugging commands could make the application stop working properly.\nUse these commands at your own risk!")
 
         if DEBUG_MODE:
             menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
