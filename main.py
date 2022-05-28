@@ -423,7 +423,7 @@ if __name__ == "__main__":
             menu_print_node_status()
 
         elif int(selected_op) == 8 and DEBUG_MENU_ENABLED:  # debug menu
-            debug_menu()
+            debug_menu(DEBUG_MODE)
             pass
 
 
