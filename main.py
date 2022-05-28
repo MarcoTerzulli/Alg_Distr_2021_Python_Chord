@@ -279,11 +279,10 @@ def debug_menu_print_node_file_system():
             pass
 
 
-def debug_menu():
-    exit_flag = False
-    selected_op = None
+def debug_menu(DEBUG_MODE):
+    debug_menu_exit_flag = False
 
-    while not exit_flag:
+    while not debug_menu_exit_flag:
         print(
             "WARNING: You're in the Hidden Debug Menu. The use of the debugging commands could make the application stop working properly. Use these commands at your own risk!")
 
@@ -336,49 +335,9 @@ def debug_menu():
             chord.set_debug_mode(DEBUG_MODE)
 
         elif int(selected_op) == 0:  # exit
-            exit_flag = True
+            debug_menu_exit_flag = True
         else:
             print("ERROR: Invalid selection!\n")
-
-
-def menu_DEBUG_OPERATION_1():
-    print("DEBUG: ricezione messaggi")
-
-    tcp_server = TCPServerModule(49152)
-    tcp_server.tpc_server_connect()
-
-    while True:
-        # Accetta un'eventuale connessione in ingresso e la elabora
-        (client_ip, client_port, message) = tcp_server.tcp_server_accept()
-
-
-def menu_DEBUG_OPERATION_2():
-    print("DEBUG: controllo se il server socket sta andando")
-
-    chord.print_tcp_server_status(49152)
-
-
-def menu_DEBUG_OPERATION_3():
-    try:
-        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
-    except KeyboardInterrupt:
-        # terminazione e join nodi chord per uscita pulita
-        chord.node_delete_all()
-        print("Goodye!")
-        sys.exit()
-    except ValueError:
-        print("ERROR: Invalid Port Value!")
-        return
-
-    try:
-        chord.print_node_status_summary(selected_port)
-    except NoNodeFoundOnPortError:
-        print("ERROR: No node found on this TCP port!")
-        # libero la porta tcp
-        try:
-            tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
-            pass
 
 
 # ******************* Main Vero e Proprio ***********************
@@ -401,6 +360,7 @@ if __name__ == "__main__":
     exit_flag = False
     new_node = None
     selected_op = None
+
     chord = Chord(debug_mode=DEBUG_MODE)
     tcp_port_manager = TCPPortManager()
 
