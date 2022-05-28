@@ -10,13 +10,19 @@ import platform
 
 # ********+++++******* Definizione Oggetti ********************
 
-# global chord
+global chord
+global tcp_port_manager
+
 DEBUG_MODE = False
+DEBUG_MENU_ENABLED = True
 MAX_INITALIZATION_RETRIES = 10
-chord = Chord(debug_mode=DEBUG_MODE)
 
 
-# ********+++++******* Gestione Funzioni menu ********************
+# chord = None
+# tcp_port_manager = None
+
+
+# ********+++++******* Gestione Funzioni menu princiale ********************
 
 def menu_node_create_and_join():
     retries = 0
@@ -179,6 +185,162 @@ def menu_print_node_status():
             pass
 
 
+# ********+++++******* Gestione Funzioni menu debug ********************
+
+def debug_menu_print_node_status_summary():
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
+
+    try:
+        chord.print_node_status_summary(selected_port)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+        # libero la porta tcp
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
+
+
+def debug_menu_print_node_finger_table():
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
+
+    try:
+        chord.print_node_finger_table(selected_port)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+        # libero la porta tcp
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
+
+
+def debug_menu_print_node_loneliness_state():
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
+
+    try:
+        chord.print_node_loneliness_state(selected_port)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+        # libero la porta tcp
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
+
+
+def debug_menu_print_node_file_system():
+    try:
+        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
+    except KeyboardInterrupt:
+        # terminazione e join nodi chord per uscita pulita
+        chord.node_delete_all()
+        print("Goodye!")
+        sys.exit()
+    except ValueError:
+        print("ERROR: Invalid Port Value!")
+        return
+
+    try:
+        chord.print_node_file_system(selected_port)
+    except NoNodeFoundOnPortError:
+        print("ERROR: No node found on this TCP port!")
+        # libero la porta tcp
+        try:
+            tcp_port_manager.mark_port_as_free(selected_port)
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+            pass
+
+
+def debug_menu():
+    exit_flag = False
+    selected_op = None
+
+    while not exit_flag:
+        print(
+            "WARNING: You're in the Hidden Debug Menu. The use of the debugging commands could make the application stop working properly. Use these commands at your own risk!")
+
+        if DEBUG_MODE:
+            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
+        else:
+            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Enable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
+
+        # Stampa del menù di selezione
+        try:
+            selected_op = input(menu_message)
+
+            if int(selected_op) not in range(0, 6):  # fino a 9
+                raise ValueError
+            else:
+                selected_op = selected_op[0]
+        except KeyboardInterrupt:
+            # terminazione e join nodi chord per uscita pulita
+            chord.node_delete_all()
+            print("Goodye!")
+            sys.exit()
+        except (ValueError, IndexError):
+            print("ERROR: invalid input!")
+            continue
+
+        try:
+            int(selected_op)
+        except ValueError:
+            print("ERROR: invalid input!")
+            continue
+
+        if int(selected_op) == 1:  # print summary status nodo
+            debug_menu_print_node_status_summary()
+
+        elif int(selected_op) == 2:  # print della finger table di un nodo
+            debug_menu_print_node_finger_table()
+
+        elif int(selected_op) == 3:  # print dello stato di solitudine di un nodo
+            debug_menu_print_node_loneliness_state()
+
+        elif int(selected_op) == 4:  # print del file system di un nodo
+            debug_menu_print_node_file_system()
+
+        elif int(selected_op) == 5:  # abilita / disabilita stampe di debug
+            if DEBUG_MODE:
+                DEBUG_MODE = False
+            else:
+                DEBUG_MODE = True
+
+            chord.set_debug_mode(DEBUG_MODE)
+
+        elif int(selected_op) == 0:  # exit
+            exit_flag = True
+        else:
+            print("ERROR: Invalid selection!\n")
+
+
 def menu_DEBUG_OPERATION_1():
     print("DEBUG: ricezione messaggi")
 
@@ -223,8 +385,8 @@ def menu_DEBUG_OPERATION_3():
 
 # Verifico che main.py sia stato invocato come main del nostro programma
 if __name__ == "__main__":
-    # Impostazione Modaliità pultiprocessing
-    print(f"Chord running on {platform.system()} OS: ")
+    # Impostazione Modaliità multiprocessing
+    # print(f"Chord running on {platform.system()} OS: ")
 
     # if platform.system() == "Windows":
     #     # Non ho effettuato test tramite spawn
@@ -236,36 +398,33 @@ if __name__ == "__main__":
     #     mp_ctx = mp.get_context("fork")
     #     print("Fork method has been set")
 
-    # Verifico che main.py sia stato invocato come main del nostro programma
-    # try:
-    #     assert __name__ == "__main__"
-    # except AssertionError:
-    #     print("ERROR: please run the application from the main.py file!")
-    #     sys.exit()
-
-    # test_process = TestProcess()
-    # test_process.start()
-    # print(f"Debug test process {test_process.is_alive()}")
-
     exit_flag = False
-    tcp_port_manager = TCPPortManager()
-    # chord = Chord(debug_mode=DEBUG_MODE)
-
     new_node = None
     selected_op = None
-
-    # sleep(5)
-    # print(f"Debug test process {test_process.is_alive()}")
+    chord = Chord(debug_mode=DEBUG_MODE)
+    tcp_port_manager = TCPPortManager()
 
     while not exit_flag:
         # Stampa del menù di selezione
         try:
-            selected_op = input(
-                f"\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n")
-            if int(selected_op) not in range(0, 10):  # fino a 9
+
+            if DEBUG_MENU_ENABLED:
+                menu_message = "\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [8] Open the Debug Menu\n [0] Exit from the Application\n"
+            else:
+                menu_message = "\nSelect an Operation:\n [1] Creation and Join of a New Node\n [2] Terminate a Node\n [3] Insert a File\n [4] Search a File\n [5] Delete a File\n [6] Print the Chord Network Status\n [7] Print the Status of a Node\n [0] Exit from the Application\n"
+
+            selected_op = input(menu_message)
+
+            if DEBUG_MENU_ENABLED:
+                menu_entries = 8
+            else:
+                menu_entries = 7
+
+            if int(selected_op) not in range(0, menu_entries + 1):
                 raise ValueError
             else:
                 selected_op = selected_op[0]
+
         except KeyboardInterrupt:
             # terminazione e join nodi chord per uscita pulita
             chord.node_delete_all()
@@ -303,16 +462,10 @@ if __name__ == "__main__":
         elif int(selected_op) == 7:  # node status
             menu_print_node_status()
 
-        elif int(selected_op) == 8:  # TODO node start debug
-            print(
-                "WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
-            menu_DEBUG_OPERATION_1()
+        elif int(selected_op) == 8 and DEBUG_MENU_ENABLED:  # debug menu
+            debug_menu()
             pass
 
-        elif int(selected_op) == 9:  # TODO node terminate debug
-            print(
-                "WARNING: This is a hidden debugging operation. The application could suddenly stop working properly.")
-            menu_DEBUG_OPERATION_3()
 
         elif int(selected_op) == 0:  # exit
             exit_flag = True

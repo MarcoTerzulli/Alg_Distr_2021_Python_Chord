@@ -50,14 +50,14 @@ class RequestSenderHandler:
     # sembra ok
     def send_notify(self, destination_node_info, sender_node_info):
         """
-        Creazione ed invio di un messaggio di notifica
+        Creazione e invio di un messaggio di notifica
 
         :param destination_node_info: node info del nodo di destinazione
         :param sender_node_info: node info del nodo mittente
         :return files: dizionario degli eventuali file che ora sono assegnati al nodo sender
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info, message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
@@ -91,7 +91,7 @@ class RequestSenderHandler:
     # sembra ok
     def send_get_predecessor_request(self, destination_node_info, sender_node_info):
         """
-        Creazione ed invio di un messaggio get predecessor request.
+        Creazione e invio di un messaggio get predecessor request.
         Consente di ottenere il predecessore del nodo destinatario
 
         :param destination_node_info: node info del nodo di destinazione
@@ -99,7 +99,7 @@ class RequestSenderHandler:
         :return: il predecessore del nodo destinatario, se esiste
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         predecessor_request_message = GetPredecessorRequestMessage(destination_node_info, sender_node_info,
                                                                    message_ticket)
@@ -134,7 +134,7 @@ class RequestSenderHandler:
     # sembra ok
     def send_get_first_successor_request(self, destination_node_info, sender_node_info):
         """
-        Creazione ed invio di un messaggio first successor request.
+        Creazione e invio di un messaggio first successor request.
         Consente di ottenere il primo nodo successore del nodo destinatario
 
         :param destination_node_info: node info del nodo di destinazione
@@ -142,7 +142,7 @@ class RequestSenderHandler:
         :return: il primo successore del nodo destinatario, se esiste
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         first_successor_request_message = GetFirstSuccessorRequestMessage(destination_node_info, sender_node_info,
                                                                           message_ticket)
@@ -178,7 +178,7 @@ class RequestSenderHandler:
     def send_search_key_successor_request(self, destination_node_info, key, sender_node_info):
         # async def send_successor_request(self, destination_node_info, key, sender_node_info):
         """
-        Creazione ed invio di un messaggio search successor request.
+        Creazione e invio di un messaggio search successor request.
         Consente di ottenere il nodo successore della key specificata
 
         :param destination_node_info: node info del nodo di destinazione
@@ -187,7 +187,7 @@ class RequestSenderHandler:
         :return: il successore del nodo destinatario, se esiste
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         successor_request_message = SearchKeySuccessorRequestMessage(destination_node_info, key, sender_node_info,
                                                                      message_ticket)
@@ -227,14 +227,14 @@ class RequestSenderHandler:
     # sembra ok
     def send_youre_not_alone_anymore_request(self, destination_node_info, sender_node_info):
         """
-        Creazione ed invio di un messaggio you're not alone anymore request.
+        Creazione e invio di un messaggio you're not alone anymore request.
         Consente di informare il nodo destinatario che non è più solo nella rete Chord
 
         :param destination_node_info: node info del nodo di destinazione
         :param sender_node_info: node info del nodo mittente
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         youre_not_alone_anymore_request_message = YoureNotAloneRequestMessage(destination_node_info, sender_node_info,
                                                                               message_ticket)
@@ -270,7 +270,7 @@ class RequestSenderHandler:
     def send_leaving_predecessor_request(self, destination_node_info, sender_node_info, new_predecessor_node_info,
                                          files):
         """
-        Creazione ed invio di un messaggio leaving predecessor.
+        Creazione e invio di un messaggio leaving predecessor.
         Consente di notificare che il predecessore del destinatario sta lasciando chord
 
         :param destination_node_info: node info del nodo di destinazione
@@ -279,7 +279,7 @@ class RequestSenderHandler:
         :param files: file da trasferire
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         leaving_request_message = LeavingPredecessorRequestMessage(destination_node_info, sender_node_info,
                                                                    message_ticket, new_predecessor_node_info, files)
@@ -312,7 +312,7 @@ class RequestSenderHandler:
     # forse ok
     def send_leaving_successor_request(self, destination_node_info, sender_node_info, new_successor_node_info):
         """
-        Creazione ed invio di un messaggio leaving successor.
+        Creazione e invio di un messaggio leaving successor.
         Consente di notificare che il successore del destinatario sta lasciando chord
 
         :param destination_node_info: node info del nodo di destinazione
@@ -320,7 +320,7 @@ class RequestSenderHandler:
         :param new_successor_node_info: node info del nuovo nodo successore
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         leaving_request_message = LeavingSuccessorRequestMessage(destination_node_info, sender_node_info,
                                                                  message_ticket, new_successor_node_info)
@@ -355,7 +355,7 @@ class RequestSenderHandler:
     # forse ok
     def send_publish_request(self, destination_node_info, sender_node_info, key, file):
         """
-         Creazione ed invio di un messaggio file publish.
+         Creazione e invio di un messaggio file publish.
          Consente di inserire un file all'interno della rete chord
 
          :param destination_node_info: node info del nodo di destinazione
@@ -364,7 +364,7 @@ class RequestSenderHandler:
          :param file: il file da pubblicare
          """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         file_publish_request_message = FilePublishRequestMessage(destination_node_info, sender_node_info,
                                                                  message_ticket, key, file)
@@ -397,7 +397,7 @@ class RequestSenderHandler:
     # forse ok
     def send_file_request(self, destination_node_info, sender_node_info, key):
         """
-         Creazione ed invio di un messaggio file request
+         Creazione e invio di un messaggio file request
          Consente di ottenere un file dalla rete chord, se presente
 
          :param destination_node_info: node info del nodo di destinazione
@@ -406,7 +406,7 @@ class RequestSenderHandler:
          :return file: il file richiesto
          """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         file_request_message = FileRequestMessage(destination_node_info, sender_node_info,
                                                   message_ticket, key)
@@ -441,7 +441,7 @@ class RequestSenderHandler:
     # forse ok
     def send_delete_file_request(self, destination_node_info, sender_node_info, key):
         """
-         Creazione ed invio di un messaggio file delete.
+         Creazione e invio di un messaggio file delete.
          Consente di eliminare un file all'interno della rete chord, se presente
 
          :param destination_node_info: node info del nodo di destinazione
@@ -449,7 +449,7 @@ class RequestSenderHandler:
          :param key: chiave del file da eliminare
          """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         file_delete_request_message = FileDeleteRequestMessage(destination_node_info, sender_node_info,
                                                                message_ticket, key)
@@ -484,14 +484,14 @@ class RequestSenderHandler:
     # forse ok
     def send_ping(self, destination_node_info, sender_node_info):
         """
-        Creazione ed invio di un messaggio ping.
+        Creazione e invio di un messaggio ping.
         Consente di verificare se il nodo destinatario è ancora presente nella rete ed è operativo
 
         :param destination_node_info: node info del nodo di destinazione
         :param sender_node_info: node info del nodo mittente
         """
 
-        # Generazione ticket ed invio del messaggio
+        # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
         ping_request_message = PingRequestMessage(destination_node_info, sender_node_info, message_ticket)
         self.__socket_node.send_message(destination_node_info.get_port(), ping_request_message)
@@ -586,3 +586,16 @@ class RequestSenderHandler:
         """
 
         return self.__socket_node.is_alive()
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode
+
+        self.__message_handler.set_debug_mode(debug_mode)
+        self.__socket_node.set_debug_mode(debug_mode)

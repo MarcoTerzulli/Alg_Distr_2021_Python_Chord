@@ -97,6 +97,18 @@ class TCPServerModule:
             pass
         self.__tcp_server.close()
 
+    # ************************** METODI DI DEBUG *******************************
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode
+
 
 class TCPClientModule:
     """
@@ -192,3 +204,15 @@ class TCPClientModule:
             sys.exit()
 
         self.__tcp_client.close()
+
+    # ************************** METODI DI DEBUG *******************************
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode

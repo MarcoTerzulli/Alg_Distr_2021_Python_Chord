@@ -2,9 +2,22 @@ from exceptions.exceptions import FileKeyError
 
 
 class FileSystem:
-    def __init__(self, node_id):
+    """
+    Classe per la gestione dei file gestiti da un dato nodo
+    """
+
+    def __init__(self, node_id, debug_mode=False):
+        """
+        Funzione __init__ della classe. Inizializza tutti gli attributi interni.
+
+        :param node_id: node id del mio nodo
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
+        """
+
         self.__node_id = node_id
         self.__file_dict = dict()
+
+        self.__debug_mode = debug_mode
 
     def put_file(self, key, file):
         """
@@ -76,15 +89,25 @@ class FileSystem:
 
         return new_file_dict
 
-    def print_file_system(self):
+    def print(self):
         """
         Funzione per la stampa del file system
         """
-
-        print(f"File system of the node {self.__node_id}: ")
 
         if self.__file_dict.__len__() == 0:
             print("The file system is empty")
         else:
             for key in self.__file_dict.keys():
                 print(f"Key {key}: {self.__file_dict[key]}")
+
+    # ************************** METODI DI DEBUG *******************************
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode

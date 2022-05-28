@@ -279,3 +279,54 @@ class Chord:
             self.__node_dict[node_port].print_status_summary()
         except KeyError:
             raise NoNodeFoundOnPortError
+
+    def print_node_finger_table(self, node_port):
+        """
+        Metodo di debug per la stampa della finger table di un dato nodo
+
+        :param node_port: porta TCP del nodo
+        """
+
+        try:
+            self.__node_dict[node_port].print_finger_table()
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
+    def print_node_loneliness_state(self, node_port):
+        """
+        Metodo di debug per la stampa del loneliness state di un dato nodo
+
+        :param node_port: porta TCP del nodo
+        """
+
+        try:
+            self.__node_dict[node_port].print_loneliness_state()
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
+    def print_node_file_system(self, node_port):
+        """
+        Metodo di debug per la stampa del file system di un dato nodo
+
+        :param node_port: porta TCP del nodo
+        """
+
+        try:
+            self.__node_dict[node_port].print_file_system()
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode
+
+        # setto lo stato di debug anche sui nodi
+        for node in self.__node_dict:
+            if node:
+                node.set_debug_mode(debug_mode)

@@ -1,5 +1,4 @@
 import threading
-from multiprocessing import Process
 from threading import Thread
 
 from exceptions.exceptions import *
@@ -11,7 +10,8 @@ class SocketNode(Thread):
     Classe per la gestione del server socket di un nodo tramite processi
     """
 
-    def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2, send_message_max_retries=5,debug_mode=False):
+    def __init__(self, this_node, this_msg_handler, port, tcp_request_timeout=0.2, send_message_max_retries=5,
+                 debug_mode=False):
         """
         Metodo init della classe.
         Inizializzazione degli attributi interni e chiamata al costruttore del processo.
@@ -63,7 +63,7 @@ class SocketNode(Thread):
                 pass
 
     def send_message(self, destination_port, message):
-        tcp_client = TCPClientModule(port=destination_port)
+        tcp_client = TCPClientModule(port=destination_port, debug_mode=self.__debug_mode)
 
         # Tento di provo a inviare la richiesta finché non riesco
 
@@ -102,3 +102,17 @@ class SocketNode(Thread):
         """
 
         return self._stop_event.is_set()
+
+    # ************************** METODI DI DEBUG *******************************
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode
+
+        self.__tcp_server.set_debug_mode(debug_mode)

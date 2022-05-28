@@ -6,18 +6,21 @@ class SuccessorList:
     Classe per la gestione della lista dei successori di un nodo
     """
 
-    def __init__(self, my_node_info, max_successor_number=3):
+    def __init__(self, my_node_info, max_successor_number=3, debug_mode=False):
         """
         Metodo init della classe. Inizializzazione degli attributi interni e chiamata al costruttore della classe list
 
         :param my_node_info: node info del nodo assegnato
         :param max_successor_number: massimo numero di entry della lista (opzionale)
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__node_list = list()
 
         self.__my_node_info = my_node_info
         self.__CONST_MAX_SUCC_NUMBER = max_successor_number
+
+        self.__debug_mode = debug_mode
 
     def get_node_info(self):
         """
@@ -217,7 +220,7 @@ class SuccessorList:
         node_id_ordered_list = sorted(node_id_ordered_list)
 
         for this_node_id in node_id_ordered_list:
-            if this_node_id >= key: # ho trovato il più piccolo nodo successore
+            if this_node_id >= key:  # ho trovato il più piccolo nodo successore
 
                 # ottengo il node info di quel nodo
                 for this_node in self.__node_list:
@@ -226,8 +229,6 @@ class SuccessorList:
                             return this_node
 
         raise NoSuccessorFoundError
-
-
 
     def print(self):
         """
@@ -239,3 +240,14 @@ class SuccessorList:
         for node_info in self.__node_list:
             node_info.print()
 
+    # ************************** METODI DI DEBUG *******************************
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode

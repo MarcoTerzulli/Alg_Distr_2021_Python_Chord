@@ -805,7 +805,6 @@ class Node:
         except FileKeyError:
             pass
 
-
     # ************************** METODI DI DEBUG *******************************
     def print_status(self):
         """
@@ -820,17 +819,12 @@ class Node:
         else:
             print("Predecessor Node: ")
             self.__predecessor_node.print()
-            # print(
-            #     f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
 
         print("\nNode Successor List:")
         self.__successor_node_list.print()
 
         print("\nNode Finger Table:")
         self.__finger_table.print()
-
-        # print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
-        # self.__successor_node_list_backup.print() # todo debug
 
     def print_status_summary(self):
         """
@@ -845,16 +839,45 @@ class Node:
         else:
             print("Predecessor Node: ")
             self.__predecessor_node.print()
-            # print(
-            #     f"Predecessor Node IP: {self.__predecessor_node.get_ip()}\nPredecessor Node Port: {self.__predecessor_node.get_port()}\nPredecessor Node ID: {self.__predecessor_node.get_node_id()}")
 
         print("\nNode Successor List:")
         self.__successor_node_list.print()
 
         print(f"\nI'm Alone: {self.__im_alone}")
 
-        # print(f"\n{self.__node_info.get_port()}: backup successor list") # todo debug
-        # self.__successor_node_list_backup.print() # todo debug
+    def print_finger_table(self):
+        """
+        Metodo di debug per la stampa della finger table del nodo corrente
+        """
+
+        print(
+            f"Node IP: {self.__node_info.get_ip()}\nNode Port: {self.__node_info.get_port()}\nNode ID: {self.__node_info.get_node_id()}\n")
+
+        print("\nNode Finger Table:")
+        self.__finger_table.print()
+
+    def print_loneliness_state(self):
+        """
+        Metodo di debug per la stampa dello stato di loneliness del nodo corrente (in formato ridotto)
+        """
+
+        print(
+            f"Node IP: {self.__node_info.get_ip()}\nNode Port: {self.__node_info.get_port()}\nNode ID: {self.__node_info.get_node_id()}\n")
+
+        print(f"\nI'm Alone: {self.__im_alone}")
+
+    def print_file_system(self):
+        """
+        Metodo di debug per la stampa del file system del nodo corrente (in formato ridotto)
+        """
+
+        print(
+            f"Node IP: {self.__node_info.get_ip()}\nNode Port: {self.__node_info.get_port()}\nNode ID: {self.__node_info.get_node_id()}\n")
+
+        print("\nNode File System:")
+        self.__file_system.print()
+
+        print(f"\nI'm Alone: {self.__im_alone}")
 
     def print_tcp_server_status(self):
         """
@@ -862,3 +885,17 @@ class Node:
         """
 
         print(f"DEBUG: The TCP Server's Process Status is {self.__tcp_request_sender_handler.is_tcp_server_alive()}")
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode
+
+        self.__file_system.set_debug_mode(debug_mode)
+        self.__tcp_request_sender_handler.set_debug_mode(debug_mode)
+        self.__node_periodic_operations_manager.set_debug_mode(debug_mode)

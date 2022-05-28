@@ -387,7 +387,6 @@ class YoureNotAloneAnswerMessage(Message):
         return self.__destination_node_was_alone
 
 
-
 class YoureNotAloneRequestMessage(Message):
     """
     Classe per la gestione delle richieste dei messaggi di tipo you're not alone request

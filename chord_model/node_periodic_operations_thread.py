@@ -1,7 +1,5 @@
 import threading
-from multiprocessing import Process
 from threading import Thread
-from time import sleep
 
 from utilities.chord_utils import current_millis_time
 
@@ -44,7 +42,8 @@ class NodePeriodicOperationsThread(Thread):
                 self.__last_execution_time = current_millis_time()
 
                 if self.__debug_mode:
-                    print(f"Running the Periodic Operations of the Node with Port {self.__this_node.get_node_info().get_port()}...")
+                    print(
+                        f"Running the Periodic Operations of the Node with Port {self.__this_node.get_node_info().get_port()}...")
 
                 self.__this_node.stabilize()
                 # self.__this_node.fix_finger()
@@ -65,3 +64,15 @@ class NodePeriodicOperationsThread(Thread):
         """
 
         return self._stop_event.is_set()
+
+    # ************************** METODI DI DEBUG *******************************
+
+    def set_debug_mode(self, debug_mode):
+        """
+        Metodo per abilitare / disabilitare la modalità di debug.
+        Attiva / disabilita le stampe di debug a livello globale
+
+        :param debug_mode: lo stato di debug da impostare
+        """
+
+        self.__debug_mode = debug_mode
