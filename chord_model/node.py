@@ -277,11 +277,16 @@ class Node:
             except RuntimeError:
                 # avviene nel caso in cui si termina l'applicazione prima che un thread/ processo venga avviato
                 pass
-        print("join del periodic manager ok")
+
+        if self.__debug_mode:
+            print(f"DEBUG: {self.__node_info.get_port()}: Successfully Joined the Periodic Operations Manager")
 
         try:
             if not self.__successor_node_list.is_empty():
-                print("messaggio al mio successore")
+
+                if self.__debug_mode:
+                    print(f"DEBUG: {self.__node_info.get_port()}: Sending the Leaving Predecessor to my Successor")
+
                 # invio il messaggio al mio successore, comunicandogli il mio predecessore
                 self.__tcp_request_sender_handler.send_leaving_predecessor_request(
                     self.__successor_node_list.get_first(),
@@ -289,7 +294,10 @@ class Node:
                     self.__file_system.empty_file_system())
 
             if self.__predecessor_node:
-                print("messaggio al mio predecessore")
+
+                if self.__debug_mode:
+                    print(f"DEBUG: {self.__node_info.get_port()}: Sending the Leaving Successor to my Predecessor")
+
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
                 self.__tcp_request_sender_handler.send_leaving_successor_request(self.__predecessor_node,
                                                                                  self.__node_info,
@@ -346,10 +354,22 @@ class Node:
 
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self._repopulate_successor_list(0)
-            print("ripopolo la lista successori (0)")
 
-            print(f"\n{self.__node_info.get_port()}: - stampa della mia successor list")  # todo debug
-            self.__successor_node_list.print()  # todo debug
+            if self.__debug_mode:
+                print(
+                    f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
+                print(
+                    f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
+                self.__successor_node_list.print()
+
+            # todo debug
+            print(
+                f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
+            # todo debug
+            print(
+                f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
+            # todo debug
+            self.__successor_node_list.print()
 
         # se non sono stato in grado di trovare nessun successore nella rete
         # ed il mio id è inferiore a quello dell'altro nodo,
@@ -396,13 +416,6 @@ class Node:
                 return False
             else:
                 return True
-
-        # if key < self.__node_info.get_node_id():
-        #     return False
-        # elif self.__node_info.get_node_id() > predecessor_node_id:
-        #     return False
-        # else:
-        #     return True
 
     # forse ok
     def _repopulate_successor_list(self, index_of_invalid_node):

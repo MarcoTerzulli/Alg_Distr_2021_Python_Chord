@@ -51,25 +51,6 @@ class FingerTable:
         assert 1 <= index <= CONST_M
         self.__table_dict[index] = new_finger
 
-    # def add_finger(self, new_finger_info):
-    #     """
-    #     Funzione per l'aggiunta di un nuovo nodo alla finger table.
-    #     :param new_finger_info: node_info del nuovo finger
-    #     """
-    #
-    #     i = self.__my_node_info.get_node_id()
-    #
-    #     for j in range(1, CONST_M + 1):
-    #         if new_finger_info.get_node_id() >= (i + 2 ** (j - 1)) % 2 ** CONST_M:
-    #
-    #             # Il finger può essere none solo se la tabella è vuota
-    #             if self.__table_dict[j] is None or new_finger_info.get_node_id() < self.__table_dict[j].get_node_id():
-    #                 self.__table_dict[j] = new_finger_info
-    #             else:
-    #                 # Il finger che stiamo guardando ha un id più piccolo (e lo stesso varrà per i successivi),
-    #                 # dunque non va sostituito
-    #                 break
-
     def get_finger(self, index):
         """
         Restituisce le informazioni associate al j-esimo finger

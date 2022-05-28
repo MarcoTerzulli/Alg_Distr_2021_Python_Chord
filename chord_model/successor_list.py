@@ -130,44 +130,6 @@ class SuccessorList:
 
         return self.__node_list.__len__()
 
-    # def __len__(self):
-    #     """
-    #     Overload del metodo __len__ della lista
-    #
-    #     :return: la lunghezza della lista
-    #     """
-    #
-    #     return self.__node_list.__len__()
-    #
-    # def __getitem__(self, i):
-    #     """
-    #     Overload del metodo __getitem__ della lista
-    #
-    #     :param i: indice dell'elemento selezionato
-    #     :return: l'elemento scelto, se presente
-    #     """
-    #
-    #     self.__node_list.__getitem__(i)
-    #
-    # def __setitem__(self, i, object_to_be_inserted):
-    #     """
-    #     Overload del metodo __setitem__ della lista
-    #
-    #     :param i: indice dell'elemento selezionato
-    #     :param object_to_be_inserted: l'elemento da inserire
-    #     """
-    #
-    #     self.__node_list.__setitem__(i, object_to_be_inserted)
-    #
-    # def __delitem__(self, i):
-    #     """
-    #     Overload del metodo __delitem__ della lista
-    #
-    #     :param i: indice dell'elemento selezionato
-    #     """
-    #
-    #     self.__node_list.__delitem__(i)
-
     def get(self, i):
         """
         Metodo getter per un elemento della lista

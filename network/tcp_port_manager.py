@@ -67,12 +67,8 @@ class TCPPortManager:
                     self.mark_port_as_used(i)
                     return i
         else:
-            # print("ERROR: TCP ports are out of stock!")
-            # return None # Ho esaurito le porte
             raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
 
-        # print("ERROR: TCP ports are out of stock!")
-        # return None # Non dovremmo mai arrivare qui
         raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
 
     def mark_port_as_free(self, port):
@@ -87,7 +83,6 @@ class TCPPortManager:
 
             if self.__used_dynamic_ports_counter < 0:
                 self.__used_dynamic_ports_counter = 0  # Ripristino il contatore
-                # print("ERROR: something went wrong in the management of the dinamicheTCP ports. We're trying to free a ports, but none is used!")
                 raise FreeingNonUsedDynamicTCPPortError(
                     "ERROR: something went wrong in the management of the dynamicTCP ports. We're trying to free a ports, but none is used!")
 
@@ -101,7 +96,6 @@ class TCPPortManager:
                 raise FreeingNonUsedRegisteredTCPPortError(
                     "ERROR: something went wrong in the management of the registeredTCP ports. We're trying to free a ports, but none is used!")
         else:
-            # print("ERROR: invalid TCP port.")
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
     def mark_port_as_used(self, port):
@@ -154,5 +148,4 @@ class TCPPortManager:
         elif self.__FIRST_REGISTERED_PORT_NUMBER <= port <= self.__LAST_REGISTERED_PORT_NUMBER:
             return "registered"
         else:
-            # return None # porta non valida
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
