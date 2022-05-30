@@ -44,33 +44,11 @@ class Chord:
             # ci è stata assegnata una porta già usata
             raise AlreadyUsedPortError
 
-        # # todo debug
-        # print(f"Porta scelta {port}")
-        #
-        # # todo debug
-        # print("\n\nStampo il sommario dei nodi chord prima della creazione del nodo")
-        # for key in self.__node_dict.keys():
-        #     self.__node_dict[key].print_status_summary()
-        # print("\n")
-
         new_node_info = NodeInfo(port=port)
         try:
-            new_node = Node(new_node_info, debug_mode=self.__debug_mode)
+            new_node = Node(new_node_info, periodic_operations_timeout=3000, debug_mode=self.__debug_mode)
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
-
-        # self.__node_dict[port] = new_node
-        #
-        # other_node = None
-        # if self.__node_dict.__len__() > 1:  # prendo un nodo randomicamente
-        #     while other_node is None or other_node == new_node:
-        #         other_node = random.choice(list(self.__node_dict.values())).get_node_info()
-
-        # # todo debug
-        # print("\n\nStampo il sommario dei nodi chord dopo la creazione del nodo (non inizializzato)")
-        # for key in self.__node_dict.keys():
-        #     self.__node_dict[key].print_status_summary()
-        # print("\n")
 
         other_node = None
         if self.__node_dict.__len__() >= 1:  # prendo un nodo randomicamente
@@ -93,7 +71,6 @@ class Chord:
             del self.__node_dict[port]
             raise ImpossibleInitializationError
 
-    # TODO
     def node_delete(self, port):
         """
         Rimozione di un nodo da chord associato a una determinata porta TCP
@@ -126,7 +103,7 @@ class Chord:
 
     # ************************** METODI RELATIVE AI FILE *******************************
 
-    # TODO
+    # TODO da verificare
     def file_publish(self, port, file):
         """
         Inserimento di un file all'interno di Chord
@@ -149,6 +126,7 @@ class Chord:
 
         return file_key
 
+    # TODO da verificare
     def file_lookup(self, key, port):
         """
         Ricerca del nodo responsabile della chiave key
@@ -165,6 +143,7 @@ class Chord:
 
         return found_node.get_file(key)
 
+    # TODO da verificare
     def file_delete(self, key, port):
         """
         Rimozione di un file da chord data la sua chiave
@@ -180,27 +159,6 @@ class Chord:
 
         found_node.delete_file(key)
         print(f"Successfully deleted the file with key {key}.")
-
-    def _find_node_in_dict(self, port):
-        """
-        Metodo per la ricerca di un nodo all'interno del dizionario di nodi, data la sua porta
-        Nota: metodo interno
-
-        :param port: porta TCP del nodo
-        :return: il nodo cercato, se presente
-        """
-
-        found_node = None
-        for node in self.__node_dict:
-            try:
-                if node.get_node_info().get_port() == port:
-                    found_node = node
-            except AttributeError:
-                pass
-        if not found_node:
-            raise NoNodeFoundOnPortError
-
-        return found_node
 
     # ************************** METODI INTERNI CHORD *******************************
 
@@ -241,6 +199,27 @@ class Chord:
             if node_port == port:
                 return False
         return True
+
+    def _find_node_in_dict(self, port):
+        """
+        Metodo per la ricerca di un nodo all'interno del dizionario di nodi, data la sua porta
+        Nota: metodo interno
+
+        :param port: porta TCP del nodo
+        :return: il nodo cercato, se presente
+        """
+
+        found_node = None
+        for node in self.__node_dict:
+            try:
+                if node.get_node_info().get_port() == port:
+                    found_node = node
+            except AttributeError:
+                pass
+        if not found_node:
+            raise NoNodeFoundOnPortError
+
+        return found_node
 
     # ************************** METODI DI DEBUG *******************************
 

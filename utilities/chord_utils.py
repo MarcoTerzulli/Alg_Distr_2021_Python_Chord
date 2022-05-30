@@ -19,6 +19,7 @@ def hash_function(input_string):
 def current_millis_time():
     """
     Funzione che restituisce il tempo attuale in millisecondi
+
     :return: tempo attuale in millisecondi
     """
 
@@ -26,24 +27,11 @@ def current_millis_time():
 
 def compute_finger(node_id, index):
     """
-    Funzione che computa il finger con la potenza, modulo 2^m
+    Funzione che computa il finger con la potenza, modulo 2^m.
+    Computed Finger = (node_id + 2^(index - 1)) mod 2^m
+
     :return: il finger computato
     """
 
     return (node_id + 2 ** (index - 1)) % (2 ** CONST_M)
-
-# def compute_finger(node_id, index):
-#     """
-#     Funzione che computa il finger con la potenza, modulo 2^m
-#     :return: il finger computato
-#     """
-#
-#     # conversion of the id to base 10
-#     base_10_node_id = int(node_id, 10)
-#
-#     # computing the finger
-#     base_10_computed_finger = (base_10_node_id + 2 ** (index - 1)) % (2 ** CONST_M)
-#
-#     # conversion to base 16 and return
-#     return int(base_10_computed_finger, 16)
 

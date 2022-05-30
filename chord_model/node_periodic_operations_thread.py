@@ -38,7 +38,7 @@ class NodePeriodicOperationsThread(Thread):
         """
 
         while not self._stop_event.is_set():
-            if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time:
+            if self.__periodic_operations_timeout < current_millis_time() - self.__last_execution_time and not self.__this_node.check_if_im_alone():
                 self.__last_execution_time = current_millis_time()
 
                 if self.__debug_mode:
