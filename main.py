@@ -51,7 +51,7 @@ def menu_node_create_and_join():
             retries += 1
             break
         else:
-            print(f"Successfully created node on port {tcp_port_manager.get_port_type(port)} {port}")
+            print(f"Successfully created node on TCP Port {port} ({tcp_port_manager.get_port_type(port)} Port)")
             break  # Se tutto è andato bene, esco dal loop
 
 
@@ -284,7 +284,7 @@ def debug_menu(DEBUG_MODE):
 
     while not debug_menu_exit_flag:
         print(
-            "WARNING: You're in the Hidden Debug Menu.\nThe use of the debugging commands could make the application stop working properly.\nUse these commands at your own risk!")
+            "\nWARNING: You're in the Debug Menu.\nThe use of the debugging commands could make the application stop working properly.\nUse these commands at your own risk!")
 
         if DEBUG_MODE:
             menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"

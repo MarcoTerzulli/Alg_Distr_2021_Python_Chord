@@ -144,8 +144,8 @@ class TCPPortManager:
         """
 
         if self.__FIRST_DYNAMIC_PORT_NUMBER <= port <= self.__LAST_DYNAMIC_PORT_NUMBER:
-            return "dynamic"
+            return "Dynamic"
         elif self.__FIRST_REGISTERED_PORT_NUMBER <= port <= self.__LAST_REGISTERED_PORT_NUMBER:
-            return "registered"
+            return "Registered"
         else:
             raise InvalidTCPPortError("ERROR: invalid TCP port.")

@@ -19,7 +19,7 @@ class ReceivedMessagesHandler:
         self.__my_node = my_node
         self.__my_socket_node = my_socket_node
         self.__my_tcp_request_handler = my_tcp_request_handler
-        
+
         # Modalità di debug
         self.__debug_mode = debug_mode
 
