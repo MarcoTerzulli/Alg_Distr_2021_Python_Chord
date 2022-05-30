@@ -40,10 +40,14 @@ class RequestSenderHandler:
         Da chiamare nel momento della terminazione di un nodo.
         """
 
-        if self.__socket_node:
-            self.__socket_node.tcp_server_close()
-            self.__socket_node.stop()
-            self.__socket_node.join()
+        try:
+            if self.__socket_node:
+                self.__socket_node.tcp_server_close()
+                self.__socket_node.stop()
+                self.__socket_node.join()
+                del self.__socket_node
+        except AttributeError:
+            pass
 
     # ************************ METODI MESSAGGI CHORD *****************************
 

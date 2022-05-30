@@ -256,15 +256,20 @@ class Node:
         Comunica al proprio predecessore e successore della propria uscita dalla rete.
         """
 
-        print(f"Node with TCP Port {self.__node_info.get_port()}: Shutting down...")
+        if self.__debug_mode:
+            print(f"\nDEBUG: Node with TCP Port {self.__node_info.get_port()}: Shutting down...")
 
-        if self.__node_periodic_operations_manager:
-            try:
-                self.__node_periodic_operations_manager.stop()
-                self.__node_periodic_operations_manager.join()
-            except RuntimeError:
-                # avviene nel caso in cui si termina l'applicazione prima che un thread/ processo venga avviato
-                pass
+        try:
+            if self.__node_periodic_operations_manager:
+                try:
+                    self.__node_periodic_operations_manager.stop()
+                    self.__node_periodic_operations_manager.join()
+                    del self.__node_periodic_operations_manager
+                except RuntimeError:
+                    # avviene nel caso in cui si termina l'applicazione prima che un thread/ processo venga avviato
+                    pass
+        except AttributeError:
+            pass
 
         if self.__debug_mode:
             print(f"DEBUG: {self.__node_info.get_port()}: Successfully Joined the Periodic Operations Manager")
@@ -292,9 +297,12 @@ class Node:
                                                                                  self.__successor_node_list.get_first())
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
+        except AttributeError:
+            pass
 
         try:
             self.__tcp_request_sender_handler.socket_node_join()
+            del self.__tcp_request_sender_handler
         except AttributeError:
             pass
 

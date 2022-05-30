@@ -88,7 +88,6 @@ class Chord:
             # eliminazione delle entry dal dizionario
             del self.__node_dict[port]
 
-            print(f"Successfully deleted the node on the TCP port {port}.")
         else:
             raise NoNodeFoundOnPortError
 
@@ -122,7 +121,6 @@ class Chord:
             raise NoNodeFoundOnPortError
 
         found_node.put_file(file_key, file)
-        print(f"Successfully published the file with key {file_key}.")
 
         return file_key
 
@@ -158,7 +156,6 @@ class Chord:
             raise NoNodeFoundOnPortError
 
         found_node.delete_file(key)
-        print(f"Successfully deleted the file with key {key}.")
 
     # ************************** METODI INTERNI CHORD *******************************
 

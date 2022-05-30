@@ -14,6 +14,10 @@ def check_if_port_is_available(port):
     tcp_test_socket.tcp_server_close()
 
 
+PORT_TYPE_REGISTERED = "Registered"
+PORT_TYPE_DYNAMIC = "Dynamic"
+
+
 class TCPPortManager:
     """
     Classe che per la gestione delle porte TCP utilizzate dall'applicazione
@@ -83,7 +87,7 @@ class TCPPortManager:
         :param port: porta da segnare come disponibile
         """
 
-        if self.get_port_type(port) == "dynamic":
+        if self.get_port_type(port) == PORT_TYPE_DYNAMIC:
             self.__used_dynamic_ports_counter -= 1
             self.__dynamic_ports_available[port] = True
 
@@ -92,7 +96,7 @@ class TCPPortManager:
                 raise FreeingNonUsedDynamicTCPPortError(
                     "ERROR: something went wrong in the management of the dynamic TCP ports. We're trying to free a ports, but none is used!")
 
-        elif self.get_port_type(port) == "registered":
+        elif self.get_port_type(port) == PORT_TYPE_REGISTERED:
             self.__used_registered_ports_counter -= 1
             self.__registered_ports_available[port] = True
 
@@ -111,11 +115,11 @@ class TCPPortManager:
         :param port: porta da segnare come occupata
         """
 
-        if self.get_port_type(port) == "Dynamic":
+        if self.get_port_type(port) == PORT_TYPE_DYNAMIC:
             self.__used_dynamic_ports_counter += 1
             self.__dynamic_ports_available[port] = False
 
-        elif self.get_port_type(port) == "Registered":
+        elif self.get_port_type(port) == PORT_TYPE_REGISTERED:
             self.__used_registered_ports_counter += 1
             self.__registered_ports_available[port] = False
 
