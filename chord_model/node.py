@@ -76,8 +76,6 @@ class Node:
         if self.__successor_node_list.get_len() == 0:
             raise NoSuccessorFoundError
 
-        # self.__successor_node_list.get_first().print() # TODO DEBUG
-
         return self.__successor_node_list.get_first()
 
     def get_predecessor(self):
@@ -122,6 +120,7 @@ class Node:
     def tcp_requests_handler(self):
         """
         Metodo getter per il tcp_requests_handler
+
         :return self.__tcp_requests_handler: il proprio tcp_requests_handler
         """
 
@@ -164,7 +163,6 @@ class Node:
         print(
             f"Initialization of Node with Port {self.__node_info.get_port()}: Completed\nHere's the new Node's ID: {self.__node_info.get_node_id()}")
 
-    # ok
     def _initialize_with_no_friends(self):
         """
         Metodo per l'inizializzazione della finger table del nodo e della lista di successori.
@@ -173,18 +171,12 @@ class Node:
         Nota: metodo interno
         """
 
-        # inizializzazione della finger table
-        # for i in range(1, CONST_M + 1):  # da 1 a m
-        #     self.__finger_table.add_finger_by_index(i, self.__node_info)
-        # non ha senso... dovrebbe essere vuota
-
         # inizializzazione della lista dei successori
         for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
             self.__successor_node_list.insert(i, self.__node_info)
 
         self.__predecessor_node = self.__node_info
 
-    # ok
     def _initialize_with_a_friend(self, other_node_info):
         """
         Metodo per l'inizializzazione della finger table del nodo e della lista di successori.
@@ -306,7 +298,6 @@ class Node:
         except AttributeError:
             pass
 
-    # sembra ok
     def find_key_successor(self, key):
         """
         Funzione per la ricerca del nodo predecessore di una determinata key
@@ -376,7 +367,6 @@ class Node:
 
         return successor_node_info
 
-    #  ok
     # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
         """
@@ -393,7 +383,6 @@ class Node:
                     return finger
             return self.__node_info
 
-    #  ok
     def _am_i_responsable_for_the_key(self, predecessor_node_id, key):
         """
         Funzione per verificare se sono responsabile di una determinata key, confrontandomi con l'id del mio predecessor
@@ -414,7 +403,6 @@ class Node:
             else:
                 return True
 
-    #  ok
     def _repopulate_successor_list(self, index_of_invalid_node):
         """
         Metodo per ripopolare la lista dei successori se un nodo non risponde.
@@ -506,7 +494,6 @@ class Node:
                 first_working_finger_node_info = self._get_the_first_working_finger(index_of_invalid_node)
                 self.__successor_node_list.insert(index_of_invalid_node, first_working_finger_node_info)
 
-    #  ok
     def im_not_alone_anymore(self, other_node_info):
         """
         Metodo per informare il nodo che non è più solo all'interno di Chord.
@@ -525,7 +512,6 @@ class Node:
 
     # ************************** METODI FINGER TABLE *******************************
 
-    # ok
     def notify_leaving_predecessor(self, new_predecessor_node_info):
         """
         Metodo per la gestione dei messaggi notify leaving predecessor.
@@ -537,7 +523,6 @@ class Node:
         if new_predecessor_node_info:
             self.set_predecessor(new_predecessor_node_info)
 
-    # ok
     def notify_leaving_successor(self, new_successor_node_info):
         """
         Metodo per la gestione dei messaggi notify leaving successor.
@@ -547,12 +532,9 @@ class Node:
         :param new_successor_node_info: node info del nuovo nodo successore
         """
 
-        # todo da testare
         self.__successor_node_list.replace(self.__successor_node_list.get_first(), new_successor_node_info)
-        # self.__successor_node_list.insert(0, new_successor_node_info)
         self.__finger_table.insert_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
-    # ok
     def _get_the_first_working_finger(self, start_index):
         """
         Metodo chiamato quando nessun nodo nella lista dei successori risponde.
@@ -581,7 +563,6 @@ class Node:
 
     # ************************ METODI OPERAZIONI PERIODICHE *****************************
 
-    # ok
     def stabilize(self):
         """
         Funzione per la stabilizzazione di chord.
@@ -627,7 +608,6 @@ class Node:
                 for key in new_files_dict.keys():
                     self.__file_system.put_file(key, new_files_dict[key])
 
-    # ok
     def notify(self, potential_new_predecessor_node_info):
         """
         Metodo invocato alla ricezione di un messaggio notify da parte di un altro nodo
@@ -645,8 +625,6 @@ class Node:
         elif self.__predecessor_node.get_node_id() < potential_new_predecessor_node_info.get_node_id():
             self.__predecessor_node = potential_new_predecessor_node_info
 
-    # TODO
-    # ok
     # funzione presa dallo pseudocodice del paper
     def fix_finger(self):
         """
@@ -664,7 +642,6 @@ class Node:
         self.__finger_table.insert_finger_by_index(index, self.find_key_successor(
             compute_finger(self.__node_info.get_node_id(), index)))
 
-    # ok
     def check_predecessor(self):
         """
         Funzione per verificare che il nodo predecessore sia ancora al'interno della rete chord e sia funzionante.
@@ -677,7 +654,6 @@ class Node:
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
                 self.__predecessor_node = None
 
-    # ok
     def fix_successor_list(self):
         """
         Metodo per il controllo e la correzione della lista dei successori del nodo.
@@ -686,7 +662,6 @@ class Node:
 
         try:
             # ne si guarda uno in meno perchè nell'else si sostituisce quello avanti
-            # da verificare
             for i in range(0, self.__successor_node_list.get_len() - 1):
                 last_known_node_info = self.__successor_node_list.get(i)
 
@@ -706,7 +681,6 @@ class Node:
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             pass
 
-    # ok
     def check_if_im_alone(self):
         """
         Metodo per verificare lo stato di "solitudine" di un nodo. Controlla i propri successori e predecessore.
