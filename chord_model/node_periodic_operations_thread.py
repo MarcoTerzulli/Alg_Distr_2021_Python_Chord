@@ -46,7 +46,7 @@ class NodePeriodicOperationsThread(Thread):
                         f"Running the Periodic Operations of the Node with Port {self.__this_node.get_node_info().get_port()}...")
 
                 self.__this_node.stabilize()
-                # self.__this_node.fix_finger()
+                self.__this_node.fix_finger()
                 self.__this_node.check_predecessor()
                 self.__this_node.fix_successor_list()
                 self.__this_node.check_if_im_alone()

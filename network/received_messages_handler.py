@@ -6,18 +6,22 @@ class ReceivedMessagesHandler:
     Classe per la gestione dei messaggi TCP ricevuti.
     """
 
-    def __init__(self, my_node, my_socket_node, my_tcp_request_handler):
+    def __init__(self, my_node, my_socket_node, my_tcp_request_handler, debug_mode=False):
         """
         Metodo init della classe. Inizializzazione degli attributi.
 
         :param my_node: riferimento al proprio nodo chord
         :param my_socket_node: riferimento al proprio socket node
         :param my_tcp_request_handler: riferimento al proprio request handler
+        :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__my_node = my_node
         self.__my_socket_node = my_socket_node
         self.__my_tcp_request_handler = my_tcp_request_handler
+        
+        # Modalità di debug
+        self.__debug_mode = debug_mode
 
     def add_socket_node(self, my_socket_node):
         """

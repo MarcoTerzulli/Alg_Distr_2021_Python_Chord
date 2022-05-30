@@ -39,7 +39,7 @@ class FingerTable:
                     # dunque non va sostituito
                     break
 
-    def add_finger_by_index(self, index, new_finger):
+    def insert_finger_by_index(self, index, new_finger):
         """
         Funzione per l'aggiunta di un finger alla tabella in base al suo indice
         Nota: gli indici partono da 1!

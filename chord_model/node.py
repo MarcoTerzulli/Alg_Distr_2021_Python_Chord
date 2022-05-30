@@ -519,7 +519,7 @@ class Node:
             self.__successor_node_list.replace_all(other_node_info)
 
             if self.__node_info.get_node_id() <= other_node_info.get_node_id():
-                self.__finger_table.add_finger_by_index(1, other_node_info)
+                self.__finger_table.insert_finger_by_index(1, other_node_info)
 
     # ************************** METODI FINGER TABLE *******************************
 
@@ -548,7 +548,7 @@ class Node:
         # todo da testare
         self.__successor_node_list.replace(self.__successor_node_list.get_first(), new_successor_node_info)
         # self.__successor_node_list.insert(0, new_successor_node_info)
-        self.__finger_table.add_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
+        self.__finger_table.insert_finger_by_index(1, new_successor_node_info)  # Gli indici partono da 1!
 
     # ok
     def _get_the_first_working_finger(self, start_index):
@@ -659,9 +659,8 @@ class Node:
             print(
                 f"\nDEBUG FIX FINGERS OF THE NODE WITH IP/PORT {self.__node_info.get_ip()}:{self.__node_info.get_port()}\nOriginal Node ID: {self.__node_info.get_node_id()}\n2 ** {index} - 1: {2 ** (index - 1)}\nComputed Node ID: {self.__node_info.get_node_id() + 2 ** (index - 1)}\n")
 
-        # funzione presa dalle slide
-        self.__finger_table.add_finger_by_index(index, self.find_key_successor(
-            self.__node_info.get_node_id() + 2 ** (index - 1)))  # TODO da verificare
+        self.__finger_table.insert_finger_by_index(index, self.find_key_successor(
+            compute_finger(self.__node_info.get_node_id(), index)))
 
     # ok
     def check_predecessor(self):
