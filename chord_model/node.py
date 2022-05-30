@@ -264,6 +264,8 @@ class Node:
         Comunica al proprio predecessore e successore della propria uscita dalla rete.
         """
 
+        print(f"Node with TCP Port {self.__node_info.get_port()}: Shutting down...")
+
         if self.__node_periodic_operations_manager:
             try:
                 self.__node_periodic_operations_manager.stop()

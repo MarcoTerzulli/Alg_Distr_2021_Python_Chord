@@ -54,7 +54,10 @@ class TCPPortManager:
             for i in range(self.__FIRST_DYNAMIC_PORT_NUMBER, self.__LAST_DYNAMIC_PORT_NUMBER + 1):
                 if self.__dynamic_ports_available[i] is True:
                     self.__dynamic_ports_available[i] = False
-                    self.mark_port_as_used(i)
+                    try:
+                        self.mark_port_as_used(i)
+                    except InvalidTCPPortError:
+                        raise InvalidTCPPortError
                     return i
 
         elif self.__used_registered_ports_counter < (
@@ -64,7 +67,10 @@ class TCPPortManager:
             for i in range(self.__FIRST_REGISTERED_PORT_NUMBER, self.__LAST_REGISTERED_PORT_NUMBER + 1):
                 if self.__registered_ports_available[i] is True:
                     self.__registered_ports_available[i] = False
-                    self.mark_port_as_used(i)
+                    try:
+                        self.mark_port_as_used(i)
+                    except InvalidTCPPortError:
+                        raise InvalidTCPPortError
                     return i
         else:
             raise NoAvailableTCPPortsError("ERROR: TCP ports are out of stock!")
@@ -84,7 +90,7 @@ class TCPPortManager:
             if self.__used_dynamic_ports_counter < 0:
                 self.__used_dynamic_ports_counter = 0  # Ripristino il contatore
                 raise FreeingNonUsedDynamicTCPPortError(
-                    "ERROR: something went wrong in the management of the dynamicTCP ports. We're trying to free a ports, but none is used!")
+                    "ERROR: something went wrong in the management of the dynamic TCP ports. We're trying to free a ports, but none is used!")
 
         elif self.get_port_type(port) == "registered":
             self.__used_registered_ports_counter -= 1
@@ -92,9 +98,8 @@ class TCPPortManager:
 
             if self.__used_registered_ports_counter < 0:
                 self.__used_registered_ports_counter = 0  # Ripristino il contatore
-                # print("ERROR: something went wrong in the management of the registrateTCP ports. We're trying to free a ports, but none is used!")
                 raise FreeingNonUsedRegisteredTCPPortError(
-                    "ERROR: something went wrong in the management of the registeredTCP ports. We're trying to free a ports, but none is used!")
+                    "ERROR: something went wrong in the management of the registered TCP ports. We're trying to free a ports, but none is used!")
         else:
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
@@ -106,16 +111,15 @@ class TCPPortManager:
         :param port: porta da segnare come occupata
         """
 
-        if self.get_port_type(port) == "dynamic":
+        if self.get_port_type(port) == "Dynamic":
             self.__used_dynamic_ports_counter += 1
             self.__dynamic_ports_available[port] = False
 
-        elif self.get_port_type(port) == "registered":
+        elif self.get_port_type(port) == "Registered":
             self.__used_registered_ports_counter += 1
             self.__registered_ports_available[port] = False
 
         else:
-            # print("ERROR: invalid TCP port.")
             raise InvalidTCPPortError("ERROR: invalid TCP port.")
 
     def _check_if_port_is_open(self, port):

@@ -33,6 +33,9 @@ def menu_node_create_and_join():
         except NoAvailableTCPPortsError:  # Errore porte finite
             print("ERROR: No available TCP ports. Node creation is not possible.")
             break  # esco dal loop
+        except InvalidTCPPortError:
+            print("ERROR: Something went wrong while getting a free TCP port. Please retry.")
+            break  # esco dal loop
 
         try:
             tcp_port_manager.mark_port_as_used(port)
