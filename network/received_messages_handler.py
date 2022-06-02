@@ -51,7 +51,7 @@ class ReceivedMessagesHandler:
 
         if self.__debug_mode:
             print(
-                f"DEBUG: {self.__my_node.get_node_info().get_port()}: Just received a message from {sender_port} with type {message.get_type()}")
+                f"\nDEBUG: {self.__my_node.get_node_info().get_port()}: Just received a message from {sender_port} with type {message.get_type()}")
 
         # notify
         if message.get_type() == MSG_TYPE_NOTIFY:

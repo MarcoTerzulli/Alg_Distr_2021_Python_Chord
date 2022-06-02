@@ -272,13 +272,13 @@ class Node:
             pass
 
         if self.__debug_mode:
-            print(f"DEBUG: {self.__node_info.get_port()}: Successfully Joined the Periodic Operations Manager")
+            print(f"\nDEBUG: {self.__node_info.get_port()}: Successfully Joined the Periodic Operations Manager")
 
         try:
             if not self.__successor_node_list.is_empty():
 
                 if self.__debug_mode:
-                    print(f"DEBUG: {self.__node_info.get_port()}: Sending the Leaving Predecessor to my Successor")
+                    print(f"\nDEBUG: {self.__node_info.get_port()}: Sending the Leaving Predecessor to my Successor")
 
                 # invio il messaggio al mio successore, comunicandogli il mio predecessore
                 self.__tcp_request_sender_handler.send_leaving_predecessor_request(
@@ -289,7 +289,7 @@ class Node:
             if self.__predecessor_node:
 
                 if self.__debug_mode:
-                    print(f"DEBUG: {self.__node_info.get_port()}: Sending the Leaving Successor to my Predecessor")
+                    print(f"\nDEBUG: {self.__node_info.get_port()}: Sending the Leaving Successor to my Predecessor")
 
                 # invio il messaggio al mio predecessore, comunicandogli il mio successore
                 self.__tcp_request_sender_handler.send_leaving_successor_request(self.__predecessor_node,
@@ -352,17 +352,17 @@ class Node:
 
             if self.__debug_mode:
                 print(
-                    f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
+                    f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
                 print(
-                    f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
+                    f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
                 self.__successor_node_list.print()
 
             # todo debug
             print(
-                f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
+                f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
             # todo debug
             print(
-                f"DEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
+                f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
             # todo debug
             self.__successor_node_list.print()
 
@@ -876,7 +876,7 @@ class Node:
         Metodo di debug per la stampa dello stato del processo del server tcp
         """
 
-        print(f"DEBUG: The TCP Server's Process Status is {self.__tcp_request_sender_handler.is_tcp_server_alive()}")
+        print(f"\nDEBUG: The TCP Server's Process Status is {self.__tcp_request_sender_handler.is_tcp_server_alive()}")
 
     def set_debug_mode(self, debug_mode):
         """

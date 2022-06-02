@@ -43,7 +43,7 @@ class NodePeriodicOperationsThread(Thread):
 
                 if self.__debug_mode:
                     print(
-                        f"Running the Periodic Operations of the Node with Port {self.__this_node.get_node_info().get_port()}...")
+                        f"\nDEBUG: Running the Periodic Operations of the Node with Port {self.__this_node.get_node_info().get_port()}...")
 
                 self.__this_node.stabilize()
                 self.__this_node.fix_finger()
