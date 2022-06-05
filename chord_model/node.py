@@ -557,6 +557,7 @@ class Node:
         return None
 
     def search_the_smallest_node_test(self):
+        print(f"{self.__node_info.get_port()} -- SEARCH SMALLEST NODE")
         if self.__successor_node_list.is_empty():
             return self.__node_info
 
@@ -566,22 +567,31 @@ class Node:
         start_time = current_millis_time()
 
         while future_successor.get_node_id() > self.get_node_info().get_node_id() and current_millis_time() - start_time <= self.__tcp_request_timeout:
+            print(f"{self.__node_info.get_port()} -- fut succ attuale {future_successor.get_port()}")
+
             try:
                 future_successor = self.__tcp_request_sender_handler.send_get_first_successor_request(future_successor)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                print("richiesta andata in timeout")
                 return None
 
             if not future_successor:
+                print("Non ho ricevuto successori")
                 return None
+            else:
+                print(f"Ho ricevuto {future_successor.get_port()}")
 
         # La richiesta è andata in timeout
         if current_millis_time() - start_time > self.__tcp_request_timeout:
+            print("Richiesta andata in timeout (sono fuori dal loop)")
             return None
 
         if future_successor.get_node_id() < self.get_node_info().get_node_id():
+            print(f"Il primo nodo è {future_successor.get_port()}")
             # è il primo nodo
             return future_successor
         else:
+            print("Il primo nodo sono io")
             # sono io il primo nodo
             return self.__node_info
 
