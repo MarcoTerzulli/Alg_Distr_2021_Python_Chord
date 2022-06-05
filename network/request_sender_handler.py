@@ -1,3 +1,5 @@
+import threading
+
 from network.received_messages_handler import ReceivedMessagesHandler
 from network.socket_node import SocketNode
 from network.messages import *
@@ -19,7 +21,9 @@ class RequestSenderHandler:
         """
 
         self.__my_node = my_node
+        self.__my_node_info = self.__my_node.get_node_info()
         self.__ticket_counter = 0
+        self.__lock = threading.Lock()
         self.__waiting_tickets = list()
         self.__received_answers_unprocessed = dict()
         self.__CONST_TCP_REQUEST_TIMEOUT = tcp_request_timeout
@@ -52,20 +56,20 @@ class RequestSenderHandler:
     # ************************ METODI MESSAGGI CHORD *****************************
 
     # sembra ok
-    def send_notify(self, destination_node_info, sender_node_info):
+    def send_notify(self, destination_node_info):
         """
         Creazione e invio di un messaggio di notifica
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :return files: dizionario degli eventuali file che ora sono assegnati al nodo sender
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         notify_request_message = NotifyRequestMessage(destination_node_info, sender_node_info, message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), notify_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -93,22 +97,22 @@ class RequestSenderHandler:
         return answer.get_files()
 
     # sembra ok
-    def send_get_predecessor_request(self, destination_node_info, sender_node_info):
+    def send_get_predecessor_request(self, destination_node_info):
         """
         Creazione e invio di un messaggio get predecessor request.
         Consente di ottenere il predecessore del nodo destinatario
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :return: il predecessore del nodo destinatario, se esiste
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         predecessor_request_message = GetPredecessorRequestMessage(destination_node_info, sender_node_info,
                                                                    message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), predecessor_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), predecessor_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -136,22 +140,22 @@ class RequestSenderHandler:
         return answer.get_predecessor_node_info()
 
     # sembra ok
-    def send_get_first_successor_request(self, destination_node_info, sender_node_info):
+    def send_get_first_successor_request(self, destination_node_info):
         """
         Creazione e invio di un messaggio first successor request.
         Consente di ottenere il primo nodo successore del nodo destinatario
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :return: il primo successore del nodo destinatario, se esiste
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         first_successor_request_message = GetFirstSuccessorRequestMessage(destination_node_info, sender_node_info,
                                                                           message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), first_successor_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), first_successor_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -179,24 +183,23 @@ class RequestSenderHandler:
         return answer.get_successor_node_info()
 
     # sembra ok
-    def send_search_key_successor_request(self, destination_node_info, key, sender_node_info):
-        # async def send_successor_request(self, destination_node_info, key, sender_node_info):
+    def send_search_key_successor_request(self, destination_node_info, key):
         """
         Creazione e invio di un messaggio search successor request.
         Consente di ottenere il nodo successore della key specificata
 
         :param destination_node_info: node info del nodo di destinazione
         :param key: la chiave del nodo di cui il mittente sta cercando il successore
-        :param sender_node_info: node info del nodo mittente
         :return: il successore del nodo destinatario, se esiste
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         successor_request_message = SearchKeySuccessorRequestMessage(destination_node_info, key, sender_node_info,
                                                                      message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), successor_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), successor_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -221,30 +224,25 @@ class RequestSenderHandler:
         except TCPRequestSendError:
             raise TCPRequestSendError
 
-        # TODO debug
-        # if answer.get_successor_node_info():
-        #     print(
-        #         f"send_successor_request - get_successor_node_info - {answer.get_successor_node_info().get_port()}")
-
         return answer.get_successor_node_info()
 
     # sembra ok
-    def send_youre_not_alone_anymore_request(self, destination_node_info, sender_node_info):
+    def send_youre_not_alone_anymore_request(self, destination_node_info):
         """
         Creazione e invio di un messaggio you're not alone anymore request.
         Consente di informare il nodo destinatario che non è più solo nella rete Chord
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :return: lo stato di solitudine precedente del nodo destinatario
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         youre_not_alone_anymore_request_message = YoureNotAloneRequestMessage(destination_node_info, sender_node_info,
                                                                               message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), youre_not_alone_anymore_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), youre_not_alone_anymore_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -272,24 +270,23 @@ class RequestSenderHandler:
         return answer.destination_node_was_alone()
 
     # forse ok
-    def send_leaving_predecessor_request(self, destination_node_info, sender_node_info, new_predecessor_node_info,
-                                         files):
+    def send_leaving_predecessor_request(self, destination_node_info, new_predecessor_node_info, files):
         """
         Creazione e invio di un messaggio leaving predecessor.
         Consente di notificare che il predecessore del destinatario sta lasciando chord
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :param new_predecessor_node_info: node info del nuovo predecessore
         :param files: file da trasferire
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         leaving_request_message = LeavingPredecessorRequestMessage(destination_node_info, sender_node_info,
                                                                    message_ticket, new_predecessor_node_info, files)
-        self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -315,22 +312,22 @@ class RequestSenderHandler:
             raise TCPRequestSendError
 
     # forse ok
-    def send_leaving_successor_request(self, destination_node_info, sender_node_info, new_successor_node_info):
+    def send_leaving_successor_request(self, destination_node_info, new_successor_node_info):
         """
         Creazione e invio di un messaggio leaving successor.
         Consente di notificare che il successore del destinatario sta lasciando chord
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :param new_successor_node_info: node info del nuovo nodo successore
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         leaving_request_message = LeavingSuccessorRequestMessage(destination_node_info, sender_node_info,
                                                                  message_ticket, new_successor_node_info)
-        self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), leaving_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -356,22 +353,25 @@ class RequestSenderHandler:
             raise TCPRequestSendError
 
     # sembra ok
-    def send_search_the_smallest_node_request(self, destination_node_info, sender_node_info):
+    def send_search_the_smallest_node_request(self, destination_node_info):
         """
         Creazione e invio di un messaggio search the smallest node request.
         Consente di cercare il nodo con il più piccolo id presente nella rete Chord
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         :return: node info del più piccolo nodo nella rete chord
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         search_the_smallest_node_request_message = SearchSmallestNodeRequestMessage(destination_node_info, sender_node_info,
                                                                               message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), search_the_smallest_node_request_message)
+        print(
+            f"Nodo {self.__my_node.get_node_info().get_port()}, send search smallest: in attesa di risposta al ticket {message_ticket}")
+
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), search_the_smallest_node_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -384,7 +384,12 @@ class RequestSenderHandler:
 
         # La richiesta è andata in timeout
         if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
+            print(
+                f"Nodo {self.__my_node.get_node_info().get_port()}, timer expired per il ticket {message_ticket}")
             raise TCPRequestTimerExpiredError
+
+        print(
+            f"Nodo {self.__my_node.get_node_info().get_port()}, ricevuta risposta al ticket {message_ticket}")
 
         # Processo la risposta
         answer = self.__received_answers_unprocessed[message_ticket]
@@ -401,23 +406,23 @@ class RequestSenderHandler:
     # ************************ METODI MESSAGGI FILE *****************************
 
     # forse ok
-    def send_publish_request(self, destination_node_info, sender_node_info, key, file):
+    def send_publish_request(self, destination_node_info, key, file):
         """
          Creazione e invio di un messaggio file publish.
          Consente di inserire un file all'interno della rete chord
 
          :param destination_node_info: node info del nodo di destinazione
-         :param sender_node_info: node info del nodo mittente
          :param key: chiave del file da pubblicare
          :param file: il file da pubblicare
          """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         file_publish_request_message = FilePublishRequestMessage(destination_node_info, sender_node_info,
                                                                  message_ticket, key, file)
-        self.__socket_node.send_message(destination_node_info.get_port(), file_publish_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), file_publish_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -443,23 +448,23 @@ class RequestSenderHandler:
             raise TCPRequestSendError
 
     # forse ok
-    def send_file_request(self, destination_node_info, sender_node_info, key):
+    def send_file_request(self, destination_node_info, key):
         """
          Creazione e invio di un messaggio file request
          Consente di ottenere un file dalla rete chord, se presente
 
          :param destination_node_info: node info del nodo di destinazione
-         :param sender_node_info: node info del nodo mittente
          :param key: chiave del file richiesto
          :return file: il file richiesto
          """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         file_request_message = FileRequestMessage(destination_node_info, sender_node_info,
                                                   message_ticket, key)
-        self.__socket_node.send_message(destination_node_info.get_port(), file_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), file_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -487,22 +492,22 @@ class RequestSenderHandler:
         return answer.get_file()
 
     # forse ok
-    def send_delete_file_request(self, destination_node_info, sender_node_info, key):
+    def send_delete_file_request(self, destination_node_info, key):
         """
          Creazione e invio di un messaggio file delete.
          Consente di eliminare un file all'interno della rete chord, se presente
 
          :param destination_node_info: node info del nodo di destinazione
-         :param sender_node_info: node info del nodo mittente
          :param key: chiave del file da eliminare
          """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         file_delete_request_message = FileDeleteRequestMessage(destination_node_info, sender_node_info,
                                                                message_ticket, key)
-        self.__socket_node.send_message(destination_node_info.get_port(), file_delete_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), file_delete_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -530,20 +535,20 @@ class RequestSenderHandler:
     # ************************ METODI MESSAGGI RETE *****************************
 
     # forse ok
-    def send_ping(self, destination_node_info, sender_node_info):
+    def send_ping(self, destination_node_info):
         """
         Creazione e invio di un messaggio ping.
         Consente di verificare se il nodo destinatario è ancora presente nella rete ed è operativo
 
         :param destination_node_info: node info del nodo di destinazione
-        :param sender_node_info: node info del nodo mittente
         """
 
         # Generazione ticket e invio del messaggio
         message_ticket = self._get_ticket()
+        sender_node_info = self.__my_node_info
         ping_request_message = PingRequestMessage(destination_node_info, sender_node_info, message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), ping_request_message)
         self.__waiting_tickets.append(message_ticket)
+        self.__socket_node.send_message(destination_node_info.get_port(), ping_request_message)
 
         # Resto in attesa della risposta
         sent_time = current_millis_time()
@@ -570,24 +575,15 @@ class RequestSenderHandler:
 
     # ******************* METODI INTERNI PER GESTIONE MESSAGGI *********************
 
-    # TODO da verificare
     # forse ok
     def add_answer(self, message):
 
         if message.get_ticket() not in self.__received_answers_unprocessed:
             self.__received_answers_unprocessed[message.get_ticket()] = message
 
-            # print("Primo messaggio ricevuto")
-
-            # # todo debug
-            # print(
-            #     f"Sono il nodo: {self.__my_node.get_node_info().get_port()} -- aggiungo la risposta a quelle da processare -- ticket {message.get_ticket()}\n\n")
-
-        else:  # todo debug
-            print("Ho già un messaggio con questo ticket -- esco")
-
     def _get_ticket(self):
-        self.__ticket_counter += 1
+        with self.__lock:
+            self.__ticket_counter += 1
         return self.__ticket_counter
 
     def tcp_process_message(self, sender_ip, sender_port, message):
@@ -601,16 +597,9 @@ class RequestSenderHandler:
         :param message: messaggio ricevuto
         """
 
-        # message_request_types = [MSG_TYPE_NOTIFY, MSG_TYPE_PREC_RQST, MSG_TYPE_SUCC_RQST, MSG_TYPE_FIND_PREC_RQST,
-        #                          MSG_TYPE_FIND_SUCC_RQST, MSG_TYPE_LEAVE_PREC_RQST, MSG_TYPE_LEAVE_SUCC_RQST,
-        #                          MSG_TYPE_FIRST_SUCC_RQST, MSG_TYPE_FILE_PBLSH_RQST, MSG_TYPE_FILE_DEL_RQST,
-        #                          MSG_TYPE_FILE_RQST_RQST, MSG_TYPE_PING]
-
         if message:
             if message.get_type() == MSG_TYPE_ANSWER:
                 self.__received_answers_unprocessed[message.get_ticket()] = message
-            # elif message.get_type() in message_request_types:
-            #     self.__my_node.process_message_request(message)
 
     def answer_received(self, message_ticket):
         """

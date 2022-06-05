@@ -377,6 +377,8 @@ class Chord:
         except InvalidPeriodicOperationsTimeoutError:
             raise InvalidPeriodicOperationsTimeoutError
 
+        self.__periodic_operations_timeout = periodic_operations_timeout
+
         for key, node in self.__node_dict.items():
             if node:
                 node.set_periodic_operations_timeout(periodic_operations_timeout)

@@ -72,8 +72,9 @@ class SocketNode(Thread):
             try:
                 tcp_client.tcp_client_connect_and_send_message(port=destination_port, message=message)
             except TCPRequestSendError:
-                # print(
-                #     f"ERROR: Node with port {self.__port}: message to the node on port {destination_port} not delivered. I\'ll retry soon.")
+                if self.__debug_mode:
+                    print(
+                        f"ERROR: Node with port {self.__port}: message to the node on port {destination_port} not delivered. I\'ll retry soon.")
                 retries += 1
             else:
                 break

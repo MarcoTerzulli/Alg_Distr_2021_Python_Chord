@@ -49,6 +49,14 @@ class ReceivedMessagesHandler:
         sender_port = message.get_sender_node_info().get_port()
         ticket = message.get_ticket()
 
+        if message.get_type() == MSG_TYPE_ANSWER and type(message) == SearchSmallestNodeAnswerMessage:
+            print(
+                f"\nDEBUG: {self.__my_node.get_node_info().get_port()}: Just received a message from {sender_port} with type {message.get_type()} and ticket {ticket}")
+            if message.get_smallest_node_info():
+                print(f"Il più piccolo è {message.get_smallest_node_info().get_port()}")
+            else:
+                print(f"Il più piccolo è None")
+
         if self.__debug_mode:
             print(
                 f"\nDEBUG: {self.__my_node.get_node_info().get_port()}: Just received a message from {sender_port} with type {message.get_type()}")
@@ -115,8 +123,12 @@ class ReceivedMessagesHandler:
         # search smallest node request
         elif message.get_type() == MSG_TYPE_SEARCH_SMALLEST_NODE_RQST:
             smallest_node_found = self.__my_node.search_the_smallest_node()
+            if smallest_node_found:
+                print(
+                    f"{self.__my_node.get_node_info().get_port()} -- invio a {dest.get_port()} il nodo {smallest_node_found.get_port()} -- ticket {ticket}")
             answer = SearchSmallestNodeAnswerMessage(dest, send, smallest_node_found, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
+            print(f"{self.__my_node.get_node_info().get_port()} -- messaggio {ticket} inviato con successo")
 
         # file publish request
         elif message.get_type() == MSG_TYPE_FILE_PBLSH_RQST:
