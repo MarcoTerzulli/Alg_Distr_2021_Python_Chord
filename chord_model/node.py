@@ -527,7 +527,6 @@ class Node:
         :return: il node info del nodo più piccolo; None se non l'ho trovato
         """
 
-        print(f"{self.__node_info.get_port()} -- SEARCH SMALLEST NODE")
         if self.__successor_node_list.is_empty():
             return self.__node_info
 
@@ -538,31 +537,23 @@ class Node:
 
         while future_successor.get_node_id() > self.get_node_info().get_node_id() and current_millis_time() - start_time <= (
                 self.__tcp_request_timeout * 3):
-            print(f"{self.__node_info.get_port()} -- fut succ attuale {future_successor.get_port()}")
 
             try:
                 future_successor = self.__tcp_request_sender_handler.send_get_first_successor_request(future_successor)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                print("richiesta andata in timeout")
                 return None
 
             if not future_successor:
-                print("Non ho ricevuto successori")
                 return None
-            else:
-                print(f"Ho ricevuto {future_successor.get_port()}")
 
         # La richiesta è andata in timeout
         if current_millis_time() - start_time > (self.__tcp_request_timeout * 3):
-            print("Richiesta andata in timeout (sono fuori dal loop)")
             return None
 
         if future_successor.get_node_id() < self.get_node_info().get_node_id():
-            print(f"Il primo nodo è {future_successor.get_port()}")
             # è il primo nodo
             return future_successor
         else:
-            print("Il primo nodo sono io")
             # sono io il primo nodo
             return self.__node_info
 
@@ -769,28 +760,18 @@ class Node:
         :param file: file da pubblicare
         """
 
-        print(f"\n\nPUT FILE of the node {self.__node_info.get_port()}")  # todo debug
-
         if self.__im_alone:
             successor_node_info = self.__node_info
         else:
-            print(f"\n\nPUT FILE {self.__node_info.get_port()}: invoco il find key successor")  # todo debug
             successor_node_info = self.find_key_successor(key)
 
         if not successor_node_info:
-            print(f"\n\nPUT FILE {self.__node_info.get_port()}: non ho trovato successori")  # todo debug
-
             # cerco il più piccolo nodo sulla rete
             if not self.__successor_node_list.is_empty():
                 successor_node_info = self._search_the_smallest_node_in_chord()
-                if not successor_node_info:
-                    print(f"smallest node not found")  # todo debug
 
             else:
                 successor_node_info = self.__node_info
-                print(f"\n\nPUT FILE {self.__node_info.get_port()}: successor list empty")  # todo debug
-        else:
-            print(f"\n\nPUT FILE {self.__node_info.get_port()}: il successore sono io")  # todo debug
 
         if not self.__node_info.equals(successor_node_info):
             try:
