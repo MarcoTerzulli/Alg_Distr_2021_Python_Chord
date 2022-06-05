@@ -8,17 +8,20 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self, max_node_initialization_retries=3, periodic_operations_timeout=5000, debug_mode=False):
+    def __init__(self, max_node_initialization_retries=3, max_file_publish_retires=5, periodic_operations_timeout=5000,
+                 debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
 
         :param max_node_initialization_retries: il massimo numero di tentativi di inizializzazione di un nodo (opzionale)
+        :param max_file_publish_retires: il massimo numero di tentativi di pubblicazione di un file (opzionale)
         :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
         :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__node_dict = dict()
         self.__CONST_MAX_NODE_INITALIZATION_RETRIES = max_node_initialization_retries
+        self.__CONST_MAX_FILE_PUBLISH_RETRIES = max_file_publish_retires
 
         try:
             periodic_op_timeout_is_valid(periodic_operations_timeout)
@@ -54,7 +57,8 @@ class Chord:
 
         new_node_info = NodeInfo(port=port)
         try:
-            new_node = Node(new_node_info, periodic_operations_timeout=self.__periodic_operations_timeout, debug_mode=self.__debug_mode)
+            new_node = Node(new_node_info, periodic_operations_timeout=self.__periodic_operations_timeout,
+                            debug_mode=self.__debug_mode)
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
@@ -121,15 +125,27 @@ class Chord:
         if not file:
             raise InvalidFileError
 
-        # ottengo un nodo randomicamente
-        random_node = self._get_random_node()
-
-        # chord è vuoto
-        if not random_node:
-            raise ChordIsEmptyError
-
         file_key = hash_function(file.get_name())
-        random_node.put_file(file_key, file)
+
+        retries = 0
+        while retries < self.__CONST_MAX_FILE_PUBLISH_RETRIES:
+            # ottengo un nodo randomicamente
+            random_node = self._get_random_node()
+
+            # chord è vuoto
+            if not random_node:
+                raise ChordIsEmptyError
+
+            try:
+                random_node.put_file(file_key, file)
+            except FileSuccessorNotFoundError:
+                retries += 1
+            else:
+                break
+
+        if retries == self.__CONST_MAX_FILE_PUBLISH_RETRIES:
+            print(f"\nFile key {file_key}\n") # todo debug
+            raise ImpossibleFilePublishError
 
         return file_key
 
@@ -347,7 +363,6 @@ class Chord:
         for key, node in self.__node_dict.items():
             if node:
                 node.set_debug_mode(debug_mode)
-
 
     def set_node_periodic_operations_timeout(self, periodic_operations_timeout):
         """

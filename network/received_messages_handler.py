@@ -63,7 +63,10 @@ class ReceivedMessagesHandler:
 
         # get predecessor request
         elif message.get_type() == MSG_TYPE_GET_PREC_RQST:
-            found_predecessor = self.__my_node.get_predecessor()
+            try:
+                found_predecessor = self.__my_node.get_predecessor()
+            except NoPrecedessorFoundError:
+                found_predecessor = None
             answer = GetPredecessorAnswerMessage(dest, send, found_predecessor, ticket)
             self.__my_socket_node.send_message(sender_port, answer)
 

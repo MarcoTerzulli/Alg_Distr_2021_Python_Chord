@@ -44,6 +44,6 @@ def periodic_op_timeout_is_valid(periodic_operations_timeout):
     """
 
     try:
-        assert 500 <= periodic_operations_timeout <= 300000
+        assert 100 <= periodic_operations_timeout <= 300000
     except AssertionError:
         raise InvalidPeriodicOperationsTimeoutError

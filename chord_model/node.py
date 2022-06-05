@@ -7,7 +7,7 @@ from chord_model.finger_table import *
 from chord_model.node_periodic_operations_thread import NodePeriodicOperationsThread
 from chord_model.successor_list import SuccessorList
 from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSuccessorFoundError, \
-    ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError
+    ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError, FileSuccessorNotFoundError
 from network.request_sender_handler import RequestSenderHandler
 
 
@@ -472,7 +472,8 @@ class Node:
                 # caso in cui non ho trovato nessun successore operativo
 
                 # utilizzo il mio primo finger funzionante
-                first_working_finger_node_info = self._get_the_first_working_finger(0)
+                # first_working_finger_node_info = self._get_the_first_working_finger(0)
+                first_working_finger_node_info = self._get_the_first_working_finger(1) # i finger partono da 1!
                 self.__successor_node_list.insert(0, first_working_finger_node_info)
             else:
                 index_of_working_successor_node = index_of_possible_working_successor_node  # per chiarezza
@@ -725,12 +726,19 @@ class Node:
         :param file: file da pubblicare
         """
 
-        # Inserimento nella rete
-        successor_node_info = self.find_key_successor(key)
+        if self.__im_alone:
+            successor_node_info = self.__node_info
+        else:
+            successor_node_info = self.find_key_successor(key)
+
+        if not successor_node_info:
+            raise FileSuccessorNotFoundError
 
         if not self.__node_info.equals(successor_node_info):
             self.__tcp_request_sender_handler.send_publish_request(successor_node_info, self.__node_info, key,
                                                                    file)
+        else:
+            self.put_file_here(key, file)
 
     def put_file_here(self, key, file):
         """
@@ -752,8 +760,13 @@ class Node:
         :return file: il file cercato
         """
 
-        # Ricerca e restituzione di un file nella rete
-        successor_node_info = self.find_key_successor(key)
+        if self.__im_alone:
+            successor_node_info = self.__node_info
+        else:
+            successor_node_info = self.find_key_successor(key)
+
+        if not successor_node_info:
+            raise FileNotFoundError
 
         if self.__node_info.equals(successor_node_info):
             file = self.get_my_file(key)
@@ -784,8 +797,13 @@ class Node:
         :param key: chiave del file da eliminare
         """
 
-        # Ricerca e rimozione di un file nella rete
-        successor_node_info = self.find_key_successor(key)
+        if self.__im_alone:
+            successor_node_info = self.__node_info
+        else:
+            successor_node_info = self.find_key_successor(key)
+
+        if not successor_node_info:
+            raise FileNotFoundError
 
         if self.__node_info.equals(successor_node_info):
             self.delete_my_file(key)

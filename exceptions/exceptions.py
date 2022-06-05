@@ -143,3 +143,22 @@ class InvalidPeriodicOperationsTimeoutError(Exception):
     periodiche di un nodo. Timeout invalido.
     """
     pass
+
+class FileSuccessorNotFoundError(Exception):
+    """
+    Eccezione generata nel tentativo di ricerca del responsabile di un nuovo file.
+    Successore (responsabile) non trovato.
+    """
+    pass
+
+class ImpossibleFilePublishError(Exception):
+    """
+    Eccezione generata nel tentativo fallito di pubblicazione di un file nella rete.
+    """
+    pass
+
+class FileNotFoundError(Exception):
+    """
+    Eccezione generata nel tentativo ricerca di un file. File non trovato
+    """
+    pass

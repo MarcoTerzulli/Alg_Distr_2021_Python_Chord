@@ -1,3 +1,5 @@
+import copy
+
 from exceptions.exceptions import FileKeyError
 
 
@@ -30,7 +32,7 @@ class FileSystem:
         try:
             self.__file_dict[key] = file
         except TypeError:
-            pass # può avvenire nel momento della terminazione dell'app
+            pass  # può avvenire nel momento della terminazione dell'app
 
     def get_file(self, key):
         """
@@ -84,11 +86,21 @@ class FileSystem:
         """
 
         new_file_dict = dict()
+        keys_to_be_deleted_list = list()
+
+        # for key in self.__file_dict.keys():
+        #     if key < new_node_id:  # TODO da verificare - dovrebbe essere ok
+        #         new_file_dict[key] = self.__file_dict[key]
+        #         del self.__file_dict[key]
 
         for key in self.__file_dict.keys():
-            if key < new_node_id:  # TODO da verificare - dovrebbe essere ok
-                new_file_dict[key] = self.__file_dict[key]
-                del self.__file_dict[key]
+            if (key < new_node_id and new_node_id < self.__node_id) or key < self.__node_id:  # TODO da verificare - dovrebbe essere ok
+                new_file_dict[key] = copy.deepcopy(self.__file_dict[key])
+                keys_to_be_deleted_list.append(key)
+
+        # la rimozione dal dizionario va fatta fuori dal for, altrimenti viene generato errore
+        for key in keys_to_be_deleted_list:
+            del self.__file_dict[key]
 
         return new_file_dict
 

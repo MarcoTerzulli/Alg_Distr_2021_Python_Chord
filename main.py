@@ -16,7 +16,7 @@ global tcp_port_manager
 DEBUG_MODE = False
 DEBUG_MENU_ENABLED = True
 MAX_INITALIZATION_RETRIES = 10
-PERIODIC_OP_TIMEOUT = 3000
+PERIODIC_OP_TIMEOUT = 2500
 
 
 # ********+++++******* Gestione Funzioni menu princiale ********************
@@ -122,6 +122,8 @@ def menu_file_insert():
         print("ERROR: Chord is empty! Please create a node and retry.")
     except KeyboardInterrupt:
         exit_from_the_application(chord)
+    except ImpossibleFilePublishError:
+        print("ERROR: Unexpected error while trying to publish the file. Please wait for the network stabilization and retry.")
     else:
         print(f"Successfully published the file with key {file_key}.")
 
@@ -316,7 +318,7 @@ def debug_menu_print_node_file_system():
 def debug_menu_set_node_periodic_operations_timeout():
     try:
         operations_timeout = int(
-            input(f"\nWhat's the new timeout (in ms)? Accepted values between 500 and 300000 ms \n"))
+            input(f"\nWhat's the new timeout (in ms)? Accepted values between 100 and 300000 ms \n"))
     except KeyboardInterrupt:
         exit_from_the_application(chord)
         # il programma dovrebbe terminare prima di questo return
