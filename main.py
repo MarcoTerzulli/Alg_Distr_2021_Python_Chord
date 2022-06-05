@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-
+from chord_model.simple_file import SimpleFile
 from network.tcp_port_manager import *
 from chord_model.chord import *
 from exceptions.exceptions import *
@@ -17,15 +16,12 @@ global tcp_port_manager
 DEBUG_MODE = False
 DEBUG_MENU_ENABLED = True
 MAX_INITALIZATION_RETRIES = 10
-
-
-# chord = None
-# tcp_port_manager = None
+PERIODIC_OP_TIMEOUT = 3000
 
 
 # ********+++++******* Gestione Funzioni menu princiale ********************
 
-def exid_from_the_application(chord):
+def exit_from_the_application(chord):
     # terminazione e join nodi chord per uscita pulita
     chord.node_delete_all()
     del chord
@@ -68,14 +64,17 @@ def menu_node_create_and_join():
                 print(f"Successfully created node on TCP Port {port} ({tcp_port_manager.get_port_type(port)} Port)")
                 break  # Se tutto è andato bene, esco dal loop
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
 
 
 def menu_node_delete():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node that you want to delete?\n"))
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
         print("ERROR: Invalid Port Value!")
         return
@@ -85,7 +84,7 @@ def menu_node_delete():
     except NoNodeFoundOnPortError:
         print("ERROR: No node found on this TCP port!")
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
     else:
         print(f"Successfully deleted the node on the TCP port {selected_port}.")
 
@@ -95,29 +94,34 @@ def menu_node_delete():
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
 
 
 def menu_file_insert():
     try:
-        file_data = input(f"\nInsert the file data: \n")
+        file_name = input(f"\nInsert the file name: \n")
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
-
-    try:
-        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
-    except KeyboardInterrupt:
-        exid_from_the_application(chord)
-    except ValueError:
-        print("ERROR: Invalid Port Value!")
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
         return
 
     try:
-        file_key = chord.file_publish(selected_port, file_data)
-    except NoNodeFoundOnPortError:
-        print("ERROR: No node found on this TCP port!")
+        file_data = input(f"\nInsert the file data: \n")
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
+
+    new_file = SimpleFile(file_name, file_data)
+
+    try:
+        file_key = chord.file_publish(new_file)
+    except ChordIsEmptyError:
+        print("ERROR: Chord is empty! Please create a node and retry.")
+    except KeyboardInterrupt:
+        exit_from_the_application(chord)
     else:
         print(f"Successfully published the file with key {file_key}.")
 
@@ -125,26 +129,26 @@ def menu_file_insert():
 def menu_file_search():
     try:
         file_key = input(f"\nInsert the file key: \n")
+        file_key = int(file_key)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
-
-    try:
-        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
-    except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
-        print("ERROR: Invalid Port Value!")
+        print("ERROR: Invalid File Key!")
         return
 
     try:
-        file = chord.file_lookup(selected_port, file_key)
-    except NoNodeFoundOnPortError:
-        print("ERROR: No node found on this TCP port!")
+        file = chord.file_lookup(file_key)
+    except ChordIsEmptyError:
+        print("ERROR: Chord is empty! Please create a node and retry.")
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
     else:
         if file:
-            print(f"Here's the requested file:\n{file}")
+            print(f"Here's the requested file:")
+            file.print()
         else:
             print("ERROR: File not found!")
 
@@ -152,23 +156,22 @@ def menu_file_search():
 def menu_file_delete():
     try:
         file_key = input(f"\nInsert the file key: \n")
+        file_key = int(file_key)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
-
-    try:
-        selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
-    except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
-        print("ERROR: Invalid Port Value!")
+        print("ERROR: Invalid File Key!")
         return
 
     try:
-        chord.file_delete(selected_port, file_key)
-    except NoNodeFoundOnPortError:
-        print("ERROR: No node found on this TCP port!")
+        chord.file_delete(file_key)
+    except ChordIsEmptyError:
+        print("ERROR: Chord is empty! Please create a node and retry.")
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
     else:
         print(f"Successfully deleted the file with key {file_key}.")
 
@@ -177,7 +180,10 @@ def menu_print_node_status():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
         print("ERROR: Invalid Port Value!")
         return
@@ -192,9 +198,9 @@ def menu_print_node_status():
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
 
 
 # ********+++++******* Gestione Funzioni menu debug ********************
@@ -203,7 +209,10 @@ def debug_menu_print_node_status_summary():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
         print("ERROR: Invalid Port Value!")
         return
@@ -218,16 +227,19 @@ def debug_menu_print_node_status_summary():
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
 
 
 def debug_menu_print_node_finger_table():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
         print("ERROR: Invalid Port Value!")
         return
@@ -242,16 +254,19 @@ def debug_menu_print_node_finger_table():
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
 
 
 def debug_menu_print_node_loneliness_state():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
         print("ERROR: Invalid Port Value!")
         return
@@ -266,16 +281,19 @@ def debug_menu_print_node_loneliness_state():
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
 
 
 def debug_menu_print_node_file_system():
     try:
         selected_port = int(input(f"\nWhat's the TCP port of the node?\n"))
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
     except ValueError:
         print("ERROR: Invalid Port Value!")
         return
@@ -290,9 +308,33 @@ def debug_menu_print_node_file_system():
         except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
             pass
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
     except KeyboardInterrupt:
-        exid_from_the_application(chord)
+        exit_from_the_application(chord)
+
+
+def debug_menu_set_node_periodic_operations_timeout():
+    try:
+        operations_timeout = int(
+            input(f"\nWhat's the new timeout (in ms)? Accepted values between 500 and 300000 ms \n"))
+    except KeyboardInterrupt:
+        exit_from_the_application(chord)
+        # il programma dovrebbe terminare prima di questo return
+        # inserito solo per sopprimere un warning
+        return
+    except ValueError:
+        print("ERROR: Invalid Timeout Value!")
+        return
+
+    try:
+        chord.set_node_periodic_operations_timeout(operations_timeout)
+    except KeyboardInterrupt:
+        exit_from_the_application(chord)
+    except InvalidPeriodicOperationsTimeoutError:
+        print("ERROR: Invalid Timeout Value!")
+        return
+
+    print(f"Successfully set the periodic nodes operations timeout to {operations_timeout}ms.")
 
 
 def debug_menu(DEBUG_MODE):
@@ -303,9 +345,9 @@ def debug_menu(DEBUG_MODE):
             "\nWARNING: You're in the Debug Menu.\nThe use of the debugging commands could make the application stop working properly.\nUse these commands at your own risk!")
 
         if DEBUG_MODE:
-            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
+            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
         else:
-            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Enable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
+            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Enable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
 
         # Stampa del menù di selezione
         try:
@@ -316,7 +358,10 @@ def debug_menu(DEBUG_MODE):
             else:
                 selected_op = selected_op[0]
         except KeyboardInterrupt:
-            exid_from_the_application(chord)
+            exit_from_the_application(chord)
+            # il programma dovrebbe terminare prima di questo return
+            # inserito solo per sopprimere un warning
+            return
         except (ValueError, IndexError):
             print("ERROR: invalid input!")
             continue
@@ -339,7 +384,10 @@ def debug_menu(DEBUG_MODE):
         elif int(selected_op) == 4:  # print del file system di un nodo
             debug_menu_print_node_file_system()
 
-        elif int(selected_op) == 5:  # abilita / disabilita stampe di debug
+        elif int(selected_op) == 5:  # impostazione del timeout per le operazioni periodiche
+            debug_menu_set_node_periodic_operations_timeout()
+
+        elif int(selected_op) == 6:  # abilita / disabilita stampe di debug
             if DEBUG_MODE:
                 DEBUG_MODE = False
             else:
@@ -357,6 +405,7 @@ def debug_menu(DEBUG_MODE):
 
 # Verifico che main.py sia stato invocato come main del nostro programma
 if __name__ == "__main__":
+    # TODO DA RIMUOVERE
     # Impostazione Modaliità multiprocessing
     # print(f"Chord running on {platform.system()} OS: ")
 
@@ -374,7 +423,7 @@ if __name__ == "__main__":
     new_node = None
     selected_op = None
 
-    chord = Chord(debug_mode=DEBUG_MODE)
+    chord = Chord(periodic_operations_timeout=PERIODIC_OP_TIMEOUT, debug_mode=DEBUG_MODE)
     tcp_port_manager = TCPPortManager()
 
     while not exit_flag:
@@ -444,7 +493,7 @@ if __name__ == "__main__":
         else:
             print("ERROR: Invalid selection!\n")
 
-    exid_from_the_application(chord)
+    exit_from_the_application(chord)
 else:
     if DEBUG_MODE:
         print("DEBUG: Another process is trying to run the main...")

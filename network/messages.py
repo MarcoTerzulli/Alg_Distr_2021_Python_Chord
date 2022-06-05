@@ -70,7 +70,7 @@ MSG_TYPE_YOURE_NOT_ALONE_RQST = "C7"  # You're Not Alone Request
 # *********** FILE *********
 MSG_TYPE_FILE_PBLSH_RQST = "F1"  # Publish Request
 MSG_TYPE_FILE_DEL_RQST = "F2"  # Delete File Request
-MSG_TYPE_FILE_RQST_RQST = "F2"  # File Request
+MSG_TYPE_FILE_RQST_RQST = "F3"  # File Request
 
 # *********** NETWORK *********
 MSG_TYPE_PING = "N1"  # Ping

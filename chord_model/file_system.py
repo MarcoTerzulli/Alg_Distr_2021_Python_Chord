@@ -27,7 +27,10 @@ class FileSystem:
         :param file: il file da inserire
         """
 
-        self.__file_dict[key] = file
+        try:
+            self.__file_dict[key] = file
+        except TypeError:
+            pass # può avvenire nel momento della terminazione dell'app
 
     def get_file(self, key):
         """
@@ -98,7 +101,8 @@ class FileSystem:
             print("The file system is empty")
         else:
             for key in self.__file_dict.keys():
-                print(f"Key {key}: {self.__file_dict[key]}")
+                print(f"Key {key}: ")
+                self.__file_dict[key].print()
 
     # ************************** METODI DI DEBUG *******************************
 

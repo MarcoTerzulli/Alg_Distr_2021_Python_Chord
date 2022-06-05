@@ -47,6 +47,11 @@ class Node:
         self.__tcp_request_sender_handler = None
 
         # attributi di rete
+        try:
+            periodic_op_timeout_is_valid(periodic_operations_timeout)
+        except InvalidPeriodicOperationsTimeoutError:
+            raise InvalidPeriodicOperationsTimeoutError
+
         self.__periodic_operations_timeout = periodic_operations_timeout
         self.__tcp_request_timeout = tcp_request_timeout
 
@@ -721,9 +726,10 @@ class Node:
         """
 
         # Inserimento nella rete
-        successor = self.find_key_successor(key)
-        if not self.__node_info.equals(successor.get_node_info):
-            self.__tcp_request_sender_handler.send_publish_request(successor.get_node_info(), self.__node_info, key,
+        successor_node_info = self.find_key_successor(key)
+
+        if not self.__node_info.equals(successor_node_info):
+            self.__tcp_request_sender_handler.send_publish_request(successor_node_info, self.__node_info, key,
                                                                    file)
 
     def put_file_here(self, key, file):
@@ -747,11 +753,12 @@ class Node:
         """
 
         # Ricerca e restituzione di un file nella rete
-        successor = self.find_key_successor(key)
-        if self.__node_info.equals(successor.get_node_info):
+        successor_node_info = self.find_key_successor(key)
+
+        if self.__node_info.equals(successor_node_info):
             file = self.get_my_file(key)
         else:
-            file = self.__tcp_request_sender_handler.send_file_request(successor.get_node_info(), self.__node_info, key)
+            file = self.__tcp_request_sender_handler.send_file_request(successor_node_info, self.__node_info, key)
 
         return file
 
@@ -778,11 +785,12 @@ class Node:
         """
 
         # Ricerca e rimozione di un file nella rete
-        successor = self.find_key_successor(key)
-        if self.__node_info.equals(successor.get_node_info):
+        successor_node_info = self.find_key_successor(key)
+
+        if self.__node_info.equals(successor_node_info):
             self.delete_my_file(key)
         else:
-            self.__tcp_request_sender_handler.send_delete_file_request(successor.get_node_info(), self.__node_info, key)
+            self.__tcp_request_sender_handler.send_delete_file_request(successor_node_info, self.__node_info, key)
 
     def delete_my_file(self, key):
         """
@@ -866,10 +874,8 @@ class Node:
         print(
             f"Node IP: {self.__node_info.get_ip()}\nNode Port: {self.__node_info.get_port()}\nNode ID: {self.__node_info.get_node_id()}\n")
 
-        print("\nNode File System:")
+        print("Node File System:")
         self.__file_system.print()
-
-        print(f"\nI'm Alone: {self.__im_alone}")
 
     def print_tcp_server_status(self):
         """
@@ -891,3 +897,19 @@ class Node:
         self.__file_system.set_debug_mode(debug_mode)
         self.__tcp_request_sender_handler.set_debug_mode(debug_mode)
         self.__node_periodic_operations_manager.set_debug_mode(debug_mode)
+
+    def set_periodic_operations_timeout(self, periodic_operations_timeout):
+        """
+        Metodo per la modifica del timeout tra le operazioni periodiche.
+        E' possibile scegliere un timeout tra 500ms (0.5s) e 300000ms (5min)
+
+        :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms
+        """
+
+        try:
+            periodic_op_timeout_is_valid(periodic_operations_timeout)
+        except InvalidPeriodicOperationsTimeoutError:
+            raise InvalidPeriodicOperationsTimeoutError
+
+        self.__periodic_operations_timeout = periodic_operations_timeout
+        self.__node_periodic_operations_manager.set_periodic_operations_timeout(self.__periodic_operations_timeout)

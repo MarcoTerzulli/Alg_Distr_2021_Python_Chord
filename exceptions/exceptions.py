@@ -122,3 +122,24 @@ class SuccessorListIsFullError(Exception):
     di successori che ha giò raggiunto la propria capienza
     """
     pass
+
+class ChordIsEmptyError(Exception):
+    """
+    Eccezione generata nel tentativo di esecuzione di operazioni che richiedono
+    l'ottenimento / l'utilizzo di nodi di chord, che però è vuoto.
+    """
+    pass
+
+class InvalidFileError(Exception):
+    """
+    Eccezione generata nel tentativo di inserimento di un file nella rete chord.
+    Il file è None.
+    """
+    pass
+
+class InvalidPeriodicOperationsTimeoutError(Exception):
+    """
+    Eccezione generata nel tentativo di aggiornamento del timeout delle operazioni
+    periodiche di un nodo. Timeout invalido.
+    """
+    pass

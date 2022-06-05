@@ -1,6 +1,8 @@
 import hashlib
 import time
 
+from exceptions.exceptions import InvalidPeriodicOperationsTimeoutError
+
 CONST_M = 160 # number of table entries (aka fingers)
 
 def hash_function(input_string):
@@ -35,3 +37,13 @@ def compute_finger(node_id, index):
 
     return (node_id + 2 ** (index - 1)) % (2 ** CONST_M)
 
+def periodic_op_timeout_is_valid(periodic_operations_timeout):
+    """
+    Funzione per verificare se il timeout delle operazioni periodiche è valido o meno
+    :param periodic_operations_timeout: timeout da verificare
+    """
+
+    try:
+        assert 500 <= periodic_operations_timeout <= 300000
+    except AssertionError:
+        raise InvalidPeriodicOperationsTimeoutError

@@ -1,7 +1,8 @@
 import threading
 from threading import Thread
 
-from utilities.chord_utils import current_millis_time
+from exceptions.exceptions import InvalidPeriodicOperationsTimeoutError
+from utilities.chord_utils import current_millis_time, periodic_op_timeout_is_valid
 
 
 class NodePeriodicOperationsThread(Thread):
@@ -76,3 +77,18 @@ class NodePeriodicOperationsThread(Thread):
         """
 
         self.__debug_mode = debug_mode
+
+    def set_periodic_operations_timeout(self, periodic_operations_timeout):
+        """
+        Metodo per la modifica del timeout tra le operazioni periodiche.
+        E' possibile scegliere un timeout tra 500ms (0.5s) e 300000ms (5min)
+
+        :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms
+        """
+
+        try:
+            periodic_op_timeout_is_valid(periodic_operations_timeout)
+        except InvalidPeriodicOperationsTimeoutError:
+            raise InvalidPeriodicOperationsTimeoutError
+
+        self.__periodic_operations_timeout = periodic_operations_timeout

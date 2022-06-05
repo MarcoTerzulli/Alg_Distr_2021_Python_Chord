@@ -8,16 +8,24 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self, max_node_initialization_retries=3, debug_mode=False):
+    def __init__(self, max_node_initialization_retries=3, periodic_operations_timeout=5000, debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
 
         :param max_node_initialization_retries: il massimo numero di tentativi di inizializzazione di un nodo (opzionale)
+        :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
         :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__node_dict = dict()
         self.__CONST_MAX_NODE_INITALIZATION_RETRIES = max_node_initialization_retries
+
+        try:
+            periodic_op_timeout_is_valid(periodic_operations_timeout)
+        except InvalidPeriodicOperationsTimeoutError:
+            raise InvalidPeriodicOperationsTimeoutError
+        self.__periodic_operations_timeout = periodic_operations_timeout
+
         self.__debug_mode = debug_mode
 
         if self.__debug_mode:
@@ -46,21 +54,21 @@ class Chord:
 
         new_node_info = NodeInfo(port=port)
         try:
-            new_node = Node(new_node_info, periodic_operations_timeout=3000, debug_mode=self.__debug_mode)
+            new_node = Node(new_node_info, periodic_operations_timeout=self.__periodic_operations_timeout, debug_mode=self.__debug_mode)
         except AlreadyUsedPortError:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
-        other_node = None
-        if self.__node_dict.__len__() >= 1:  # prendo un nodo randomicamente
-            other_node = copy.deepcopy(random.choice(list(self.__node_dict.values())).get_node_info())
+        # prendo un nodo randomicamente
+        other_node_info = self._get_random_node_info()
 
+        # ora posso aggiungere il nuovo nodo al dizionario
         self.__node_dict[port] = new_node
 
         retries = 0
         while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
-                new_node.initialize(other_node)
+                new_node.initialize(other_node_info)
             except ImpossibleInitializationError:
                 retries += 1
             else:
@@ -102,60 +110,63 @@ class Chord:
 
     # ************************** METODI RELATIVE AI FILE *******************************
 
-    # TODO da verificare
-    def file_publish(self, port, file):
+    def file_publish(self, file):
         """
         Inserimento di un file all'interno di Chord
 
-        :param port: porta del nodo chiamante
         :param file: il file da inserire nella rete
         :return key: la chiave del file
         """
 
-        file_name = file
-        file_key = hash_function(file_name)
+        if not file:
+            raise InvalidFileError
 
-        try:
-            found_node = self._find_node_in_dict(port)
-        except NoNodeFoundOnPortError:
-            raise NoNodeFoundOnPortError
+        # ottengo un nodo randomicamente
+        random_node = self._get_random_node()
 
-        found_node.put_file(file_key, file)
+        # chord è vuoto
+        if not random_node:
+            raise ChordIsEmptyError
+
+        file_key = hash_function(file.get_name())
+        random_node.put_file(file_key, file)
 
         return file_key
 
     # TODO da verificare
-    def file_lookup(self, key, port):
+    def file_lookup(self, key):
         """
         Ricerca del nodo responsabile della chiave key
 
         :param key: la chiave del file
-        :param port: porta del nodo chiamante
         :return file: il file richiesto, se presente
         """
 
-        try:
-            found_node = self._find_node_in_dict(port)
-        except NoNodeFoundOnPortError:
-            raise NoNodeFoundOnPortError
+        # ottengo un nodo randomicamente
+        random_node = self._get_random_node()
 
-        return found_node.get_file(key)
+        # chord è vuoto
+        if not random_node:
+            raise ChordIsEmptyError
+
+        return random_node.get_file(key)
 
     # TODO da verificare
-    def file_delete(self, key, port):
+    def file_delete(self, key):
         """
         Rimozione di un file da chord data la sua chiave
 
         :param key: la chiave del file da eliminare
-        :param port: porta del nodo chiamante
         """
 
-        try:
-            found_node = self._find_node_in_dict(port)
-        except NoNodeFoundOnPortError:
-            raise NoNodeFoundOnPortError
+        # ottengo un nodo randomicamente
+        random_node = self._get_random_node()
 
-        found_node.delete_file(key)
+        # chord è vuoto
+        if not random_node:
+            raise ChordIsEmptyError
+
+        random_node.delete_file(key)
 
     # ************************** METODI INTERNI CHORD *******************************
 
@@ -192,8 +203,8 @@ class Chord:
         if not port:
             return True
 
-        for node_port in self.__node_dict:
-            if node_port == port:
+        for key, node in self.__node_dict.items():
+            if key == port:
                 return False
         return True
 
@@ -217,6 +228,36 @@ class Chord:
             raise NoNodeFoundOnPortError
 
         return found_node
+
+    def _get_random_node(self):
+        """
+        Metodo per l'ottenimento di un nodo a caso tra quelli presenti nella rete
+        Nota: metodo interno
+
+        :return: un nodo a caso; None se non vi sono nodi nella rete
+        """
+
+        # ottengo un node info a caso
+        random_node_info = self._get_random_node_info()
+
+        if not random_node_info:
+            return None
+        else:
+            return self.__node_dict[random_node_info.get_port()]
+
+    def _get_random_node_info(self):
+        """
+        Metodo per l'ottenimento del node info di un nodo a caso tra quelli presenti nella rete
+        Nota: metodo interno
+
+        :return: un nodo a caso; None se non vi sono nodi nella rete
+        """
+
+        random_node_info = None
+        if self.__node_dict.__len__() >= 1:
+            random_node_info = copy.deepcopy(random.choice(list(self.__node_dict.values())).get_node_info())
+
+        return random_node_info
 
     # ************************** METODI DI DEBUG *******************************
 
@@ -303,6 +344,24 @@ class Chord:
         self.__debug_mode = debug_mode
 
         # setto lo stato di debug anche sui nodi
-        for node in self.__node_dict:
+        for key, node in self.__node_dict.items():
             if node:
                 node.set_debug_mode(debug_mode)
+
+
+    def set_node_periodic_operations_timeout(self, periodic_operations_timeout):
+        """
+        Metodo per la modifica del timeout tra le operazioni periodiche dei nodi.
+        E' possibile scegliere un timeout tra 500ms (0.5s) e 300000ms (5min)
+
+        :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms
+        """
+
+        try:
+            periodic_op_timeout_is_valid(periodic_operations_timeout)
+        except InvalidPeriodicOperationsTimeoutError:
+            raise InvalidPeriodicOperationsTimeoutError
+
+        for key, node in self.__node_dict.items():
+            if node:
+                node.set_periodic_operations_timeout(periodic_operations_timeout)
