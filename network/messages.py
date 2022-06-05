@@ -66,7 +66,6 @@ MSG_TYPE_SEARCH_KEY_SUCC_RQST = "C4"  # search key Successor Request
 MSG_TYPE_LEAVE_PREC_RQST = "C5"  # Leaving Predecessor Request
 MSG_TYPE_LEAVE_SUCC_RQST = "C6"  # Leaving Successor Request
 MSG_TYPE_YOURE_NOT_ALONE_RQST = "C7"  # You're Not Alone Request
-MSG_TYPE_SEARCH_SMALLEST_NODE_RQST = "C8"  # Search Smallest Node Request
 
 # *********** FILE *********
 MSG_TYPE_FILE_PBLSH_RQST = "F1"  # Publish Request
@@ -403,49 +402,6 @@ class YoureNotAloneRequestMessage(Message):
         """
 
         super().__init__(MSG_TYPE_YOURE_NOT_ALONE_RQST, destination_node_info, sender_node_info, ticket, True)
-
-
-class SearchSmallestNodeAnswerMessage(Message):
-    """
-    Classe per la gestione delle risposte dei messaggi di tipo search smallest node request
-    """
-
-    def __init__(self, destination_node_info, sender_node_info, smallest_node_info, ticket):
-        """
-        Inizializzazione degli attributi interni della classe.
-
-        :param destination_node_info: node_info del nodo destinatario
-        :param sender_node_info: node_info del nodo mittente
-        :param smallest_node_info: node_info del nodo più piccolo
-        :param ticket: identificatore della richiesta
-        """
-
-        super().__init__(MSG_TYPE_ANSWER, destination_node_info, sender_node_info, ticket, False)
-        self.__smallest_node_info = smallest_node_info
-
-    def get_smallest_node_info(self):
-        """
-        Metodo getter per il node info del nodo successore contenuto nel messaggio
-        """
-
-        return self.__smallest_node_info
-
-
-class SearchSmallestNodeRequestMessage(Message):
-    """
-    Classe per la gestione delle richieste dei messaggi di tipo search smallest node request
-    """
-
-    def __init__(self, destination_node_info, sender_node_info, ticket):
-        """
-        Inizializzazione degli attributi interni della classe.
-
-        :param destination_node_info: node_info del nodo destinatario
-        :param sender_node_info: node_info del nodo mittente
-        :param ticket: identificatore della richiesta
-        """
-
-        super().__init__(MSG_TYPE_SEARCH_SMALLEST_NODE_RQST, destination_node_info, sender_node_info, ticket, True)
 
 
 # *********+ File Messages

@@ -352,57 +352,6 @@ class RequestSenderHandler:
         except TCPRequestSendError:
             raise TCPRequestSendError
 
-    # sembra ok
-    def send_search_the_smallest_node_request(self, destination_node_info):
-        """
-        Creazione e invio di un messaggio search the smallest node request.
-        Consente di cercare il nodo con il più piccolo id presente nella rete Chord
-
-        :param destination_node_info: node info del nodo di destinazione
-        :return: node info del più piccolo nodo nella rete chord
-        """
-
-        # Generazione ticket e invio del messaggio
-        message_ticket = self._get_ticket()
-        sender_node_info = self.__my_node_info
-        search_the_smallest_node_request_message = SearchSmallestNodeRequestMessage(destination_node_info, sender_node_info,
-                                                                              message_ticket)
-        print(
-            f"Nodo {self.__my_node.get_node_info().get_port()}, send search smallest: in attesa di risposta al ticket {message_ticket}")
-
-        self.__waiting_tickets.append(message_ticket)
-        self.__socket_node.send_message(destination_node_info.get_port(), search_the_smallest_node_request_message)
-
-        # Resto in attesa della risposta
-        sent_time = current_millis_time()
-
-        try:
-            while message_ticket not in self.__received_answers_unprocessed.keys() and current_millis_time() - sent_time <= self.__CONST_TCP_REQUEST_TIMEOUT:
-                pass
-        except KeyboardInterrupt:
-            raise TCPRequestSendError
-
-        # La richiesta è andata in timeout
-        if current_millis_time() - sent_time > self.__CONST_TCP_REQUEST_TIMEOUT:
-            print(
-                f"Nodo {self.__my_node.get_node_info().get_port()}, timer expired per il ticket {message_ticket}")
-            raise TCPRequestTimerExpiredError
-
-        print(
-            f"Nodo {self.__my_node.get_node_info().get_port()}, ricevuta risposta al ticket {message_ticket}")
-
-        # Processo la risposta
-        answer = self.__received_answers_unprocessed[message_ticket]
-        self.__waiting_tickets.remove(message_ticket)
-        del self.__received_answers_unprocessed[message_ticket]
-
-        try:
-            answer.check()
-        except TCPRequestSendError:
-            raise TCPRequestSendError
-
-        return answer.get_smallest_node_info()
-
     # ************************ METODI MESSAGGI FILE *****************************
 
     # forse ok

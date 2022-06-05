@@ -519,44 +519,14 @@ class Node:
             if self.__node_info.get_node_id() <= other_node_info.get_node_id():
                 self.__finger_table.insert_finger_by_index(1, other_node_info)
 
-    def search_the_smallest_node(self):
-        print(f"\n\n{self.__node_info.get_port()} Search smallest")
+    def _search_the_smallest_node_in_chord(self):
+        """
+        Metodo per la ricerca del nodo con l'id più piccolo presente all'interno di Chord.
+        Npta: metodo interno
 
-        if self.__successor_node_list.is_empty():
-            print(f"{self.__node_info.get_port()} Search smallest: empty")
-            return self.__node_info
-        else:
+        :return: il node info del nodo più piccolo; None se non l'ho trovato
+        """
 
-            # se il mio successore è più piccolo di me, vuol dire che è il primo nodo della rete
-            if self.__node_info.get_node_id() >= self.__successor_node_list.get_first().get_node_id():
-                print(
-                    f"{self.__node_info.get_port()} Search smallest: il mio successore è il primo -- {self.__successor_node_list.get_first().get_port()}")
-                return self.__successor_node_list.get_first()
-            else:
-                # se il mio predecessore (se esiste) è più grande di me, vuol dire che sono io il primo
-                if self.__predecessor_node:
-                    if self.__predecessor_node.get_node_id() >= self.__node_info.get_node_id():
-                        return self.__node_info
-
-                try:
-                    print(
-                        f"{self.__node_info.get_port()} Search smallest: invio il search smallest a {self.__successor_node_list.get_first().get_port()}")
-                    smallest_node = self.__tcp_request_sender_handler.send_search_the_smallest_node_request(
-                        self.__successor_node_list.get_first())
-                except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                    print(f"{self.__node_info.get_port()} Search smallest: timeout! ritorno none")
-                    return None
-
-                if smallest_node:
-                    print(f"{self.__node_info.get_port()} Search smallest: ok. ritorno {smallest_node.get_port()}")
-
-                    return smallest_node
-
-        print(f"{self.__node_info.get_port()} Search smallest: ritorno none")
-
-        return None
-
-    def search_the_smallest_node_test(self):
         print(f"{self.__node_info.get_port()} -- SEARCH SMALLEST NODE")
         if self.__successor_node_list.is_empty():
             return self.__node_info
@@ -566,7 +536,8 @@ class Node:
         # controllare anche il timeout
         start_time = current_millis_time()
 
-        while future_successor.get_node_id() > self.get_node_info().get_node_id() and current_millis_time() - start_time <= self.__tcp_request_timeout:
+        while future_successor.get_node_id() > self.get_node_info().get_node_id() and current_millis_time() - start_time <= (
+                self.__tcp_request_timeout * 3):
             print(f"{self.__node_info.get_port()} -- fut succ attuale {future_successor.get_port()}")
 
             try:
@@ -582,7 +553,7 @@ class Node:
                 print(f"Ho ricevuto {future_successor.get_port()}")
 
         # La richiesta è andata in timeout
-        if current_millis_time() - start_time > self.__tcp_request_timeout:
+        if current_millis_time() - start_time > (self.__tcp_request_timeout * 3):
             print("Richiesta andata in timeout (sono fuori dal loop)")
             return None
 
@@ -811,43 +782,15 @@ class Node:
 
             # cerco il più piccolo nodo sulla rete
             if not self.__successor_node_list.is_empty():
-                successor_node_info = self.search_the_smallest_node_test()
+                successor_node_info = self._search_the_smallest_node_in_chord()
                 if not successor_node_info:
                     print(f"smallest node not found")  # todo debug
 
-                # try:
-                #     smallest_node = self.__tcp_request_sender_handler.send_search_the_smallest_node_request(
-                #         self.__successor_node_list.get_first())
-                # except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                #     successor_node_info = self.__node_info
-                #     print(f"\n\nPUT FILE {self.__node_info.get_port()}: smallest node timeout")  # todo debug
-                # else:
-                #     if smallest_node:
-                #         successor_node_info = smallest_node
-                #         print(f"smallest node {successor_node_info.get_port()}")  # todo debug
-                #     else:
-                #         successor_node_info = self.__node_info
-                #         print(f"smallest node not found")  # todo debug
             else:
                 successor_node_info = self.__node_info
                 print(f"\n\nPUT FILE {self.__node_info.get_port()}: successor list empty")  # todo debug
         else:
             print(f"\n\nPUT FILE {self.__node_info.get_port()}: il successore sono io")  # todo debug
-
-        # if not successor_node_info:
-        #     # cerco il più piccolo nodo sulla rete
-        #     if self.__predecessor_node:
-        #         try:
-        #             smallest_node = self.__tcp_request_sender_handler.send_search_the_smallest_node_request(self.__predecessor_node, self.__node_info)
-        #         except (TCPRequestTimerExpiredError, TCPRequestSendError):
-        #             successor_node_info = self.__node_info
-        #         else:
-        #             if smallest_node:
-        #                 successor_node_info = smallest_node
-        #             else:
-        #                 successor_node_info = self.__node_info
-        #     else:
-        #         successor_node_info = self.__node_info
 
         if not self.__node_info.equals(successor_node_info):
             try:
