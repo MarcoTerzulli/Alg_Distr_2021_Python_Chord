@@ -112,6 +112,12 @@ class ReceivedMessagesHandler:
             answer = YoureNotAloneAnswerMessage(dest, send, ticket, i_was_alone)
             self.__my_socket_node.send_message(sender_port, answer)
 
+        # search smallest node request
+        elif message.get_type() == MSG_TYPE_SEARCH_SMALLEST_NODE_RQST:
+            smallest_node_found = self.__my_node.search_the_smallest_node()
+            answer = SearchSmallestNodeAnswerMessage(dest, send, smallest_node_found, ticket)
+            self.__my_socket_node.send_message(sender_port, answer)
+
         # file publish request
         elif message.get_type() == MSG_TYPE_FILE_PBLSH_RQST:
             file_key = message.get_file_key()

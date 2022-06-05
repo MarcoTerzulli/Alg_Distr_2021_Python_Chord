@@ -138,7 +138,7 @@ class Chord:
 
             try:
                 random_node.put_file(file_key, file)
-            except FileSuccessorNotFoundError:
+            except (FileSuccessorNotFoundError, ImpossibleFilePublishError):
                 retries += 1
             else:
                 break
