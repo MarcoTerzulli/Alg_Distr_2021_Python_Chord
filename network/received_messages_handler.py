@@ -57,7 +57,7 @@ class ReceivedMessagesHandler:
         if message.get_type() == MSG_TYPE_NOTIFY:
             self.__my_node.notify(message.get_sender_node_info())
 
-            file_dict = self.__my_node.get_file_system().retrieve_files(message.get_sender_node_info().get_node_id())
+            file_dict = self.__my_node.get_file_system().retrieve_files_for_a_new_node(message.get_sender_node_info().get_node_id())
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
             self.__my_socket_node.send_message(sender_port, answer)
 

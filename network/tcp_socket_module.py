@@ -20,6 +20,7 @@ class TCPServerModule:
         """
 
         self.__tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__tcp_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.__tcp_server_port = port
         self.__tcp_request_timeout = request_timeout
 

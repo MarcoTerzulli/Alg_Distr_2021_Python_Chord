@@ -80,7 +80,8 @@ class Node:
         """
 
         if self.__successor_node_list.get_len() == 0:
-            raise NoSuccessorFoundError
+            # raise NoSuccessorFoundError
+            return None
 
         return self.__successor_node_list.get_first()
 
@@ -211,8 +212,12 @@ class Node:
             for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                 last_node_info = self.__successor_node_list.get_last()
 
-                successor_node_info = self.__tcp_request_sender_handler.send_get_first_successor_request(last_node_info)
-                # successor_node_info.print() # TODO DEBUG
+                send_get_first_successor_request = self.__tcp_request_sender_handler.send_get_first_successor_request(last_node_info)
+
+                if send_get_first_successor_request is None:
+                    # capita quando la distruzione di un nodo non avviene correttamente
+                    raise ImpossibleInitializationError
+
                 if self.__node_info.equals(successor_node_info.get_node_id()):
                     while i < self.__CONST_MAX_SUCC_NUMBER:
                         self.__successor_node_list.insert(i, self.__node_info)
@@ -252,6 +257,18 @@ class Node:
             self.__im_alone = False
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             raise ImpossibleInitializationError
+
+
+        # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
+        # ed ottengo gli eventuali file che ora sono di mia competenza
+        try:
+            new_files_dict = self.__tcp_request_sender_handler.send_notify(self.__successor_node_list.get_first())
+        except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            pass
+        else:
+            if new_files_dict is not None and new_files_dict.__len__() > 0:
+                for key in new_files_dict.keys():
+                    self.__file_system.put_file(key, new_files_dict[key])
 
     def terminate(self):
         """
@@ -645,7 +662,6 @@ class Node:
         # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
         # ed ottengo gli eventuali file che ora sono di mia competenza
         try:
-
             new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             # il nodo potrebbe aver avuto problemi o essere uscito da chord
