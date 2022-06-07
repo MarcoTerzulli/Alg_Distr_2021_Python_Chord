@@ -344,6 +344,10 @@ class Node:
             if self._am_i_responsable_for_the_key(self.__predecessor_node.get_node_id(), key):
                 return self.__node_info
 
+        # Se sono solo, l'unica cosa che posso rispondere è che sono io il successore
+        if self.__im_alone:
+            return self.__node_info
+
         # effettuo una ricerca nella lista dei successori
         try:
             successor = self.__successor_node_list.get_closest_successor(key)  # il successore è il primo con id >= key
@@ -361,8 +365,11 @@ class Node:
                 if closest_predecessor_node_info.get_node_id() == self.__node_info.get_node_id():
                     pass
                 else:
-                    successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
-                        closest_predecessor_node_info, key)
+                    try:
+                        successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
+                            closest_predecessor_node_info, key)
+                    except (TCPRequestTimerExpiredError, TCPRequestSendError):
+                        self._repopulate_successor_list(0)
 
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self._repopulate_successor_list(0)

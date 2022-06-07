@@ -91,7 +91,7 @@ def menu_node_delete():
         # libero la porta tcp
         try:
             tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError, InvalidTCPPortError):
             pass
         except KeyboardInterrupt:
             exit_from_the_application(chord)
@@ -197,7 +197,7 @@ def menu_print_node_status():
         # libero la porta tcp
         try:
             tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError, InvalidTCPPortError):
             pass
         except KeyboardInterrupt:
             exit_from_the_application(chord)
@@ -226,7 +226,7 @@ def debug_menu_print_node_status_summary():
         # libero la porta tcp
         try:
             tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError, InvalidTCPPortError):
             pass
         except KeyboardInterrupt:
             exit_from_the_application(chord)
@@ -253,7 +253,7 @@ def debug_menu_print_node_finger_table():
         # libero la porta tcp
         try:
             tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError, InvalidTCPPortError):
             pass
         except KeyboardInterrupt:
             exit_from_the_application(chord)
@@ -280,7 +280,7 @@ def debug_menu_print_node_loneliness_state():
         # libero la porta tcp
         try:
             tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError, InvalidTCPPortError):
             pass
         except KeyboardInterrupt:
             exit_from_the_application(chord)
@@ -307,7 +307,7 @@ def debug_menu_print_node_file_system():
         # libero la porta tcp
         try:
             tcp_port_manager.mark_port_as_free(selected_port)
-        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError):
+        except (FreeingNonUsedRegisteredTCPPortError, FreeingNonUsedDynamicTCPPortError, InvalidTCPPortError):
             pass
         except KeyboardInterrupt:
             exit_from_the_application(chord)
