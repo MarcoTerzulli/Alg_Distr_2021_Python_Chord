@@ -18,14 +18,14 @@ MAX_INITALIZATION_RETRIES = 10
 PERIODIC_OP_TIMEOUT = 2500
 
 
-# ********+++++******* Gestione Funzioni menu princiale ********************
+# ********+++++******* Gestione Funzioni menu principale ********************
 
-def exit_from_the_application(chord):
+def exit_from_the_application(this_chord):
     # terminazione e join nodi chord per uscita pulita
-    chord.node_delete_all()
-    del chord
+    this_chord.node_delete_all()
+    del this_chord
     gc.collect()
-    print("Goodye!")
+    print("Goodbye!")
     sys.exit()
 
 
@@ -347,18 +347,18 @@ def debug_menu(debug_mode):
             "\nWARNING: You're in the Debug Menu.\nThe use of the debugging commands could make the application stop working properly.\nUse these commands at your own risk!")
 
         if debug_mode:
-            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
+            debug_menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
         else:
-            menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Enable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
+            debug_menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Enable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
 
         # Stampa del menù di selezione
         try:
-            selected_op = input(menu_message)
+            debug_selected_op = input(debug_menu_message)
 
-            if int(selected_op) not in range(0, 6):  # fino a 9
+            if int(debug_selected_op) not in range(0, 6):  # fino a 9
                 raise ValueError
             else:
-                selected_op = selected_op[0]
+                debug_selected_op = debug_selected_op[0]
         except KeyboardInterrupt:
             exit_from_the_application(chord)
             # il programma dovrebbe terminare prima di questo return
@@ -369,27 +369,27 @@ def debug_menu(debug_mode):
             continue
 
         try:
-            int(selected_op)
+            int(debug_selected_op)
         except ValueError:
             print("ERROR: invalid input!")
             continue
 
-        if int(selected_op) == 1:  # print summary status nodo
+        if int(debug_selected_op) == 1:  # print summary status nodo
             debug_menu_print_node_status_summary()
 
-        elif int(selected_op) == 2:  # print della finger table di un nodo
+        elif int(debug_selected_op) == 2:  # print della finger table di un nodo
             debug_menu_print_node_finger_table()
 
-        elif int(selected_op) == 3:  # print dello stato di solitudine di un nodo
+        elif int(debug_selected_op) == 3:  # print dello stato di solitudine di un nodo
             debug_menu_print_node_loneliness_state()
 
-        elif int(selected_op) == 4:  # print del file system di un nodo
+        elif int(debug_selected_op) == 4:  # print del file system di un nodo
             debug_menu_print_node_file_system()
 
-        elif int(selected_op) == 5:  # impostazione del timeout per le operazioni periodiche
+        elif int(debug_selected_op) == 5:  # impostazione del timeout per le operazioni periodiche
             debug_menu_set_node_periodic_operations_timeout()
 
-        elif int(selected_op) == 6:  # abilita / disabilita stampe di debug
+        elif int(debug_selected_op) == 6:  # abilita / disabilita stampe di debug
             if debug_mode:
                 debug_mode = False
             else:
@@ -397,7 +397,7 @@ def debug_menu(debug_mode):
 
             chord.set_debug_mode(debug_mode)
 
-        elif int(selected_op) == 0:  # exit
+        elif int(debug_selected_op) == 0:  # exit
             debug_menu_exit_flag = True
         else:
             print("ERROR: Invalid selection!\n")
@@ -437,10 +437,7 @@ if __name__ == "__main__":
                 selected_op = selected_op[0]
 
         except KeyboardInterrupt:
-            # terminazione e join nodi chord per uscita pulita
-            chord.node_delete_all()
-            print("Goodye!")
-            sys.exit()
+            exit_from_the_application(chord)
         except (ValueError, IndexError):
             print("ERROR: invalid input!")
             continue
