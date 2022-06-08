@@ -192,9 +192,11 @@ class SuccessorList:
 
         raise NoSuccessorFoundError
 
+    # *********************** METODI PER LA STAMPA *****************************
+
     def print(self):
         """
-        Metodo di debug per la stampa a video della lista dei successori.
+        Metodo per la stampa a video della lista dei successori.
         """
 
         print(

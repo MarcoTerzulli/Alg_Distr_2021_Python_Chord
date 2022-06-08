@@ -87,6 +87,8 @@ class NodeInfo:
         """
         return self.__node_id == n
 
+    # *********************** METODI PER LA STAMPA *****************************
+
     def print(self):
         """
         Metodo di debug per la stampa del node info

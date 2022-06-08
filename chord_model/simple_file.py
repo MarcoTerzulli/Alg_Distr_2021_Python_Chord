@@ -51,6 +51,8 @@ class SimpleFile:
 
         self.__data = data
 
+    # *********************** METODI PER LA STAMPA *****************************
+
     def print(self):
         """
         Funzione per la stampa del file

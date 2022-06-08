@@ -40,6 +40,7 @@ def compute_finger(node_id, index):
 def periodic_op_timeout_is_valid(periodic_operations_timeout):
     """
     Funzione per verificare se il timeout delle operazioni periodiche è valido o meno
+
     :param periodic_operations_timeout: timeout da verificare
     """
 

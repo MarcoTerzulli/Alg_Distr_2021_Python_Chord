@@ -212,7 +212,8 @@ class Node:
             for i in range(1, self.__CONST_MAX_SUCC_NUMBER):
                 last_node_info = self.__successor_node_list.get_last()
 
-                send_get_first_successor_request = self.__tcp_request_sender_handler.send_get_first_successor_request(last_node_info)
+                send_get_first_successor_request = self.__tcp_request_sender_handler.send_get_first_successor_request(
+                    last_node_info)
 
                 if send_get_first_successor_request is None:
                     # capita quando la distruzione di un nodo non avviene correttamente
@@ -257,7 +258,6 @@ class Node:
             self.__im_alone = False
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             raise ImpossibleInitializationError
-
 
         # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
         # ed ottengo gli eventuali file che ora sono di mia competenza
@@ -527,22 +527,6 @@ class Node:
                 first_working_finger_node_info = self._get_the_first_working_finger(index_of_invalid_node)
                 self.__successor_node_list.insert(index_of_invalid_node, first_working_finger_node_info)
 
-    def im_not_alone_anymore(self, other_node_info):
-        """
-        Metodo per informare il nodo che non è più solo all'interno di Chord.
-        Aggiorna la lista dei successori e la finger table con il nuovo nodo scoperto.
-
-        :param other_node_info: node info dell'altro nodo
-        """
-
-        if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
-            self.__im_alone = False
-            self.__predecessor_node = copy.deepcopy(other_node_info)
-            self.__successor_node_list.replace_all(other_node_info)
-
-            if self.__node_info.get_node_id() <= other_node_info.get_node_id():
-                self.__finger_table.insert_finger_by_index(1, other_node_info)
-
     def _search_the_smallest_node_in_chord(self):
         """
         Metodo per la ricerca del nodo con l'id più piccolo presente all'interno di Chord.
@@ -580,6 +564,22 @@ class Node:
         else:
             # sono io il primo nodo
             return self.__node_info
+
+    def im_not_alone_anymore(self, other_node_info):
+        """
+        Metodo per informare il nodo che non è più solo all'interno di Chord.
+        Aggiorna la lista dei successori e la finger table con il nuovo nodo scoperto.
+
+        :param other_node_info: node info dell'altro nodo
+        """
+
+        if self.__im_alone and self.__node_info.get_node_id() != other_node_info.get_node_id():
+            self.__im_alone = False
+            self.__predecessor_node = copy.deepcopy(other_node_info)
+            self.__successor_node_list.replace_all(other_node_info)
+
+            if self.__node_info.get_node_id() <= other_node_info.get_node_id():
+                self.__finger_table.insert_finger_by_index(1, other_node_info)
 
     # ************************** METODI FINGER TABLE *******************************
 
@@ -892,10 +892,11 @@ class Node:
         except FileKeyError:
             pass
 
-    # ************************** METODI DI DEBUG *******************************
+    # *********************** METODI PER LA STAMPA *****************************
+
     def print_status(self):
         """
-        Metodo di debug per la stampa dello stato del nodo corrente
+        Metodo di per la stampa dello stato del nodo corrente
         """
 
         print(
@@ -912,6 +913,8 @@ class Node:
 
         print("\nNode Finger Table:")
         self.__finger_table.print()
+
+    # ************************** METODI DI DEBUG *******************************
 
     def print_status_summary(self):
         """

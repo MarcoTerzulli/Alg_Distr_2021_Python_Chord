@@ -5,7 +5,6 @@ from network.tcp_port_manager import *
 from chord_model.chord import *
 from exceptions.exceptions import *
 import sys
-import platform
 import gc
 
 # ********+++++******* Definizione Oggetti ********************
@@ -123,7 +122,8 @@ def menu_file_insert():
     except KeyboardInterrupt:
         exit_from_the_application(chord)
     except ImpossibleFilePublishError:
-        print("ERROR: Unexpected error while trying to publish the file. Please wait for the network stabilization and retry.")
+        print(
+            "ERROR: Unexpected error while trying to publish the file. Please wait for the network stabilization and retry.")
     else:
         print(f"Successfully published the file with key {file_key}.")
 
@@ -339,14 +339,14 @@ def debug_menu_set_node_periodic_operations_timeout():
     print(f"Successfully set the periodic nodes operations timeout to {operations_timeout}ms.")
 
 
-def debug_menu(DEBUG_MODE):
+def debug_menu(debug_mode):
     debug_menu_exit_flag = False
 
     while not debug_menu_exit_flag:
         print(
             "\nWARNING: You're in the Debug Menu.\nThe use of the debugging commands could make the application stop working properly.\nUse these commands at your own risk!")
 
-        if DEBUG_MODE:
+        if debug_mode:
             menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Disable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
         else:
             menu_message = "\nSelect a Debug Operation:\n [1] Print the Status Summary of a Node\n [2] Print the Finger Table of a Node\n [3] Print the Loneliness Status of a Node\n [4] Print the File System of a Node\n [5] Set the Nodes Periodic Operations Timeout\n [6] Enable the Debug Output Messages\n [0] Exit from the Debug Menu\n"
@@ -390,12 +390,12 @@ def debug_menu(DEBUG_MODE):
             debug_menu_set_node_periodic_operations_timeout()
 
         elif int(selected_op) == 6:  # abilita / disabilita stampe di debug
-            if DEBUG_MODE:
-                DEBUG_MODE = False
+            if debug_mode:
+                debug_mode = False
             else:
-                DEBUG_MODE = True
+                debug_mode = True
 
-            chord.set_debug_mode(DEBUG_MODE)
+            chord.set_debug_mode(debug_mode)
 
         elif int(selected_op) == 0:  # exit
             debug_menu_exit_flag = True
@@ -407,19 +407,6 @@ def debug_menu(DEBUG_MODE):
 
 # Verifico che main.py sia stato invocato come main del nostro programma
 if __name__ == "__main__":
-    # TODO DA RIMUOVERE
-    # Impostazione Modaliità multiprocessing
-    # print(f"Chord running on {platform.system()} OS: ")
-
-    # if platform.system() == "Windows":
-    #     # Non ho effettuato test tramite spawn
-    #     # mp_ctx = mp.get_context("spawn")
-    #     print("ERROR: Windows is not supported!")
-    #     sys.exit()
-    #
-    # else:  # sistemi unix come linux e macos
-    #     mp_ctx = mp.get_context("fork")
-    #     print("Fork method has been set")
 
     exit_flag = False
     new_node = None

@@ -275,6 +275,20 @@ class Chord:
 
         return random_node_info
 
+    # *********************** METODI PER LA STAMPA *****************************
+
+    def print_node_status(self, node_port):
+        """
+        Metodo per la stampa dello stato di un dato nodo
+
+        :param node_port: porta TCP del nodo
+        """
+
+        try:
+            self.__node_dict[node_port].print_status()
+        except KeyError:
+            raise NoNodeFoundOnPortError
+
     # ************************** METODI DI DEBUG *******************************
 
     def print_tcp_server_status(self, node_port):
@@ -286,18 +300,6 @@ class Chord:
 
         try:
             self.__node_dict[node_port].print_tcp_server_status()
-        except KeyError:
-            raise NoNodeFoundOnPortError
-
-    def print_node_status(self, node_port):
-        """
-        Metodo di debug per la stampa dello stato di un dato nodo
-
-        :param node_port: porta TCP del nodo
-        """
-
-        try:
-            self.__node_dict[node_port].print_status()
         except KeyError:
             raise NoNodeFoundOnPortError
 

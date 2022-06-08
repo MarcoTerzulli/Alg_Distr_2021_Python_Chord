@@ -63,31 +63,6 @@ class FingerTable:
         assert 1 <= index <= CONST_M
         return self.__table_dict[index]
 
-    def print(self):
-        """
-        Funzione per la stampa a video della finger table
-        """
-
-        for key in self.__table_dict.keys():
-            if self.__table_dict[key] is not None:
-                print(f"Entry {key}: ")
-                self.__table_dict[key].print()
-            else:
-                print(f"Entry {key}: Empty ")
-
-    # funzione di debug
-    def _remove_finger(self, finger_info):
-        """
-        Funzione di debug per la rimozione di un nodo alla finger table.
-        Nota: subito dopo bisogna invocare add_finger!
-        :param finger_info: node_info del finger da rimuovere
-        """
-
-        for j in range(1, CONST_M + 1):
-            if self.__table_dict[j] is not None:
-                if finger_info.get_node_id() == self.__table_dict[j].get_node_info().get_node_id():
-                    self.__table_dict[j] = None
-
     def contains_finger(self, node_info):
         """
         Funzione per verificare se un determinato nodo è contenuto nella finger table
@@ -100,3 +75,33 @@ class FingerTable:
                 if self.__table_dict[j].get_node_info().equals(node_info):
                     return True
         return False
+
+    # *********************** METODI PER LA STAMPA *****************************
+
+    def print(self):
+        """
+        Funzione per la stampa a video della finger table
+        """
+
+        for key in self.__table_dict.keys():
+            if self.__table_dict[key] is not None:
+                print(f"Entry {key}: ")
+                self.__table_dict[key].print()
+            else:
+                print(f"Entry {key}: Empty ")
+
+    # ************************** METODI DI DEBUG *******************************
+
+
+    def _remove_finger(self, finger_info):
+        """
+        Funzione di debug per la rimozione di un nodo alla finger table.
+        Nota: subito dopo bisogna invocare add_finger!
+
+        :param finger_info: node_info del finger da rimuovere
+        """
+
+        for j in range(1, CONST_M + 1):
+            if self.__table_dict[j] is not None:
+                if finger_info.get_node_id() == self.__table_dict[j].get_node_info().get_node_id():
+                    self.__table_dict[j] = None
