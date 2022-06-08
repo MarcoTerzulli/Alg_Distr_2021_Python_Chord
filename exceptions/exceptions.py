@@ -123,12 +123,14 @@ class SuccessorListIsFullError(Exception):
     """
     pass
 
+
 class ChordIsEmptyError(Exception):
     """
     Eccezione generata nel tentativo di esecuzione di operazioni che richiedono
     l'ottenimento / l'utilizzo di nodi di chord, che però è vuoto.
     """
     pass
+
 
 class InvalidFileError(Exception):
     """
@@ -137,12 +139,14 @@ class InvalidFileError(Exception):
     """
     pass
 
+
 class InvalidPeriodicOperationsTimeoutError(Exception):
     """
     Eccezione generata nel tentativo di aggiornamento del timeout delle operazioni
     periodiche di un nodo. Timeout invalido.
     """
     pass
+
 
 class FileSuccessorNotFoundError(Exception):
     """
@@ -151,13 +155,15 @@ class FileSuccessorNotFoundError(Exception):
     """
     pass
 
+
 class ImpossibleFilePublishError(Exception):
     """
     Eccezione generata nel tentativo fallito di pubblicazione di un file nella rete.
     """
     pass
 
-class FileNotFoundError(Exception):
+
+class FileNotFoundInChordError(Exception):
     """
     Eccezione generata nel tentativo ricerca di un file. File non trovato
     """

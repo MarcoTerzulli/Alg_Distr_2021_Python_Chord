@@ -14,10 +14,6 @@ class FingerTable:
         self.__table_dict = {key: None for key in range(1, CONST_M + 1)}
         self.__my_node_info = my_node_info
 
-        # TODO node info
-
-        pass
-
     def add_finger(self, new_finger):
         """
         Funzione per l'aggiunta di un nuovo nodo alla finger table.
@@ -91,7 +87,6 @@ class FingerTable:
                 print(f"Entry {key}: Empty ")
 
     # ************************** METODI DI DEBUG *******************************
-
 
     def _remove_finger(self, finger_info):
         """

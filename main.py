@@ -21,10 +21,13 @@ PERIODIC_OP_TIMEOUT = 2500
 # ********+++++******* Gestione Funzioni menu principale ********************
 
 def exit_from_the_application(this_chord):
+    print("Terminating the nodes and releasing the system resources...")
+
     # terminazione e join nodi chord per uscita pulita
     this_chord.node_delete_all()
     del this_chord
     gc.collect()
+
     print("Goodbye!")
     sys.exit()
 

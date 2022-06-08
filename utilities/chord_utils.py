@@ -3,7 +3,8 @@ import time
 
 from exceptions.exceptions import InvalidPeriodicOperationsTimeoutError
 
-CONST_M = 160 # number of table entries (aka fingers)
+CONST_M = 160  # number of table entries (aka fingers)
+
 
 def hash_function(input_string):
     """
@@ -27,6 +28,7 @@ def current_millis_time():
 
     return round(time.time() * 1000)
 
+
 def compute_finger(node_id, index):
     """
     Funzione che computa il finger con la potenza, modulo 2^m.
@@ -36,6 +38,7 @@ def compute_finger(node_id, index):
     """
 
     return (node_id + 2 ** (index - 1)) % (2 ** CONST_M)
+
 
 def periodic_op_timeout_is_valid(periodic_operations_timeout):
     """

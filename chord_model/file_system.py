@@ -88,16 +88,11 @@ class FileSystem:
         new_file_dict = dict()
         keys_to_be_deleted_list = list()
 
-        # TODO DEBU
-        # print("\n\nDentro il metodo magico")
-        # print(f"Mio id {self.__node_id}")
-        # print(f"Nuovo nodo id {new_node_id}\n")
-
         for key in self.__file_dict.keys():
             # Spiegazione di new_node_id >= key:
             # classico caso di trasferimento delle key
 
-            # Spiegazione di (key > self.__node_id and new_node_id < self.__node_id):
+            # Spiegazione di (key > self.__node_id > new_node_id):
             # questo caso serve a gestire il caso in cui il nodo corrente è il primo nodo della rete, e gestisce file
             # con key più grandi di qualsiasi altro nodo sulla rete.
             # La gestione di tali file dovrò essere affidata nuovamente al nuovo nodo
@@ -110,13 +105,7 @@ class FileSystem:
             # E' corretto perché se quelle key le aveva questo nodo, vuol dire che fino ad adesso nella rete non c'era
             # alcun nodo con id sufficientemente grande da gestirle
 
-            # TODO DEBUG
-            # print(f"File key: {key}")
-            # print(f"new_node_id >= key: {new_node_id >= key}")
-            # print(f"(key > self.__node_id and new_node_id < self.__node_id): {(key > self.__node_id and new_node_id < self.__node_id)}")
-            # print(f"(key <= new_node_id and new_node_id > self.__node_id): {(key <= new_node_id and new_node_id > self.__node_id)}")
-
-            if new_node_id >= key or (key > self.__node_id and new_node_id < self.__node_id) or (
+            if new_node_id >= key or (key > self.__node_id > new_node_id) or (
                     key <= new_node_id and new_node_id > self.__node_id):
                 new_file_dict[key] = copy.deepcopy(self.__file_dict[key])
                 keys_to_be_deleted_list.append(key)

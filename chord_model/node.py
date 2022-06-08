@@ -8,7 +8,7 @@ from chord_model.node_periodic_operations_thread import NodePeriodicOperationsTh
 from chord_model.successor_list import SuccessorList
 from exceptions.exceptions import FileKeyError, NoPrecedessorFoundError, NoSuccessorFoundError, \
     ImpossibleInitializationError, TCPRequestTimerExpiredError, TCPRequestSendError, FileSuccessorNotFoundError, \
-    ImpossibleFilePublishError
+    ImpossibleFilePublishError, FileNotFoundInChordError
 from network.request_sender_handler import RequestSenderHandler
 
 
@@ -381,15 +381,6 @@ class Node:
                     f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
                 self.__successor_node_list.print()
 
-            # todo debug
-            print(
-                f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
-            # todo debug
-            print(
-                f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
-            # todo debug
-            self.__successor_node_list.print()
-
         # se non sono stato in grado di trovare nessun successore nella rete
         # ed il mio id è inferiore a quello dell'altro nodo,
         # allora è probabile che siamo gli unici due nodi della rete.
@@ -399,7 +390,6 @@ class Node:
 
         return successor_node_info
 
-    # funzione presa dallo pseudocodice del paper
     def closest_preceding_finger(self, key):
         """
         Funzione per la ricerca del finger precedente più vicino a una key
@@ -456,7 +446,6 @@ class Node:
                     index_of_possible_working_successor_node)
             except IndexError:
                 # se qualcosa è andato storto, potrebbe non esserci
-                # todo da verificare
                 break
 
             if index_of_invalid_node == 0:
@@ -672,8 +661,6 @@ class Node:
             new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             # il nodo potrebbe aver avuto problemi o essere uscito da chord
-            print(
-                f"Nodo {self.__node_info.get_port()} -- sono nel mio stabilize e sto attivando il repopulate successor")  # todo debug
             self._repopulate_successor_list(0)
         else:
             if new_files_dict is not None and new_files_dict.__len__() > 0:
@@ -697,7 +684,6 @@ class Node:
         elif self.__predecessor_node.get_node_id() < potential_new_predecessor_node_info.get_node_id():
             self.__predecessor_node = potential_new_predecessor_node_info
 
-    # funzione presa dallo pseudocodice del paper
     def fix_finger(self):
         """
         Funzione per la correzione di un finger randomico della finger table.
@@ -830,7 +816,7 @@ class Node:
             successor_node_info = self.find_key_successor(key)
 
         if not successor_node_info:
-            raise FileNotFoundError
+            raise FileNotFoundInChordError
 
         if self.__node_info.equals(successor_node_info):
             file = self.get_my_file(key)
@@ -869,7 +855,7 @@ class Node:
             successor_node_info = self.find_key_successor(key)
 
         if not successor_node_info:
-            raise FileNotFoundError
+            raise FileNotFoundInChordError
 
         if self.__node_info.equals(successor_node_info):
             self.delete_my_file(key)

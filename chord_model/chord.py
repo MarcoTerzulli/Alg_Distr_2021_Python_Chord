@@ -144,12 +144,10 @@ class Chord:
                 break
 
         if retries == self.__CONST_MAX_FILE_PUBLISH_RETRIES:
-            print(f"\nFile key {file_key}\n") # todo debug
             raise ImpossibleFilePublishError
 
         return file_key
 
-    # TODO da verificare
     def file_lookup(self, key):
         """
         Ricerca del nodo responsabile della chiave key
@@ -167,7 +165,6 @@ class Chord:
 
         return random_node.get_file(key)
 
-    # TODO da verificare
     def file_delete(self, key):
         """
         Rimozione di un file da chord data la sua chiave
