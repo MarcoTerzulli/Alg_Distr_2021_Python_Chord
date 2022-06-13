@@ -6,17 +6,18 @@ from chord_model.chord import *
 from exceptions.exceptions import *
 import sys
 import gc
+from settings import *
 
 # ********+++++******* Definizione Oggetti ********************
 
 global chord
 global tcp_port_manager
 
-DEBUG_MODE = False
-DEBUG_MENU_ENABLED = True
-MAX_INITALIZATION_RETRIES = 10
-PERIODIC_OP_TIMEOUT = 2500
-
+# ********+++++******* Controllo Parametri Settings ********************
+assert DEBUG_MODE is True or DEBUG_MODE is False
+assert DEBUG_MENU_ENABLED is True or DEBUG_MENU_ENABLED is False
+assert 1 <= MAX_INITALIZATION_RETRIES <= 1000
+assert 100 <= PERIODIC_OP_TIMEOUT <= 300000
 
 # ********+++++******* Gestione Funzioni menu principale ********************
 
