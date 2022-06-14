@@ -409,7 +409,7 @@ def debug_menu(debug_mode):
 
 # ******************* Main Vero e Proprio ***********************
 
-# Verifico che main.py sia stato invocato come main del nostro programma
+# Verifico che __init__.py sia stato invocato come main del nostro programma
 if __name__ == "__main__":
 
     exit_flag = False
