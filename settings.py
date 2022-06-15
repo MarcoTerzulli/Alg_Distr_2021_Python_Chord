@@ -4,7 +4,7 @@
 # The following flag enables the print of the debug messages
 # for the main operations
 # WARNING: the nodes are going to print A LOT of debug messages due to
-# their periodic operations
+# their frequent periodic operations
 DEBUG_MODE = False
 
 # The following flag enables the hidden debugging menu

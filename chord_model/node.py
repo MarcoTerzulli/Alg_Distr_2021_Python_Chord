@@ -329,7 +329,7 @@ class Node:
         Funzione per la ricerca del nodo predecessore di una determinata key
 
         :param key: la chiave del nodo o file
-        :return il predecessore della key
+        :return: il predecessore della key
         """
 
         if not key:

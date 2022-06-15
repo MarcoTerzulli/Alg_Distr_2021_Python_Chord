@@ -79,13 +79,13 @@ class NodeInfo:
         self.__node_id = hash_function(str(self.__ip) + str(self.__port))
         return self.__node_id
 
-    def equals(self, n):
+    def equals(self, other_node_info):
         """
         Funzione per confrontare due node info
-        :param n: seconda node info
+        :param other_node_info: seconda node info
         :return: True se le node info sono uguali, False altrimenti
         """
-        return self.__node_id == n
+        return self.__node_id == other_node_info
 
     # *********************** METODI PER LA STAMPA *****************************
 
