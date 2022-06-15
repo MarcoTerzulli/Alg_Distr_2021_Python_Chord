@@ -53,10 +53,10 @@ A simple command line interface is going to appear, allowing the interaction wit
 You can specify additional settings to tune the Application behaviour inside the ```settings.py``` file.
 
 Currently supported settings:
-* Debug Mode: enables the print of the debug messages for the main operations. **WARNING**: the nodes are going to print A LOT of debug messages due to their frequent periodic operations
-* Debug Menu Enabled: enabled the hidden debugging menu. This menu shows advanced options for understanding how the network is working
-* Max Node Initalization Retries: specifies the max number of initialization retries for a node. It's here to prevent a loop in case a the most of the TCP ports are full
-* Node Periodic Operations Timeout: specifies the nodes periodic operations timeout A higher timeout is suggested if you're going to create a lot of nodes for reducing the TCP traffic
+* ```Debug Mode```: enables the print of the debug messages for the main operations. **WARNING**: the nodes are going to print A LOT of debug messages due to their frequent periodic operations
+* ```Debug Menu Enabled```: enabled the hidden debugging menu. This menu shows advanced options for understanding how the network is working
+* ```Max Node Initalization Retries```: specifies the max number of initialization retries for a node. It's here to prevent a loop in case a the most of the TCP ports are full
+* ```Node Periodic Operations Timeout```: specifies the nodes periodic operations timeout A higher timeout is suggested if you're going to create a lot of nodes for reducing the TCP traffic
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
