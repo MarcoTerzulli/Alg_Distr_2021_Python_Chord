@@ -158,8 +158,12 @@ class SuccessorList:
         :param object_to_be_inserted: oggetto da inserire
         """
 
+        self.__node_list = list()
         for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
-            self.__node_list[i] = object_to_be_inserted
+            self.__node_list.append(object_to_be_inserted)
+
+        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
+        #     self.__node_list[i] = object_to_be_inserted
 
     def get_closest_successor(self, key):
         """
