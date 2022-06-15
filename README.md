@@ -48,7 +48,7 @@ A simple command line interface is going to appear, allowing the interaction wit
 * Print of the Chord Network
 * Print of the Status of a Given Node (Predecessor Node, Successor List, and Finger Table)
 
-### Additional Setttings
+### Additional Settings
 
 You can specify additional settings to tune the Application behaviour inside the ```settings.py``` file.
 
