@@ -8,7 +8,7 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self, max_node_initialization_retries=1, max_file_publish_retires=5, periodic_operations_timeout=5000,
+    def __init__(self, max_node_initialization_retries=1, max_file_publish_retires=5, periodic_operations_timeout=10000,
                  debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
