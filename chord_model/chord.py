@@ -68,18 +68,6 @@ class Chord:
         # ora posso aggiungere il nuovo nodo al dizionario
         self.__node_dict[port] = new_node
 
-        # try:
-        #     # inizializzo la finger table e sposto le eventuali chiavi di competenza
-        #     new_node.initialize(other_node_info)
-        # except ImpossibleInitializationError:
-        #     self.__node_dict[port].terminate()
-        #     del self.__node_dict[port]
-        #     raise ImpossibleInitializationError
-        # except AlreadyUsedPortError:
-        #     self.__node_dict[port].terminate()
-        #     del self.__node_dict[port]
-        #     raise AlreadyUsedPortError
-
         retries = 1
         while retries <= self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
             try:
@@ -87,7 +75,8 @@ class Chord:
                 new_node.initialize(other_node_info)
             except ImpossibleInitializationError:
                 if self.__CONST_MAX_NODE_INITALIZATION_RETRIES > 1:
-                    print(f"ERROR: Error during the initialization of the node with Port {port}. Retries left: {self.__CONST_MAX_NODE_INITALIZATION_RETRIES - retries}")
+                    print(
+                        f"ERROR: Error during the initialization of the node with Port {port}. Retries left: {self.__CONST_MAX_NODE_INITALIZATION_RETRIES - retries}")
                 retries += 1
             except AlreadyUsedPortError:
                 self.__node_dict[port].terminate()

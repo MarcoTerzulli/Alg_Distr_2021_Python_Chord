@@ -19,6 +19,7 @@ assert DEBUG_MENU_ENABLED is True or DEBUG_MENU_ENABLED is False
 assert 1 <= MAX_INITALIZATION_RETRIES <= 1000
 assert 100 <= PERIODIC_OP_TIMEOUT <= 300000
 
+
 # ********+++++******* Gestione Funzioni menu principale ********************
 
 def exit_from_the_application(this_chord):
@@ -55,23 +56,12 @@ def menu_node_create_and_join():
             # Gestione richiesta nuova porta in caso in cui quella scelta sia stata occupata nel mentre da altri processi
             try:
                 chord.node_join(port)
-            # except (AlreadyUsedPortError, ImpossibleInitializationError):
-            #     print(f"ERROR: the selected port number {port} is already in use. A new port is going to be chosen.")
-            #     retries += 1
             except AlreadyUsedPortError:
                 print(f"ERROR: the selected port number {port} is already in use. A new port is going to be chosen.")
                 retries += 1
             except ImpossibleInitializationError:
                 print(f"ERROR: Impossible initialization of node with port {port}. A new port is going to be chosen.")
                 retries += 1
-            # except AlreadyUsedPortError:
-            #     print(f"ERROR: Impossible initialization of node with port {port}. A new port is going to be chosen.")
-            #     retries += 1
-            # except ImpossibleInitializationError:
-            #     print(f"ERROR: Impossible initialization of node with port {port}. Please retry")
-            #     tcp_port_manager.mark_port_as_free(port)
-            #     retries += 1
-            #     break
             else:
                 print(f"Successfully created node on TCP Port {port} ({tcp_port_manager.get_port_type(port)} Port)")
                 break  # Se tutto è andato bene, esco dal loop
