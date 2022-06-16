@@ -8,19 +8,17 @@ class Chord:
     La classe principale della libreria. Espone i metodi per la gestione di chord
     """
 
-    def __init__(self, max_node_initialization_retries=3, max_file_publish_retires=5, periodic_operations_timeout=5000,
+    def __init__(self, max_file_publish_retires=5, periodic_operations_timeout=5000,
                  debug_mode=False):
         """
         Funzione __init__ della classe. Inizializza tutti gli attributi interni
 
-        :param max_node_initialization_retries: il massimo numero di tentativi di inizializzazione di un nodo (opzionale)
         :param max_file_publish_retires: il massimo numero di tentativi di pubblicazione di un file (opzionale)
         :param periodic_operations_timeout: intervallo tra le operazioni periodiche del nodo in ms (opzionale)
         :param debug_mode: se impostato a True, abilita la stampa dei messaggi di debug (opzionale)
         """
 
         self.__node_dict = dict()
-        self.__CONST_MAX_NODE_INITALIZATION_RETRIES = max_node_initialization_retries
         self.__CONST_MAX_FILE_PUBLISH_RETRIES = max_file_publish_retires
 
         try:
@@ -68,25 +66,17 @@ class Chord:
         # ora posso aggiungere il nuovo nodo al dizionario
         self.__node_dict[port] = new_node
 
-        retries = 1
-        while retries < self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
-            try:
-                # inizializzo la finger table e sposto le eventuali chiavi di competenza
-                new_node.initialize(other_node_info)
-            except ImpossibleInitializationError:
-                print(f"ERROR: Error during the initialization of the node with Port {port}. Retries left: {self.__CONST_MAX_NODE_INITALIZATION_RETRIES - retries}")
-                retries += 1
-            except AlreadyUsedPortError:
-                self.__node_dict[port].terminate()
-                del self.__node_dict[port]
-                raise AlreadyUsedPortError
-            else:
-                break
-
-        if retries == self.__CONST_MAX_NODE_INITALIZATION_RETRIES:
+        try:
+            # inizializzo la finger table e sposto le eventuali chiavi di competenza
+            new_node.initialize(other_node_info)
+        except ImpossibleInitializationError:
             self.__node_dict[port].terminate()
             del self.__node_dict[port]
             raise ImpossibleInitializationError
+        except AlreadyUsedPortError:
+            self.__node_dict[port].terminate()
+            del self.__node_dict[port]
+            raise AlreadyUsedPortError
 
     def node_delete(self, port):
         """

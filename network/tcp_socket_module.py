@@ -59,6 +59,8 @@ class TCPServerModule:
             pass
         except BlockingIOError:
             pass
+        except OSError:
+            pass
         else:
             try:
                 content = tcp_socket_client.recv(1024)

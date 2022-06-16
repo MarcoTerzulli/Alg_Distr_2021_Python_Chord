@@ -199,9 +199,11 @@ class Node:
             successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(other_node_info,
                                                                                                       self.__node_info.get_node_id())
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            self._tcp_request_sender_handler_terminate()
             raise ImpossibleInitializationError
 
         if not successor_node_info:
+            self._tcp_request_sender_handler_terminate()
             raise ImpossibleInitializationError
 
         self.__successor_node_list.append(successor_node_info)
@@ -210,6 +212,7 @@ class Node:
         try:
             self.__finger_table.add_finger(successor_node_info)
         except NoneNodeErrorError:
+            self._tcp_request_sender_handler_terminate()
             raise ImpossibleInitializationError
 
         print(f"Initializing the Node Successor List...")
@@ -264,6 +267,7 @@ class Node:
                 self.im_not_alone_anymore(other_node_info)
             self.__im_alone = False
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
+            self._tcp_request_sender_handler_terminate()
             raise ImpossibleInitializationError
 
         # ottengo dal mio nuovo successore il suo predecessore
@@ -328,6 +332,18 @@ class Node:
             pass
         except AttributeError:
             pass
+
+        try:
+            self.__tcp_request_sender_handler.socket_node_join()
+            del self.__tcp_request_sender_handler
+        except AttributeError:
+            pass
+
+    def _tcp_request_sender_handler_terminate(self):
+        """
+        Metodo interno per la terminazione del thread gestito da tcp_request_sender_handler
+        in caso di inizializzazione del nodo non riuscita
+        """
 
         try:
             self.__tcp_request_sender_handler.socket_node_join()
