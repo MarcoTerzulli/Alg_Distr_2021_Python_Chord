@@ -658,14 +658,6 @@ class Node:
 
         potential_successor = self.__successor_node_list.get_first()
 
-        # # TODO DEBUG
-        # print(f"\n\nStabilize nodo {self.__node_info.get_port()}: Successore attuale {potential_successor.get_port()}")
-        # if self.__predecessor_node:
-        #     print(
-        #         f"Stabilize nodo {self.__node_info.get_port()}: predecessore attuale {self.__predecessor_node.get_port()}")
-        # else:
-        #     print(f"Stabilize nodo {self.__node_info.get_port()}: predecessore attuale none")
-
         try:
             # chiedo al mio successore chi è il suo predecessore
             potential_successor = self.__tcp_request_sender_handler.send_get_predecessor_request(
@@ -696,9 +688,6 @@ class Node:
 
         new_successor = self.__successor_node_list.get_first()  # per chiarezza di lettura
 
-        # # TODO DEBUG
-        # print(f"Stabilize nodo {self.__node_info.get_port()}: nuovo successore {new_successor.get_port()}")
-
         # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
         # ed ottengo gli eventuali file che ora sono di mia competenza
         try:
@@ -720,21 +709,7 @@ class Node:
         :param potential_new_predecessor_node_info: node info del potenziale nuovo predecessore
         """
 
-        # # TODO DEBUG
-        # if self.__predecessor_node:
-        #     print(f"\n\nNotify nodo {self.__node_info.get_port()}: predecessore attuale {self.__predecessor_node.get_port()}")
-        # else:
-        #     print(f"\n\nNotify nodo {self.__node_info.get_port()}: predecessore attuale none")
-        #
-        # # TODO DEBUG
-        # if potential_new_predecessor_node_info:
-        #     print(f"Notify nodo {self.__node_info.get_port()}: predecessore potenziale {potential_new_predecessor_node_info.get_port()}")
-        # else:
-        #     print(f"Notify nodo {self.__node_info.get_port()}: predecessore potenziale none")
-
         if not potential_new_predecessor_node_info or self.__node_info.get_node_id() == potential_new_predecessor_node_info.get_node_id():
-            # # TODO DEBUg
-            # print(f"Notify nodo {self.__node_info.get_port()}: successore già ok")
             return
 
         if not self.__predecessor_node or self.__predecessor_node.get_node_id() < potential_new_predecessor_node_info.get_node_id():
@@ -743,9 +718,6 @@ class Node:
             # siamo nel caso in cui il nodo corrente è il primo nodo della rete, ed il predecessore è l'ultimo
             # il nuovo predecessore diventerà il primo nodo della rete
             self.__predecessor_node = potential_new_predecessor_node_info
-
-        # # TODO DEBUg
-        #     print(f"Notify nodo {self.__node_info.get_port()}: nuovo predecessore {self.__predecessor_node.get_port()}")
 
     def fix_finger(self):
         """
