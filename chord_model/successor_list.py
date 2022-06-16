@@ -162,9 +162,6 @@ class SuccessorList:
         for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
             self.__node_list.append(object_to_be_inserted)
 
-        # for i in range(0, self.__CONST_MAX_SUCC_NUMBER):
-        #     self.__node_list[i] = object_to_be_inserted
-
     def get_closest_successor(self, key):
         """
         Metodo per ottenere il più piccolo nodo, se esiste, tra i successori della chiave data

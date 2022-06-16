@@ -88,27 +88,28 @@ class FileSystem:
         new_file_dict = dict()
         keys_to_be_deleted_list = list()
 
-        for key in self.__file_dict.keys():
-            # Spiegazione di new_node_id >= key:
-            # classico caso di trasferimento delle key
+        if self.__file_dict:
+            for key in self.__file_dict.keys():
+                # Spiegazione di new_node_id >= key:
+                # classico caso di trasferimento delle key
 
-            # Spiegazione di (key > self.__node_id > new_node_id):
-            # questo caso serve a gestire il caso in cui il nodo corrente è il primo nodo della rete, e gestisce file
-            # con key più grandi di qualsiasi altro nodo sulla rete.
-            # La gestione di tali file dovrò essere affidata nuovamente al nuovo nodo
+                # Spiegazione di (key > self.__node_id > new_node_id):
+                # questo caso serve a gestire il caso in cui il nodo corrente è il primo nodo della rete, e gestisce file
+                # con key più grandi di qualsiasi altro nodo sulla rete.
+                # La gestione di tali file dovrò essere affidata nuovamente al nuovo nodo
 
-            # Spiegazione di (key >= new_node_id and new_node_id < self.__node_id):
-            # questo caso serve a gestire il caso in cui il nodo corrente è il primo nodo della rete, e gestisce file
-            # con key più grandi di qualsiasi altro nodo sulla rete.
-            # La gestione di tali file dovrò essere affidata al nuovo nodo qualora quest'ultimo sia diventato l'ultimo
-            # (ovvero il più grande) nodo della rete.
-            # E' corretto perché se quelle key le aveva questo nodo, vuol dire che fino ad adesso nella rete non c'era
-            # alcun nodo con id sufficientemente grande da gestirle
+                # Spiegazione di (key >= new_node_id and new_node_id < self.__node_id):
+                # questo caso serve a gestire il caso in cui il nodo corrente è il primo nodo della rete, e gestisce file
+                # con key più grandi di qualsiasi altro nodo sulla rete.
+                # La gestione di tali file dovrò essere affidata al nuovo nodo qualora quest'ultimo sia diventato l'ultimo
+                # (ovvero il più grande) nodo della rete.
+                # E' corretto perché se quelle key le aveva questo nodo, vuol dire che fino ad adesso nella rete non c'era
+                # alcun nodo con id sufficientemente grande da gestirle
 
-            if new_node_id >= key or (key > self.__node_id > new_node_id) or (
-                    key <= new_node_id and new_node_id > self.__node_id):
-                new_file_dict[key] = copy.deepcopy(self.__file_dict[key])
-                keys_to_be_deleted_list.append(key)
+                if new_node_id >= key or (key > self.__node_id > new_node_id) or (
+                        key <= new_node_id and new_node_id > self.__node_id):
+                    new_file_dict[key] = copy.deepcopy(self.__file_dict[key])
+                    keys_to_be_deleted_list.append(key)
 
         # la rimozione dal dizionario va fatta fuori dal for, altrimenti viene generato errore
         for key in keys_to_be_deleted_list:

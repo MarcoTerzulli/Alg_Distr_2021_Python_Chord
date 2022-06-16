@@ -74,6 +74,7 @@ class Chord:
                 # inizializzo la finger table e sposto le eventuali chiavi di competenza
                 new_node.initialize(other_node_info)
             except ImpossibleInitializationError:
+                print(f"ERROR: Error during the initialization of the node with Port {port}. Retries left: {self.__CONST_MAX_NODE_INITALIZATION_RETRIES - retries}")
                 retries += 1
             except AlreadyUsedPortError:
                 self.__node_dict[port].terminate()
