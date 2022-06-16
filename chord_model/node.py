@@ -260,8 +260,8 @@ class Node:
             raise ImpossibleInitializationError
 
         # ottengo dal mio nuovo successore il suo predecessore
-        self.__predecessor_node = self.__tcp_request_sender_handler.send_get_predecessor_request(self.__successor_node_list.get_first())
-
+        self.__predecessor_node = self.__tcp_request_sender_handler.send_get_predecessor_request(
+            self.__successor_node_list.get_first())
 
         # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
         # ed ottengo gli eventuali file che ora sono di mia competenza
@@ -273,17 +273,6 @@ class Node:
             if new_files_dict is not None and new_files_dict.__len__() > 0:
                 for key in new_files_dict.keys():
                     self.__file_system.put_file(key, new_files_dict[key])
-
-        # TODO DEBUG
-        # if self.__predecessor_node:
-        #     print(f"{self.__node_info.get_port()} my predecessor: {self.__predecessor_node.get_port()}")
-        # else:
-        #     print(f"{self.__node_info.get_port()} no predecessor")
-        #
-        # if self.__successor_node_list.get_first():
-        #     print(f"{self.__node_info.get_port()} my successor: {self.__successor_node_list.get_first().get_port()}")
-        # else:
-        #     print(f"{self.__node_info.get_port()} no successor")
 
     def terminate(self):
         """
@@ -644,13 +633,7 @@ class Node:
         Da eseguire periodicamente.
         """
 
-        # TODO DEBUG
-        # print(f"\n\n{self.__node_info.get_port()} stabiliize")
-
         potential_successor = self.__successor_node_list.get_first()
-
-        # TODO DEBUG
-        # print(f"{self.__node_info.get_port()} successore potenziale: {self.__successor_node_list.get_first().get_port()}")
 
         try:
             # chiedo al mio successore chi è il suo predecessore
@@ -676,13 +659,8 @@ class Node:
         except NoPrecedessorFoundError:
             return  # non devo fare altro
 
-        # TODO DEBUG
-        # print(f"{self.__node_info.get_port()} nuovo successore: {self.__successor_node_list.get_first().get_port()}")
-
         # verifico se il predecessore del mio successore sono io
         if potential_successor.get_node_id() == self.__node_info.get_node_id():
-            # TODO DEBUG
-            # print(f"{self.__node_info.get_port()} il predecessore del mio successore sono io")
             return  # è tutto ok. non devo fare altro
 
         new_successor = self.__successor_node_list.get_first()  # per chiarezza di lettura
@@ -690,8 +668,6 @@ class Node:
         # a questo punto informo il mio nuovo successore che sono diventato il suo predecessore
         # ed ottengo gli eventuali file che ora sono di mia competenza
         try:
-            # TODO DEBUG
-            # print(f"{self.__node_info.get_port()} informo {new_successor.get_port()} che sono il suo predecessore")
             new_files_dict = self.__tcp_request_sender_handler.send_notify(new_successor)
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             # il nodo potrebbe aver avuto problemi o essere uscito da chord
