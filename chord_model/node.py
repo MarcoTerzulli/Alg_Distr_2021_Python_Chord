@@ -201,9 +201,16 @@ class Node:
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             raise ImpossibleInitializationError
 
+        if not successor_node_info:
+            raise ImpossibleInitializationError
+
         self.__successor_node_list.append(successor_node_info)
-        self.__finger_table.add_finger(successor_node_info)
         self.__predecessor_node = None
+
+        try:
+            self.__finger_table.add_finger(successor_node_info)
+        except NoneNodeErrorError:
+            raise ImpossibleInitializationError
 
         print(f"Initializing the Node Successor List...")
         sleep(0.1)

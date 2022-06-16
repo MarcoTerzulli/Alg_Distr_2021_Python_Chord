@@ -116,6 +116,14 @@ class ImpossibleInitializationError(Exception):
     pass
 
 
+class NoneNodeErrorError(Exception):
+    """
+    Eccezione generata a seguito del tentativo di accesso a metodi di un nodo,
+    che però è None
+    """
+    pass
+
+
 class SuccessorListIsFullError(Exception):
     """
     Eccezione generata nel tentativo di aggiunta di un nuovo nodo alla lista

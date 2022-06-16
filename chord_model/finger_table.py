@@ -1,3 +1,4 @@
+from exceptions.exceptions import NoneNodeErrorError
 from utilities.chord_utils import *
 
 
@@ -25,15 +26,18 @@ class FingerTable:
         i = self.__my_node_info.get_node_id()
 
         for j in range(1, CONST_M + 1):
-            if new_finger.get_node_id() >= (i + 2 ** (j - 1)) % 2 ** CONST_M:
+            try:
+                if new_finger.get_node_id() >= (i + 2 ** (j - 1)) % 2 ** CONST_M:
 
-                # Il finger può essere none solo se la tabella è vuota
-                if self.__table_dict[j] is None or new_finger.get_node_id() < self.__table_dict[j].get_node_id():
-                    self.__table_dict[j] = new_finger
-                else:
-                    # Il finger che stiamo guardando ha un id più piccolo (e lo stesso varrà per i successivi),
-                    # dunque non va sostituito
-                    break
+                    # Il finger può essere none solo se la tabella è vuota
+                    if self.__table_dict[j] is None or new_finger.get_node_id() < self.__table_dict[j].get_node_id():
+                        self.__table_dict[j] = new_finger
+                    else:
+                        # Il finger che stiamo guardando ha un id più piccolo (e lo stesso varrà per i successivi),
+                        # dunque non va sostituito
+                        break
+            except AttributeError:
+                raise NoneNodeErrorError
 
     def insert_finger_by_index(self, index, new_finger):
         """
