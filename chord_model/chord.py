@@ -209,7 +209,7 @@ class Chord:
 
             # stampa
             for key, node_id in ordered_dict.items():
-                print(f" * IP an Port: {key} - ID: {node_id}")
+                print(f" * IP and Port: {key} - ID: {node_id}")
 
     def _double_check_if_port_is_free(self, port):
         """
