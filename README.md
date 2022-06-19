@@ -60,7 +60,7 @@ Currently supported settings:
 
 #### Note About the Debugging Menu
 
-This menu is meant only for debugging purposes and for checking and understanding how the Chord network works.<br>ß
+This menu is meant only for debugging purposes and for checking and understanding how the Chord network works.<br>
 Warning: the use of the debugging commands could make the application stop working properly. Use these commands at your own risk!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
