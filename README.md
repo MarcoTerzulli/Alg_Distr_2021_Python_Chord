@@ -27,10 +27,9 @@ Software to install for the project to work, and how to install it.
 ```
 * A Linux, Windows or MacOS machine
 * Python 3.7+
-* Python Pip3
 ```
 
-No additional requirements needed!
+No additional requirements and installation steps needed!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
