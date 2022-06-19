@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="19ccd254-2ccc-4f57-9cd9-42a981e37c1d" name="Changes" comment="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base.">
-      <change beforePath="$PROJECT_DIR$/network/tcp_socket_module.py" beforeDir="false" afterPath="$PROJECT_DIR$/network/tcp_socket_module.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +126,7 @@
       <workItem from="1654670181773" duration="13103000" />
       <workItem from="1655196004878" duration="5276000" />
       <workItem from="1655230141014" duration="32218000" />
-      <workItem from="1655537383671" duration="2267000" />
+      <workItem from="1655537383671" duration="2360000" />
     </task>
     <task id="LOCAL-00001" summary="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base.">
       <created>1651245964212</created>
@@ -157,6 +157,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Alg_Distr_2021_Python_Chord$main.coverage" NAME="main Coverage Results" MODIFIED="1655640313861" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Alg_Distr_2021_Python_Chord$main.coverage" NAME="main Coverage Results" MODIFIED="1655641901247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
