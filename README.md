@@ -25,7 +25,7 @@ The following instructions will allow you to have a working copy of the project 
 Software to install for the project to work, and how to install it.
 
 ```
-* A Linux or MacOS machine
+* A Linux, Windows or MacOS machine
 * Python 3.7+
 * Python Pip3
 ```
@@ -87,6 +87,6 @@ I chose a simpler and straight forward approach.
 
 
 ## Known Issues
-No known issues so far!
+* The termination of a node should free its TCP port. However, this doesn't always happen immediately. This doesn't compromise in any way the application functionalities since other ports are going to be chosen for the new nodes (until all the systems ports are taken, of course).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
