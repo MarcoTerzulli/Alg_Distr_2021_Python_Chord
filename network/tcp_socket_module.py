@@ -75,12 +75,11 @@ class TCPServerModule:
                 try:
                     content = pickle.loads(content)
                 except pickle.UnpicklingError:
-                    print(content)  # TODO DEBUG
                     return None, None, None
 
                 if self.__debug_mode:
                     print(
-                        f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")  # TODO DEBUG
+                        f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}") ß
 
             else:
                 content = None
