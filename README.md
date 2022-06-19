@@ -58,6 +58,11 @@ Currently supported settings:
 * ```Max Node Initalization Retries```: specifies the max number of initialization retries for a node. It's here to prevent a loop in case a the most of the TCP ports are full
 * ```Node Periodic Operations Timeout```: specifies the nodes periodic operations timeout A higher timeout is suggested if you're going to create a lot of nodes for reducing the TCP traffic
 
+#### Note About the Debugging Menu
+
+This menu is meant only for debugging purposes and for checking and understanding how the Chord network works.<br>ß
+Warning: the use of the debugging commands could make the application stop working properly. Use these commands at your own risk!
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
