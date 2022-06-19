@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="19ccd254-2ccc-4f57-9cd9-42a981e37c1d" name="Changes" comment="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -127,7 +126,7 @@
       <workItem from="1654670181773" duration="13103000" />
       <workItem from="1655196004878" duration="5276000" />
       <workItem from="1655230141014" duration="32218000" />
-      <workItem from="1655537383671" duration="2008000" />
+      <workItem from="1655537383671" duration="2131000" />
     </task>
     <task id="LOCAL-00001" summary="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base.">
       <created>1651245964212</created>
