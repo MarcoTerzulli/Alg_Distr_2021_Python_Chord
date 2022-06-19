@@ -53,7 +53,7 @@ A simple command line interface is going to appear, allowing the interaction wit
 You can specify additional settings to tune the Application behaviour inside the ```settings.py``` file.
 
 Currently supported settings:
-* ```Debug Mode```: enables the print of the debug messages for the main operations. **WARNING**: the nodes are going to print A LOT of debug messages due to their frequent periodic operations, making the use of the application difficult.
+* ```Debug Mode```: enables the print of the debug messages for the main operations. **Warning**: the nodes are going to print A LOT of debug messages due to their frequent periodic operations, making the use of the application difficult.
 * ```Debug Menu Enabled```: enabled the hidden debugging menu. This menu shows advanced options for understanding how the network is working
 * ```Max Node Initalization Retries```: specifies the max number of initialization retries for a node. It's here to prevent a loop in case a the most of the TCP ports are full
 * ```Node Periodic Operations Timeout```: specifies the nodes periodic operations timeout A higher timeout is suggested if you're going to create a lot of nodes for reducing the TCP traffic
@@ -62,7 +62,7 @@ Currently supported settings:
 
 This menu is meant only for debugging purposes and for checking and understanding how the Chord network works.
 
-**WARNING**: the use of the debugging commands could make the application stop working properly. Use these commands at your own risk!
+**Warning**: the use of the debugging commands could make the application stop working properly. Use these commands at your own risk!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
