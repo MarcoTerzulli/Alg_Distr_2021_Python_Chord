@@ -79,7 +79,7 @@ class TCPServerModule:
 
                 if self.__debug_mode:
                     print(
-                        f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}") ß
+                        f"\nTCP Server on Port {self.__tcp_server_port}: New message received from Client on {client_ip}:{client_port}")
 
             else:
                 content = None
