@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="19ccd254-2ccc-4f57-9cd9-42a981e37c1d" name="Changes" comment="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chord_model/chord.py" beforeDir="false" afterPath="$PROJECT_DIR$/chord_model/chord.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chord_model/node.py" beforeDir="false" afterPath="$PROJECT_DIR$/chord_model/node.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/received_messages_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/network/received_messages_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -130,7 +128,7 @@
       <workItem from="1654670181773" duration="13103000" />
       <workItem from="1655196004878" duration="5276000" />
       <workItem from="1655230141014" duration="32218000" />
-      <workItem from="1655537383671" duration="8129000" />
+      <workItem from="1655537383671" duration="10726000" />
     </task>
     <task id="LOCAL-00001" summary="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base.">
       <created>1651245964212</created>
@@ -161,6 +159,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Test creazione e distruzione classe nodo gestita tramite multiprocessing. Classe nodo in versione base." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Alg_Distr_2021_Python_Chord$main.coverage" NAME="main Coverage Results" MODIFIED="1655802318339" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Alg_Distr_2021_Python_Chord$main.coverage" NAME="main Coverage Results" MODIFIED="1655803738026" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

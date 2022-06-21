@@ -10,7 +10,7 @@ DEBUG_MODE = False
 # The following flag enables the hidden debugging menu
 # This menu shows advanced options for understanding how the
 # network is working
-DEBUG_MENU_ENABLED = True
+DEBUG_MENU_ENABLED = False
 
 # The following setting specifies the max number of initialization retries
 # for a node. It's here to prevent a loop in case a the most of the TCP
