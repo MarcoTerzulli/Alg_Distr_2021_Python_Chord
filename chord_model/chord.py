@@ -170,7 +170,10 @@ class Chord:
         if not random_node:
             raise ChordIsEmptyError
 
-        return random_node.get_file(key)
+        try:
+            return random_node.get_file(key)
+        except FileNotFoundInChordError:
+            return None
 
     def file_delete(self, key):
         """

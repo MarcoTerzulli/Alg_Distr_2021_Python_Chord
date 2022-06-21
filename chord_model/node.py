@@ -408,6 +408,7 @@ class Node:
                     f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
                 self.__successor_node_list.print()
 
+        # Nel caso di nodi:
         # se non sono stato in grado di trovare nessun successore nella rete
         # ed il mio id è inferiore a quello dell'altro nodo,
         # allora è probabile che siamo gli unici due nodi della rete.
@@ -813,7 +814,6 @@ class Node:
             # cerco il più piccolo nodo sulla rete
             if not self.__successor_node_list.is_empty():
                 successor_node_info = self._search_the_smallest_node_in_chord()
-
             else:
                 successor_node_info = self.__node_info
 
@@ -851,9 +851,16 @@ class Node:
             successor_node_info = self.find_key_successor(key)
 
         if not successor_node_info:
-            raise FileNotFoundInChordError
+            # raise FileNotFoundInChordError
+            # cerco il più piccolo nodo sulla rete
+            if not self.__successor_node_list.is_empty():
+                successor_node_info = self._search_the_smallest_node_in_chord()
+            else:
+                # Potrei essere io il responsabile in questo caso
+                successor_node_info = self.__node_info
 
         if self.__node_info.equals(successor_node_info):
+            # Provo ad ottenere il file. Potrei non averlo, in tal caso file diventa None
             file = self.get_my_file(key)
         else:
             try:
