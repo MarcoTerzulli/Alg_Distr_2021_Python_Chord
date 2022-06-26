@@ -63,8 +63,8 @@ class Chord:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
         # prendo un nodo randomicamente
-        #other_node_info = self._get_random_node_info()
-        other_node_info = self._get_first_node_info() #todo test
+        # other_node_info = self._get_random_node_info()
+        other_node_info = self._get_first_node_info()
 
         # ora posso aggiungere il nuovo nodo al dizionario
         self.__node_dict[port] = new_node
@@ -253,7 +253,6 @@ class Chord:
 
         return found_node
 
-    # todo test
     def _get_first_node(self):
         """
         Metodo per l'ottenimento del nodo più piccolo della rete

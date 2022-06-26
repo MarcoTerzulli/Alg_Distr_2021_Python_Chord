@@ -199,29 +199,16 @@ class Node:
         :param other_node_info: node info del mio "amico"
         """
 
-        # todo debug
-        print(
-            f"Sto inizializzando il nodo {self.__node_info.get_port()}. Il mio amico è {other_node_info.get_port()}")
-
         # richiesta al nodo successore
         try:
             successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(other_node_info,
                                                                                                       self.__node_info.get_node_id())
         except (TCPRequestTimerExpiredError, TCPRequestSendError):
             self._tcp_request_sender_handler_terminate()
-
-            # todo debug
-            print(
-                f"Sto inizializzando il nodo {self.__node_info.get_port()}. timeout nella ricerca del mio successore")
-
             raise ImpossibleInitializationError
 
         if not successor_node_info:
             self._tcp_request_sender_handler_terminate()
-
-            # todo debug
-            print(
-                f"Sto inizializzando il nodo {self.__node_info.get_port()}. Il mio successore è none")
             raise ImpossibleInitializationError
 
         self.__successor_node_list.append(successor_node_info)
@@ -231,10 +218,6 @@ class Node:
         except NoneNodeErrorError:
             self._tcp_request_sender_handler_terminate()
             raise ImpossibleInitializationError
-
-        # todo debug
-        print(
-            f"Sto inizializzando il nodo {self.__node_info.get_port()}. Il mio successore è {successor_node_info.get_port()}")
 
         self.__predecessor_node = None
 
@@ -276,11 +259,7 @@ class Node:
                 if finger_node_info:
                     self.__finger_table.add_finger(finger_node_info)
             except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                # todo debug
-                print(
-                    f"Sto inizializzando il nodo {self.__node_info.get_port()}. richiesta finger andata in TIMEOUT. Ripopolo il successore ")
-
-                #pass
+                # pass
                 self._repopulate_successor_list(0)
 
             if i % 10 == 0:
@@ -312,12 +291,6 @@ class Node:
             if new_files_dict is not None and new_files_dict.__len__() > 0:
                 for key in new_files_dict.keys():
                     self.__file_system.put_file(key, new_files_dict[key])
-
-
-        # todo debug
-        print(
-            f"Sto inizializzando il nodo {self.__node_info.get_port()}. FINE INIZIALIZZAZIONE. Il mio predecessore è {self.__predecessor_node.get_port()}. Il mio successore è {self.__successor_node_list.get_first().get_port()}")
-
 
     def terminate(self):
         """
@@ -413,10 +386,6 @@ class Node:
             # in questo caso, se la chiave è maggiore del mio predecessore, tocca a me occuparmene in
             # quanto sono il primo nodo
             if self.get_node_info().get_node_id() < self.__predecessor_node.get_node_id() < key:
-                # # todo debug
-                # print(
-                #     f"Nodo {self.__node_info.get_port()}: sono il primo della rete. Sono anche il responsabile")
-
                 return self.__node_info
 
             if self.__predecessor_node.get_node_id() != self.__successor_node_list.get_first().get_node_id():
@@ -428,39 +397,18 @@ class Node:
                     # della ricerca del successore, ma il suo predecessore è in realtà un candidato
                     # Mando avanti la query e prima o poi raggiungerà il nodo corretto
                     try:
-                        # # todo debug
-                        # print(
-                        #     f"\nNodo {self.__node_info.get_port()}: sono nel nuovo caso. Chiave {key}. Mando la richiesta avanti a {self.__successor_node_list.get_first().get_port()}")
-
                         return self.__tcp_request_sender_handler.send_search_key_successor_request(
-                                self.__successor_node_list.get_first(), key)
+                            self.__successor_node_list.get_first(), key)
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                        # # todo debug
-                        # print(
-                        #     f"Nodo {self.__node_info.get_port()}: il nuovo caso è rotto")
-
                         self._repopulate_successor_list(0)
                         return None
-
-        # # todo debug
-        # print(
-        #     f"\nNodo {self.__node_info.get_port()}: Effettuo la ricerca tra i successori per la Chiave {key}.")
 
         # effettuo una ricerca nella lista dei successori
         try:
             successor = self.__successor_node_list.get_closest_successor(key)  # il successore è il primo con id >= key
-
-            # # todo debug
-            # print(
-            #     f"\nNodo {self.__node_info.get_port()}:il successore è {successor.get_port()}.")
-
             return successor
         except NoSuccessorFoundError:
             pass  # nessun successore nella lista è responsabile della key
-
-        # # todo debug
-        # print(
-        #     f"Nodo {self.__node_info.get_port()}: Effettuo la ricerca nella finger table.")
 
         # effettuo una ricerca nella finger table
         successor_node_info = None
@@ -469,83 +417,27 @@ class Node:
         if closest_predecessor_node_info:
             # se il closest predecessor sono io, vuol dire che nella rete non c'è nessun successore
             if closest_predecessor_node_info.get_node_id() == self.__node_info.get_node_id():
-                # # todo debug
-                # print(
-                #     f"Nodo {self.__node_info.get_port()}: Sono il closest predecessor ma la chiave non è di mia competenza. Mando avanti la richiesta")
 
                 try:
                     successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
                         self.__successor_node_list.get_first(), key)
 
-                    # # todo debug
-                    # print(
-                    #     f"Nodo {self.__node_info.get_port()}: Ho ricevuto risposta. Il successore è {successor_node_info.get_port()}")
-
                 except (TCPRequestTimerExpiredError, TCPRequestSendError):
-                    # # todo debug
-                    # print(
-                    #     f"Nodo {self.__node_info.get_port()}: ho mandato avanti la richiesta ma è andata in TIMEOUT")
-
                     successor_node_info = self._search_the_smallest_node_in_chord()
             else:
                 try:
                     successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
                         closest_predecessor_node_info, key)
+
                 except (TCPRequestTimerExpiredError, TCPRequestSendError):
                     try:
-                        # # todo debug
-                        # print(
-                        #     f"Nodo {self.__node_info.get_port()}: TIMEOUT")
-
                         if self.__successor_node_list.get_first().get_node_id() == closest_predecessor_node_info.get_node_id():
-                            # # todo debug
-                            # print(
-                            #     f"Nodo {self.__node_info.get_port()}: restituisco il nodo più piccolo della rete")
-
                             return self._search_the_smallest_node_in_chord()
                         else:
-                            # # todo debug
-                            # print(
-                            #     f"Nodo {self.__node_info.get_port()}: mando avanti la richiesta al mio successore {self.__successor_node_list.get_first().get_port()}")
-
                             return self.__tcp_request_sender_handler.send_search_key_successor_request(
                                 self.__successor_node_list.get_first(), key)
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         self._repopulate_successor_list(0)
-
-
-
-        # try:
-        #     closest_predecessor_node_info = self.closest_preceding_finger(key)
-        #
-        #     if closest_predecessor_node_info:
-        #         # se il closest predecessor sono io, vuol dire che nella rete non c'è nessun successore
-        #         if closest_predecessor_node_info.get_node_id() == self.__node_info.get_node_id():
-        #             pass
-        #         else:
-        #             try:
-        #                 successor_node_info = self.__tcp_request_sender_handler.send_search_key_successor_request(
-        #                     closest_predecessor_node_info, key)
-        #             except (TCPRequestTimerExpiredError, TCPRequestSendError):
-        #                 self._repopulate_successor_list(0)
-        #
-        # except (TCPRequestTimerExpiredError, TCPRequestSendError):
-        #     self._repopulate_successor_list(0)
-        #
-        #     if self.__debug_mode:
-        #         print(
-        #             f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Repopulating my Successor List (Item 0)")
-        #         print(
-        #             f"\nDEBUG: {self.__node_info.get_port()} in the Find Key Successor Method: Here's my New Successor List")
-        #         self.__successor_node_list.print()
-
-        # Nel caso di nodi:
-        # se non sono stato in grado di trovare nessun successore nella rete
-        # ed il mio id è inferiore a quello dell'altro nodo,
-        # allora è probabile che siamo gli unici due nodi della rete.
-        # Il successore dell'altro nodo sono io, e lui diventerà a sua volta il mio successore
-        # if self.__node_info.get_node_id() >= key and not successor_node_info:
-        #     return self.__node_info
 
         return successor_node_info
 
@@ -849,14 +741,8 @@ class Node:
         if not potential_new_predecessor_node_info or self.__node_info.get_node_id() == potential_new_predecessor_node_info.get_node_id():
             return
 
-        if self.__predecessor_node:
-            print(f"{self.__node_info.get_port()} sono dentro notify. Il predecessore potenziale è {potential_new_predecessor_node_info.get_port()}")
-
         if not self.__predecessor_node or self.__predecessor_node.get_node_id() < potential_new_predecessor_node_info.get_node_id():
             self.__predecessor_node = potential_new_predecessor_node_info
-
-            print(
-                f"{self.__node_info.get_port()} sono dentro notify. Il nuovo predecessore è {self.__predecessor_node.get_port()}")
 
         elif self.__predecessor_node.get_node_id() > self.__node_info.get_node_id() > potential_new_predecessor_node_info.get_node_id():
             # siamo nel caso in cui il nodo corrente è il primo nodo della rete, ed il predecessore è l'ultimo
