@@ -415,7 +415,9 @@ class Node:
         closest_predecessor_node_info = self.closest_preceding_finger(key)
 
         if closest_predecessor_node_info:
-            # se il closest predecessor sono io, vuol dire che nella rete non c'è nessun successore
+            # se il closest predecessor sono io, vuol dire che non conosco nessun successore
+            # provo a mandare avanti la richiesta: prima o poi arriverà un successore,
+            # o eventualmente verrà gestita dal nodo più piccolo
             if closest_predecessor_node_info.get_node_id() == self.__node_info.get_node_id():
 
                 try:
