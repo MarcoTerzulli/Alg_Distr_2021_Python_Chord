@@ -60,7 +60,7 @@ class ReceivedMessagesHandler:
             file_dict = self.__my_node.get_file_system().retrieve_files_for_a_new_node(
                 message.get_sender_node_info().get_node_id())
             answer = NotifyAnswerMessage(dest, send, ticket, file_dict)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # get predecessor request
         elif message.get_type() == MSG_TYPE_GET_PREC_RQST:
@@ -69,19 +69,19 @@ class ReceivedMessagesHandler:
             except NoPrecedessorFoundError:
                 found_predecessor = None
             answer = GetPredecessorAnswerMessage(dest, send, found_predecessor, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # get First successor request
         elif message.get_type() == MSG_TYPE_GET_FIRST_SUCC_RQST:
             first_successor_node_info = self.__my_node.get_first_successor()
             answer = GetFirstSuccessorAnswerMessage(dest, send, ticket, first_successor_node_info)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # Find key successor request
         elif message.get_type() == MSG_TYPE_SEARCH_KEY_SUCC_RQST:
             found_successor = self.__my_node.find_key_successor(message.get_key())
             answer = SearchKeySuccessorAnswerMessage(dest, send, found_successor, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # leaving predecessor request
         elif message.get_type() == MSG_TYPE_LEAVE_PREC_RQST:
@@ -95,7 +95,7 @@ class ReceivedMessagesHandler:
                     self.__my_node.put_file_here(key, files[key])
 
             answer = LeavingPredecessorAnswerMessage(dest, send, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # leaving successor request
         elif message.get_type() == MSG_TYPE_LEAVE_SUCC_RQST:
@@ -103,7 +103,7 @@ class ReceivedMessagesHandler:
             self.__my_node.notify_leaving_successor(new_successor_node_info)
 
             answer = LeavingSuccessorAnswerMessage(dest, send, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # you're not alone request
         elif message.get_type() == MSG_TYPE_YOURE_NOT_ALONE_RQST:
@@ -111,7 +111,7 @@ class ReceivedMessagesHandler:
 
             self.__my_node.im_not_alone_anymore(message.get_sender_node_info())
             answer = YoureNotAloneAnswerMessage(dest, send, ticket, i_was_alone)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # file publish request
         elif message.get_type() == MSG_TYPE_FILE_PBLSH_RQST:
@@ -121,7 +121,7 @@ class ReceivedMessagesHandler:
             self.__my_node.put_file_here(file_key, file)
 
             answer = FilePublishAnswerMessage(dest, send, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # file delete request
         elif message.get_type() == MSG_TYPE_FILE_DEL_RQST:
@@ -129,7 +129,7 @@ class ReceivedMessagesHandler:
             self.__my_node.delete_my_file(file_key)
 
             answer = FileDeleteAnswerMessage(dest, send, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # file request (get)
         elif message.get_type() == MSG_TYPE_FILE_RQST_RQST:
@@ -138,12 +138,12 @@ class ReceivedMessagesHandler:
             file = self.__my_node.get_my_file(file_key)
 
             answer = FileAnswerMessage(dest, send, ticket, file)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # ping request
         elif message.get_type() == MSG_TYPE_PING:
             answer = PingAnswerMessage(dest, send, ticket)
-            self.__my_socket_node.send_message(sender_port, answer)
+            self._send_answer(sender_port,  answer)
 
         # answer
         elif message.get_type() == MSG_TYPE_ANSWER:
@@ -151,6 +151,19 @@ class ReceivedMessagesHandler:
 
         else:
             raise InvalidMessageTypeError
+
+    def _send_answer(self, sender_port, answer):
+        """
+        Metodo interno per l'invio di un messaggio di risposta.
+
+        :param sender_port: porta di destinazione (è la porta del mittente del messaggio originario)
+        :param answer: il messaggio di risposta
+        """
+
+        try:
+            self.__my_socket_node.send_message(sender_port, answer)
+        except TCPRequestSendError:
+            pass
 
     # ************************** METODI DI DEBUG *******************************
 

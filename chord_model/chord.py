@@ -63,7 +63,8 @@ class Chord:
             raise AlreadyUsedPortError  # la gestione dell'eccezione viene rimandata al chiamante
 
         # prendo un nodo randomicamente
-        other_node_info = self._get_random_node_info()
+        #other_node_info = self._get_random_node_info()
+        other_node_info = self._get_first_node_info() #todo test
 
         # ora posso aggiungere il nuovo nodo al dizionario
         self.__node_dict[port] = new_node
@@ -251,6 +252,41 @@ class Chord:
             raise NoNodeFoundOnPortError
 
         return found_node
+
+    # todo test
+    def _get_first_node(self):
+        """
+        Metodo per l'ottenimento del nodo più piccolo della rete
+
+        :return: il nodo più piccolo della rete. None se non vi sono nodi nella rete
+        """
+
+        if self.__node_dict.__len__() == 0:
+            return None
+
+        # creazione di un dizionario di supporto per l'ordinamento
+        support_dict = dict()
+        for key, node in self.__node_dict.items():
+            if node is not None:
+                new_key = node.get_node_info().get_node_id()
+                support_dict[new_key] = node.get_node_info().get_port()
+
+        # Prendo la chiave più piccola chiave dal dizionario
+        smallest_node_key = min(list(support_dict.keys()))
+
+        return self.__node_dict[support_dict[smallest_node_key]]
+
+    def _get_first_node_info(self):
+        """
+        Metodo per l'ottenimento del nodo node info del nodo più piccolo della rete
+
+        :return: il nodo info del nodo più piccolo della rete. None se non vi sono nodi nella rete
+        """
+
+        if self.__node_dict.__len__() == 0:
+            return None
+
+        return copy.deepcopy(self._get_first_node().get_node_info())
 
     def _get_random_node(self):
         """

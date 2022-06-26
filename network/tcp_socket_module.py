@@ -188,7 +188,7 @@ class TCPClientModule:
             # self.__tcp_client.send(message.encode("utf-8"))  # non si può encodare un oggetto complesso
             message_pickle = pickle.dumps(message)
             self.__tcp_client.send(message_pickle)
-        except BrokenPipeError:
+        except (BrokenPipeError, OSError):
             if self.__debug_mode:
                 print(f"\nERROR: TCP Request to IP {ip} Got an Error")
             raise TCPRequestSendError

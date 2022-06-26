@@ -56,11 +56,17 @@ class SocketNode(Thread):
         while not self._stop_event.is_set():
             # Accetta un'eventuale connessione in ingresso e la elabora
             (client_ip, client_port, message) = self.__tcp_server.tcp_server_accept()
+
             # Rimando la gestione del messaggio al layer chord
-            try:
-                self.__this_msg_handler.process_message(message)
-            except EmptyMessageError:
-                pass
+            if message:
+                thread = Thread(target=self.__this_msg_handler.process_message, args=(message,))
+                thread.start()
+
+
+            # try:
+            #     self.__this_msg_handler.process_message(message)
+            # except EmptyMessageError:
+            #     pass
 
     def send_message(self, destination_port, message):
         tcp_client = TCPClientModule(port=destination_port, debug_mode=self.__debug_mode)
