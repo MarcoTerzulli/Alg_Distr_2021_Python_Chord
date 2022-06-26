@@ -389,6 +389,11 @@ class Node:
                 return self.__node_info
 
             if self.__predecessor_node.get_node_id() != self.__successor_node_list.get_first().get_node_id():
+                # se il mio predecessore è più grande di me, sono il primo della rete
+                # in questo caso, se sono successore della chiave, sono sicuro al 100% di essere il vero successore
+                # if self.__predecessor_node.get_node_id() > self.__node_info.get_node_id() >= key:
+                #     return self.__node_info
+
                 # il seguente caso vale solo se ci sono almeno 3 nodi nella rete.
                 # Se sono solo 2, il mio successore ed il mio predecessore sono uguali. In questo caso devo
                 # fare il controllo "classico" della lista dei successori
@@ -838,13 +843,21 @@ class Node:
 
         successor_node_info = self.find_key_successor(key)
 
+        # todo debug
+        if successor_node_info:
+            print(f"{self.__node_info.get_port()} il successore del file è {successor_node_info.get_port()}")
+
         if not successor_node_info:
             # cerco il più piccolo nodo sulla rete
             if not self.__successor_node_list.is_empty():
                 successor_node_info = self._search_the_smallest_node_in_chord()
             else:
                 successor_node_info = self.__node_info
-
+        else:
+            if not self.__im_alone:
+                if self.__predecessor_node.get_node_id() > self.__node_info.get_node_id() >= key:
+                    successor_node_info = self.__node_info
+                    
         if not self.__node_info.equals(successor_node_info):
             try:
                 self.__tcp_request_sender_handler.send_publish_request(successor_node_info, key, file)
@@ -883,6 +896,10 @@ class Node:
             else:
                 # Potrei essere io il responsabile in questo caso
                 successor_node_info = self.__node_info
+        else:
+            if not self.__im_alone:
+                if self.__predecessor_node.get_node_id() > self.__node_info.get_node_id() >= key:
+                    successor_node_info = self.__node_info
 
         if self.__node_info.equals(successor_node_info):
             # Provo ad ottenere il file. Potrei non averlo, in tal caso file diventa None
@@ -920,6 +937,10 @@ class Node:
 
         if not successor_node_info:
             raise FileNotFoundInChordError
+        else:
+            if not self.__im_alone:
+                if self.__predecessor_node.get_node_id() > self.__node_info.get_node_id() >= key:
+                    successor_node_info = self.__node_info
 
         if self.__node_info.equals(successor_node_info):
             self.delete_my_file(key)

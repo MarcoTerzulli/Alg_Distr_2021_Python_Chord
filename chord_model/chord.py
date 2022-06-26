@@ -138,7 +138,8 @@ class Chord:
         retries = 0
         while retries < self.__CONST_MAX_FILE_PUBLISH_RETRIES:
             # ottengo un nodo randomicamente
-            random_node = self._get_random_node()
+            random_node = self._get_first_node()
+            # random_node = self._get_random_node()
 
             # chord è vuoto
             if not random_node:
@@ -165,7 +166,8 @@ class Chord:
         """
 
         # ottengo un nodo randomicamente
-        random_node = self._get_random_node()
+        random_node = self._get_first_node()
+        # random_node = self._get_random_node()
 
         # chord è vuoto
         if not random_node:
@@ -184,7 +186,8 @@ class Chord:
         """
 
         # ottengo un nodo randomicamente
-        random_node = self._get_random_node()
+        random_node = self._get_first_node()
+        # random_node = self._get_random_node()
 
         # chord è vuoto
         if not random_node:
