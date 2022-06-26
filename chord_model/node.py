@@ -843,10 +843,6 @@ class Node:
 
         successor_node_info = self.find_key_successor(key)
 
-        # todo debug
-        if successor_node_info:
-            print(f"{self.__node_info.get_port()} il successore del file è {successor_node_info.get_port()}")
-
         if not successor_node_info:
             # cerco il più piccolo nodo sulla rete
             if not self.__successor_node_list.is_empty():
@@ -857,7 +853,7 @@ class Node:
             if not self.__im_alone:
                 if self.__predecessor_node.get_node_id() > self.__node_info.get_node_id() >= key:
                     successor_node_info = self.__node_info
-                    
+
         if not self.__node_info.equals(successor_node_info):
             try:
                 self.__tcp_request_sender_handler.send_publish_request(successor_node_info, key, file)
