@@ -438,11 +438,13 @@ class Node:
 
                 except (TCPRequestTimerExpiredError, TCPRequestSendError):
                     try:
-                        if self.__successor_node_list.get_first().get_node_id() == closest_predecessor_node_info.get_node_id():
-                            return self._search_the_smallest_node_in_chord()
-                        else:
-                            return self.__tcp_request_sender_handler.send_search_key_successor_request(
-                                self.__successor_node_list.get_first(), key)
+                        # if self.__successor_node_list.get_first().get_node_id() == closest_predecessor_node_info.get_node_id():
+                        #     return self._search_the_smallest_node_in_chord()
+                        # else:
+                        #     return self.__tcp_request_sender_handler.send_search_key_successor_request(
+                        #         self.__successor_node_list.get_first(), key)
+                        return self.__tcp_request_sender_handler.send_search_key_successor_request(
+                            self.__successor_node_list.get_first(), key)
                     except (TCPRequestTimerExpiredError, TCPRequestSendError):
                         self._repopulate_successor_list(0)
 
